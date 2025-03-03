@@ -69,7 +69,7 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull r
 Este projeto é licenciado sob a [MIT License](LICENSE). Sinta-se livre para usar, modificar e distribuir!
 
 ## 🧙‍♂️ Créditos
-- **Desenvolvido por:** Marques (seu nome ou pseudônimo aqui).
+- **Desenvolvido por:** Marques
 - **Inspiração:** Universo de Tormenta 20, criado pela Jambô Editora.
 - **Apoio:** Comunidade de RPG brasileira.
 
