@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forjador de Lendas | Gerador de Personagens RPG - Tormenta 20</title>
+    <!-- Reset CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Overlay de névoa -->
+    <div class="fog-overlay"></div>
+
+    <!-- Container principal -->
+    <div class="container is-fluid main-container">
+        <div class="initial-section">
+            <!-- Seção esquerda -->
+            <div class="left-section">
+                <!-- Header -->
+                <header class="hero">
+                    <div class="hero-body">
+                        <h1 class="title is-1 has-text-centered medieval-title">Forjador de Lendas</h1>
+                        <h2 class="subtitle has-text-centered">Crie heróis épicos para Arton</h2>
+                    </div>
+                </header>
+
+                <!-- Seção de criação de personagem -->
+                <div class="character-creation-section">
+                    <div class="character-panel-container">
+                        <div class="column is-12">
+                            <div class="box character-panel">
+                                <h3 class="title is-3 has-text-centered medieval-title">Crie seu Herói</h3>
+
+                                <!-- Formulário de criação -->
+                                <form id="characterForm">
+                                    <!-- Coluna da esquerda - Dados básicos -->
+                                    <div class="basic-info-column">
+                                        <div class="field">
+                                            <label class="label">Nome</label>
+                                            <div class="control has-icons-left">
+                                                <input class="input" type="text" id="charName"
+                                                    placeholder="Nome do personagem" required>
+                                                <span class="icon is-small is-left">
+                                                    <i class="fas fa-user"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="field">
+                                            <label class="label">Raça</label>
+                                            <div class="control has-icons-left">
+                                                <div class="select is-fullwidth">
+                                                    <select id="charRace">
+                                                        <option value="Humano">Humano</option>
+                                                        <option value="Anão">Anão</option>
+                                                        <option value="Dahllan">Dahllan</option>
+                                                        <option value="Elfo">Elfo</option>
+                                                        <option value="Goblin">Goblin</option>
+                                                        <option value="Lefou">Lefou</option>
+                                                        <option value="Minotauro">Minotauro</option>
+                                                        <option value="Qareen">Qareen</option>
+                                                        <option value="Golem">Golem</option>
+                                                        <option value="Hynne">Hynne</option>
+                                                        <option value="Kliren">Kliren</option>
+                                                        <option value="Medusa">Medusa</option>
+                                                        <option value="Osteon">Osteon</option>
+                                                        <option value="Sereia/Tritão">Sereia/Tritão</option>
+                                                        <option value="Sílfide">Sílfide</option>
+                                                        <option value="Suraggel">Suraggel</option>
+                                                        <option value="Trong">Trong</option>
+                                                    </select>
+                                                </div>
+                                                <span class="icon is-small is-left">
+                                                    <i class="fas fa-people-group"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="field">
+                                            <label class="label">Classe</label>
+                                            <div class="control has-icons-left">
+                                                <div class="select is-fullwidth">
+                                                    <select id="charClass">
+                                                        <option value="Arcanista">Arcanista</option>
+                                                        <option value="Bárbaro">Bárbaro</option>
+                                                        <option value="Bardo">Bardo</option>
+                                                        <option value="Bucaneiro">Bucaneiro</option>
+                                                        <option value="Caçador">Caçador</option>
+                                                        <option value="Cavaleiro">Cavaleiro</option>
+                                                        <option value="Clérigo">Clérigo</option>
+                                                        <option value="Druida">Druida</option>
+                                                        <option value="Guerreiro">Guerreiro</option>
+                                                        <option value="Inventor">Inventor</option>
+                                                        <option value="Ladino">Ladino</option>
+                                                        <option value="Lutador">Lutador</option>
+                                                        <option value="Nobre">Nobre</option>
+                                                        <option value="Paladino">Paladino</option>
+                                                    </select>
+                                                </div>
+                                                <span class="icon is-small is-left">
+                                                    <i class="fas fa-hat-wizard"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="field">
+                                            <label class="label">Alinhamento</label>
+                                            <div class="control has-icons-left">
+                                                <div class="select is-fullwidth">
+                                                    <select id="charAlignment">
+                                                        <option value="Leal e Bom">Leal e Bom</option>
+                                                        <option value="Neutro e Bom">Neutro e Bom</option>
+                                                        <option value="Caótico e Bom">Caótico e Bom</option>
+                                                        <option value="Leal e Neutro">Leal e Neutro</option>
+                                                        <option value="Neutro">Neutro</option>
+                                                        <option value="Caótico e Neutro">Caótico e Neutro</option>
+                                                        <option value="Leal e Mau">Leal e Mau</option>
+                                                        <option value="Neutro e Mau">Neutro e Mau</option>
+                                                        <option value="Caótico e Mau">Caótico e Mau</option>
+                                                    </select>
+                                                </div>
+                                                <span class="icon is-small is-left">
+                                                    <i class="fas fa-balance-scale"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Coluna da direita - Atributos -->
+                                    <div class="attributes-column">
+                                        <p class="title is-5 label medieval-title attributes-title">Atributos</p>
+                                        <div class="attributes-container">
+                                            <div class="field">
+                                                <label class="label">Força</label>
+                                                <div class="control">
+                                                    <input class="input" type="number" id="attrStr" min="3" max="18"
+                                                        value="10">
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Destreza</label>
+                                                <div class="control">
+                                                    <input class="input" type="number" id="attrDex" min="3" max="18"
+                                                        value="10">
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Constituição</label>
+                                                <div class="control">
+                                                    <input class="input" type="number" id="attrCon" min="3" max="18"
+                                                        value="10">
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Inteligência</label>
+                                                <div class="control">
+                                                    <input class="input" type="number" id="attrInt" min="3" max="18"
+                                                        value="10">
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Sabedoria</label>
+                                                <div class="control">
+                                                    <input class="input" type="number" id="attrWis" min="3" max="18"
+                                                        value="10">
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label class="label">Carisma</label>
+                                                <div class="control">
+                                                    <input class="input" type="number" id="attrCha" min="3" max="18"
+                                                        value="10">
+                                                </div>
+                                            </div>
+                                            <button type="button" id="rollAttributes"
+                                                class="button is-info is-fullwidth">
+                                                <span class="icon">
+                                                    <i class="fas fa-dice"></i>
+                                                </span>
+                                                <span>Rolar Atributos</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <!-- Descrição/Backstory -->
+                                <div class="column is-12">
+                                    <div class="field">
+                                        <label class="label">História de Fundo</label>
+                                        <div class="control">
+                                            <textarea class="textarea" id="charBackground"
+                                                placeholder="Descreva brevemente a história do seu personagem (opcional)"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botões -->
+                                <div class="column is-12">
+                                    <div class="field is-grouped is-grouped-centered">
+                                        <div class="control">
+                                            <button type="button" id="saveCharacter" class="button is-primary">
+                                                <span class="icon">
+                                                    <i class="fas fa-save"></i>
+                                                </span>
+                                                <span>Salvar Personagem</span>
+                                            </button>
+                                        </div>
+                                        <div class="control">
+                                            <button type="button" id="generateLore" class="button is-info">
+                                                <span class="icon">
+                                                    <i class="fas fa-book-open"></i>
+                                                </span>
+                                                <span>Gerar História</span>
+                                            </button>
+                                        </div>
+                                        <div class="control">
+                                            <button type="button" id="clearForm" class="button is-light">
+                                                <span class="icon">
+                                                    <i class="fas fa-undo"></i>
+                                                </span>
+                                                <span>Limpar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mago Companion -->
+        <div class="companion-container">
+            <div class="companion-speech-bubble hidden">
+                <p id="companionText">Olá, aventureiro! Estou aqui para ajudá-lo a criar sua lenda em Arton!</p>
+            </div>
+            <img src="assets/img/mago_avatar_upscayl_4x_realesrgan-x4plus.png" alt="Mago Companion"
+                class="companion-avatar">
+        </div>
+    </div>
+
+    <!-- Seção de personagens salvos -->
+    <div class="saved-characters-section">
+        <div class="container">
+            <div class="column is-8-desktop is-offset-2-desktop is-12-tablet">
+                <div class="box saved-characters">
+                    <h3 class="title is-4 has-text-centered medieval-title">Seus Heróis</h3>
+                    <div id="savedCharactersList" class="is-flex is-flex-wrap-wrap is-justify-content-center">
+                        <!-- Personagens salvos serão exibidos aqui via JavaScript -->
+                        <p class="empty-list-message">Nenhum herói criado ainda. Comece a forjar sua lenda!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para exibir o personagem -->
+    <div id="characterModal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title medieval-title">Detalhes do Herói</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <div id="characterDetails">
+                    <!-- Detalhes do personagem serão exibidos aqui -->
+                </div>
+                <div id="loreContent" class="mt-4">
+                    <h4 class="title is-5 medieval-title">História</h4>
+                    <div id="loreText" class="content">
+                        <!-- História gerada será exibida aqui -->
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" id="editCharacter">Editar</button>
+                <button class="button is-danger" id="deleteCharacter">Excluir</button>
+                <button class="button" id="closeModal">Fechar</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Modal de Carregamento para geração IA -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box has-text-centered">
+                <p class="title is-4 medieval-title">Invocando as Forças Arcanas</p>
+                <p>Nosso mago está trabalhando em sua história...</p>
+                <progress class="progress is-primary mt-3" max="100"></progress>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p id="footer-text">
+                <strong>Forjador de Lendas</strong> | Criado por Marques
+                <span class="icon">
+                    <i class="fas fa-dice-d20"></i>
+                </span>
+                2025
+            </p>
+        </div>
+    </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/companion.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
