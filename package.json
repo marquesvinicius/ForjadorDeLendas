@@ -1,0 +1,12 @@
+{
+  "name": "rpgcharactermaker2",
+  "version": "1.0.0",
+  "description": "Bem-vindo ao **Forjador de Lendas**, um gerador de personagens para o sistema de RPG **Tormenta 20**, ambientado no rico mundo de **Arton**. Este projeto permite criar heróis épicos com raças, classes, atributos e histórias de fundo geradas automaticamente, tudo envolto em uma interface com temática medieval e um mago companion interativo que guia o usuário.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

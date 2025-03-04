@@ -2,7 +2,9 @@ class MagoCompanion {
     constructor() {
         this.speechBubble = document.querySelector('.companion-speech-bubble');
         this.companionText = document.getElementById('companionText');
+        this.companionAvatar = document.querySelector('.companion-avatar');
         this.setupEventListeners();
+        this.setupMobileEvents();
         this.greet();
     }
 
@@ -40,20 +42,42 @@ class MagoCompanion {
         });
     }
 
-    speak(text, duration = null) {
-        // Remove qualquer timer existente
-        if (this.hideTimer) {
-            clearTimeout(this.hideTimer);
-            this.hideTimer = null;
-        }
+    setupMobileEvents() {
+        if (window.innerWidth <= 768) {
+            this.companionAvatar.addEventListener('click', () => {
+                if (this.speechBubble.classList.contains('hidden')) {
+                    this.showLastMessage();
+                } else {
+                    this.hideSpeechBubble();
+                }
+            });
 
+            // Esconde o balão quando clicar fora
+            document.addEventListener('click', (e) => {
+                if (!this.companionAvatar.contains(e.target) && 
+                    !this.speechBubble.contains(e.target)) {
+                    this.hideSpeechBubble();
+                }
+            });
+        }
+    }
+
+    speak(text, duration = null) {
+        this.lastMessage = text;
         this.speechBubble.classList.remove('hidden');
         this.speechBubble.classList.add('fade-in');
         this.companionText.textContent = text;
 
-        // Configura o timer apenas se duration for especificado
+        if (window.innerWidth <= 768) {
+            // Em mobile, pisca o avatar quando fala
+            this.companionAvatar.style.boxShadow = '0 0 15px var(--accent-color)';
+            setTimeout(() => {
+                this.companionAvatar.style.boxShadow = '';
+            }, 1000);
+        }
+
         if (duration) {
-            this.hideTimer = setTimeout(() => this.hideSpeechBubble(), duration);
+            setTimeout(() => this.hideSpeechBubble(), duration);
         }
     }
 
@@ -144,6 +168,12 @@ class MagoCompanion {
             "*Sopra os dados* Um toque de Wynna para sua sorte!"
         ];
         this.speak(responses[Math.floor(Math.random() * responses.length)]);
+    }
+
+    showLastMessage() {
+        if (this.lastMessage) {
+            this.speak(this.lastMessage);
+        }
     }
 }
 

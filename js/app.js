@@ -42,7 +42,11 @@ const storage = characterStorage;
 document.addEventListener('DOMContentLoaded', function() {
     loadCharacters();
     setupEventListeners();
-    magoCompanion.init();
+    if (typeof magoCompanion !== 'undefined') {
+        magoCompanion.init();
+    } else {
+        console.error('magoCompanion não está definido. Verifique companion.js');
+    }
 });
 
 // Configuração de listeners de eventos
@@ -100,9 +104,25 @@ function saveCharacter(e) {
 
     const savedCharacter = storage.saveCharacter(character);
     renderCharactersList();
+    
+    // Resetar o formulário e o botão de salvar
+    clearForm();
+    saveCharacterBtn.innerHTML = '<i class="fas fa-save"></i>&nbsp; Salvar Personagem';
+    saveCharacterBtn.classList.remove('is-warning');
+    saveCharacterBtn.style.color = '';
+    
+    // Feedback baseado em se foi uma criação ou atualização
+    const isUpdate = currentCharacterId !== null;
     currentCharacterId = null;
-    showMessage(`Personagem ${savedCharacter.name} salvo com sucesso!`, 'is-success');
-    magoCompanion.speak(`${savedCharacter.name} foi adicionado ao seu grimório de heróis!`, 4000);
+    
+    if (isUpdate) {
+        showMessage(`Personagem ${savedCharacter.name} atualizado com sucesso!`, 'is-success');
+        magoCompanion.speak(`${savedCharacter.name} foi atualizado em seu grimório!`, 4000);
+    } else {
+        showMessage(`Personagem ${savedCharacter.name} salvo com sucesso!`, 'is-success');
+        magoCompanion.speak(`${savedCharacter.name} foi adicionado ao seu grimório de heróis!`, 4000);
+    }
+    
     document.querySelector('.saved-characters-section').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -201,14 +221,35 @@ function openCharacterModal(characterId) {
         </div>
     `;
     document.getElementById('loreContent').style.display = 'none';
+    
+    // Configurar os botões do modal
+    const editBtn = document.getElementById('editCharacter');
+    const deleteBtn = document.getElementById('deleteCharacter');
+    const closeBtn = document.getElementById('closeModal');
+    
+    // Remover event listeners antigos para evitar duplicação
+    editBtn.replaceWith(editBtn.cloneNode(true));
+    deleteBtn.replaceWith(deleteBtn.cloneNode(true));
+    closeBtn.replaceWith(closeBtn.cloneNode(true));
+    
+    // Adicionar novos event listeners
+    document.getElementById('editCharacter').addEventListener('click', editCurrentCharacter);
+    document.getElementById('deleteCharacter').addEventListener('click', deleteCurrentCharacter);
+    document.getElementById('closeModal').addEventListener('click', () => closeModal(characterModal));
+    
     openModal(characterModal);
 }
 
 function editCurrentCharacter() {
     if (!currentCharacterId) return;
-    const character = characters.find(char => char.id === currentCharacterId);
-    if (!character) return;
     
+    const character = storage.getCharacterById(currentCharacterId);
+    if (!character) {
+        showMessage('Personagem não encontrado.', 'is-danger');
+        return;
+    }
+    
+    // Preencher o formulário com os dados do personagem
     document.getElementById('charName').value = character.name;
     document.getElementById('charRace').value = character.race;
     document.getElementById('charClass').value = character.class;
@@ -220,19 +261,57 @@ function editCurrentCharacter() {
     document.getElementById('attrWis').value = character.attributes.wisdom;
     document.getElementById('attrCha').value = character.attributes.charisma;
     document.getElementById('charBackground').value = character.background || '';
+    
+    // Atualizar o botão de salvar para indicar que é uma edição
+    saveCharacterBtn.innerHTML = '<i class="fas fa-save"></i>&nbsp; Atualizar Personagem';
+    saveCharacterBtn.classList.add('is-warning');
+    
+    // Garantir que o texto permaneça branco
+    saveCharacterBtn.style.color = 'white';
+    
+    // Fechar o modal e rolar para o formulário
     closeModal(characterModal);
     characterForm.scrollIntoView({ behavior: 'smooth' });
+    
+    // Feedback visual
+    showMessage('Editando personagem: ' + character.name, 'is-info');
+    if (typeof magoCompanion !== 'undefined') {
+        magoCompanion.speak(`Editando ${character.name}. Faça suas alterações!`, 3000);
+    }
 }
 
 function deleteCurrentCharacter() {
     if (!currentCharacterId) return;
-    if (confirm('Tem certeza que deseja excluir este personagem?')) {
-        characters = characters.filter(char => char.id !== currentCharacterId);
-        saveCharacters();
-        renderCharactersList();
-        closeModal(characterModal);
-        currentCharacterId = null;
-        showMessage('Personagem excluído com sucesso!', 'is-warning');
+    
+    // Confirmar exclusão
+    if (confirm('Tem certeza que deseja excluir este personagem? Esta ação não pode ser desfeita.')) {
+        const character = storage.getCharacterById(currentCharacterId);
+        if (!character) {
+            showMessage('Personagem não encontrado.', 'is-danger');
+            return;
+        }
+        
+        // Excluir o personagem
+        const success = storage.deleteCharacter(currentCharacterId);
+        
+        if (success) {
+            // Atualizar a lista de personagens
+            renderCharactersList();
+            
+            // Fechar o modal
+            closeModal(characterModal);
+            
+            // Feedback visual
+            showMessage(`Personagem ${character.name} excluído com sucesso!`, 'is-warning');
+            if (typeof magoCompanion !== 'undefined') {
+                magoCompanion.speak(`${character.name} foi removido do seu grimório de heróis!`, 3000);
+            }
+            
+            // Resetar o ID atual
+            currentCharacterId = null;
+        } else {
+            showMessage('Erro ao excluir personagem.', 'is-danger');
+        }
     }
 }
 
@@ -245,96 +324,114 @@ function openLoadingModal() {
     
     loadingModal.classList.add('is-active');
     
-    // Garantimos que o modal está centralizado na viewport visível
     const modalContent = loadingModal.querySelector('.modal-content');
     if (modalContent) {
-        // Obtém as dimensões da viewport
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
         const modalHeight = modalContent.offsetHeight;
         const modalWidth = modalContent.offsetWidth;
 
-        // Calcula a posição central na viewport
         const topPosition = (viewportHeight - modalHeight) / 2 + window.scrollY;
         const leftPosition = (viewportWidth - modalWidth) / 2 + window.scrollX;
 
-        // Aplica as coordenadas dinamicamente
         modalContent.style.top = `${topPosition}px`;
         modalContent.style.left = `${leftPosition}px`;
-        modalContent.style.transform = 'none'; // Remove o transform para usar top/left
+        modalContent.style.transform = 'none';
         modalContent.style.opacity = '0';
         
-        // Animação de aparecimento
         setTimeout(() => {
             modalContent.style.opacity = '1';
         }, 50);
-
-        console.log('Modal de carregamento centralizado na viewport:', { top: topPosition, left: leftPosition });
     }
 }
 
-// Modificamos a função generateCharacterLore para usar a nova função
-function generateCharacterLore() {
-    let characterData;
-    if (currentCharacterId) {
-        characterData = storage.getCharacterById(currentCharacterId);
-    } else {
-        characterData = {
-            name: document.getElementById('charName').value,
-            race: document.getElementById('charRace').value,
-            class: document.getElementById('charClass').value,
-            alignment: document.getElementById('charAlignment').value,
-            attributes: {
-                strength: parseInt(document.getElementById('attrStr').value),
-                dexterity: parseInt(document.getElementById('attrDex').value),
-                constitution: parseInt(document.getElementById('attrCon').value),
-                intelligence: parseInt(document.getElementById('attrInt').value),
-                wisdom: parseInt(document.getElementById('attrWis').value),
-                charisma: parseInt(document.getElementById('attrCha').value)
+// Função para gerar o prompt com contexto de raças e classes
+function generatePrompt(characterData) {
+    const raceSummaries = {
+        'Humano': 'Versátil e adaptável, sem bônus ou penalidades especiais. Representam a maioria em Arton, com grande presença em cidades como Valkaria.',
+        'Anão': 'Robustos e resilientes, com bônus em Constituição e penalidade em Carisma. Habitam montanhas como Doherimm, são exímios mineiros e ferreiros.',
+        'Dahllan': 'Semelhantes a meio-elfos, ligados à natureza, com bônus em Sabedoria e Destreza, penalidade em Inteligência. Têm habilidades relacionadas a plantas e animais, como lançar magias de controle de plantas.',
+        'Elfo': 'Graciosos e longevos, com bônus em Destreza e Inteligência, penalidade em Constituição. Vivem em florestas como Lenórienn, são arqueros e magos habilidosos.',
+        'Goblin': 'Pequenos e astutos, com bônus em Destreza, penalidades em Força ou Carisma. Especializados em furtividade e armadilhas, comuns em áreas como Tollon.',
+        'Lefou': 'Meio-demônios afetados pela Tormenta, com bônus em dois atributos (exceto Carisma) e penalidade em Carisma. Têm visão no escuro e habilidades monstruosas, ligados à escuridão.',
+        'Minotauro': 'Fortes e ferozes, com bônus em Força e Constituição, penalidades em Inteligência ou Carisma. Excelentes em combate, intimidam facilmente, habitam áreas selvagens.',
+        'Qareen': 'Meio-gênios com habilidades mágicas, bônus em Carisma e Inteligência, penalidade em Sabedoria. Podem conceder desejos, com resistência a elementos, comuns em áreas mágicas.',
+        'Golem': 'Seres artificiais, com alta resistência e força, sem necessidade de sono ou comida. Podem ter imunidades a certos efeitos, como medo.',
+        'Hynne': 'Pequenas criaturas mágicas, com bônus em Destreza e Carisma, penalidade em Força. Têm habilidades de sorte, como rolar novamente testes de resistência, e são ágeis.',
+        'Kliren': 'Semelhantes a gnomos, com bônus em Inteligência, penalidade em Força. Têm habilidades lógicas, como usar Inteligência em testes variados, e são engenhosos.',
+        'Medusa': 'Inspiradas na mitologia, com possíveis habilidades de petrificação, bônus em Carisma ou Destreza. Têm aparência exótica, comuns em áreas isoladas.',
+        'Osteon': 'Esqueletos animados, possivelmente não mortos, com imunidades a efeitos como sono, bônus em Constituição. Têm resistência física elevada.',
+        'Sereia/Tritão': 'Seres aquáticos, com bônus em Destreza e Constituição, habilidades de natação e sobrevivência na água, ligados a oceanos e rios.',
+        'Sílfide': 'Relacionadas ao ar e vento, com bônus em Destreza e Inteligência, habilidades mágicas ligadas ao elemento, leves e ágeis.',
+        'Suraggel': 'Descendentes de anjos ou demônios, com bônus em Sabedoria ou Carisma, habilidades baseadas em sua herança divina ou infernal, ligados a planos espirituais.',
+        'Trong': 'Provavelmente trolls ou criaturas similares, com bônus em Força e Constituição, habilidades de regeneração, resistentes e ferozes em combate.'
+    };
+
+    const classSummaries = {
+        'Arcanista': 'Especialista em magias arcanas, lança feitiços ofensivos e utilitários, como estudante da Academia Arcana de Yuden, central em combate mágico.',
+        'Bárbaro': 'Guerreiro focado em força e fúria, ganha bônus em dano e resistência ao entrar em raiva, ideal para combates brutais, comum em áreas selvagens.',
+        'Bardo': 'Carismático, usa música e performance para inspirar aliados e manipular inimigos, lança magias leves, central em interações sociais, como em tavernas de Norm.',
+        'Bucaneiro': 'Espadachim e navegador, com habilidades de acrobacia e pirataria, proficiente em espadas e navegação, comum em mares e portos como Portsmonth.',
+        'Caçador': 'Rastreador e arqueiro, com habilidades de sobrevivência e manejo de animais, protege fronteiras, como nas florestas de Sckharshantallas, versátil em combate à distância.',
+        'Cavaleiro': 'Cavaleiro montado, focado em combate com armadura pesada e lança, segue código de cavalaria, central em batalhas organizadas, como em Vectora.',
+        'Clérigo': 'Sacerdote devoto, cura aliados e combate com magias divinas, ligado a deuses como Khalmyr, essencial em apoio e combate contra o mal.',
+        'Druida': 'Conectado à natureza, lança magias baseadas em elementos, pode se transformar, protege florestas, como em Lenórienn, central em equilíbrio natural.',
+        'Guerreiro': 'Combatente geral, proficiente em armas e armaduras, equilibrado sem especializações, comum em batalhas diversas, como em Norm.',
+        'Inventor': 'Tecnólogo, cria gadgets e máquinas, usa dispositivos em combate e exploração, inovador, central em estratégias criativas, como em Deheon.',
+        'Ladino': 'Ladrão furtivo, especialista em furtividade, armadilhas e ataques sorrateiros, comum em ruas de Malpetrim, central em missões clandestinas.',
+        'Lutador': 'Combatente corpo a corpo, focado em artes marciais, proficiente em lutas desarmadas, ágil em combate próximo, como em arenas.',
+        'Nobre': 'Classe de status social, com liderança e influência, pode ter treinamento em combate, central em política e diplomacia, como em Valkaria.',
+        'Paladino': 'Guerreiro sagrado, segue código de honra, lança magias divinas, combate o mal, como em Yuden, central em missões de justiça.'
+    };
+
+    const raceSummary = raceSummaries[characterData.race] || raceSummaries['Humano'];
+    const classSummary = classSummaries[characterData.class] || classSummaries['Guerreiro'];
+
+    return `
+        Gere uma história curta (100-200 palavras) para um personagem de RPG no mundo de Arton, do sistema Tormenta 20. Aqui estão os detalhes do personagem:
+        - Nome: ${characterData.name}
+        - Raça: ${characterData.race} (${raceSummary})
+        - Classe: ${characterData.class} (${classSummary})
+        - Alinhamento: ${characterData.alignment}
+        - Atributos: Força ${characterData.attributes.strength}, Destreza ${characterData.attributes.dexterity}, Constituição ${characterData.attributes.constitution}, Inteligência ${characterData.attributes.intelligence}, Sabedoria ${characterData.attributes.wisdom}, Carisma ${characterData.attributes.charisma}
+        A história deve ser escrita em português, em um estilo de fantasia épica, refletindo o lore de Arton e as características da raça e classe do personagem.
+    `;
+}
+
+// Função para chamar o servidor local Python
+async function fetchBackstoryFromLocal(prompt) {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            background: document.getElementById('charBackground').value
-        };
-    }
-    
-    if (!characterData.name) {
-        showMessage('Por favor, dê um nome ao seu personagem antes de gerar sua história.', 'is-danger');
-        return;
-    }
-    
-    // Usa a nova função para abrir o modal de carregamento
-    openLoadingModal();
-    
-    // Faz o Mago reagir
-    magoCompanion.speak("Deixe-me consultar os pergaminhos antigos...", 3000);
-    
-    setTimeout(() => {
-        const lore = generateSimpleLore(characterData);
-        const cleanLore = lore.replace(/<[^>]*>/g, '').trim();
-        const backgroundTextArea = document.getElementById('charBackground');
-        backgroundTextArea.value = cleanLore;
-        
-        if (currentCharacterId) {
-            const character = storage.getCharacterById(currentCharacterId);
-            if (character) {
-                character.background = cleanLore;
-                storage.saveCharacter(character);
-            }
+            body: JSON.stringify({ prompt: prompt })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro na requisição ao servidor local: ' + response.statusText);
         }
-        
-        closeModal(loadingModal);
-        showMessage('História gerada com sucesso!', 'is-success');
-        backgroundTextArea.classList.add('highlight');
-        setTimeout(() => backgroundTextArea.classList.remove('highlight'), 1000);
-        
-        // Faz o Mago reagir após gerar a história
-        magoCompanion.speak("Ah! Uma história digna de ser contada nas tavernas de Arton!", 3000);
-    }, 3000);
+
+        const data = await response.json();
+        console.log('Resposta do servidor local:', data);
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        return data.backstory || null;
+    } catch (error) {
+        console.error('Erro ao gerar história localmente:', error);
+        return null;
+    }
 }
 
+// Função antiga como fallback
 function generateSimpleLore(character) {
     const raceTemplates = {
         'Humano': [
-            `Nascido em Valkaria, ${character.name} cresceu sob a proteção da Deusa da Humanidade.`,
+            `Nascido na cidade de Valkaria, ${character.name} cresceu sob a proteção da Deusa da Humanidade.`,
             `Originário de Nova Malpetrim, ${character.name} enfrentou os perigos da Tormenta desde jovem.`,
             `Vindo de Tamu-ra, ${character.name} deixou sua vila para buscar um destino maior em Arton.`
         ],
@@ -381,7 +478,7 @@ function generateSimpleLore(character) {
         'Hynne': [
             `${character.name} nasceu em Tapista, entre halflings e suas festas alegres.`,
             `Criado em Fortuna, ${character.name} usa sua sorte para escapar de perigos.`,
-            `${character.name} veio de Pequeno Povo, pequeno mas cheio de bravura.`
+            `Vindo de Pequeno Povo, ${character.name} é pequeno mas cheio de bravura.`
         ],
         'Kliren': [
             `${character.name} nasceu em Triunfo, obcecado por enigmas e invenções.`,
@@ -512,7 +609,7 @@ function generateSimpleLore(character) {
         ],
         'Neutro': [
             `${character.name} busca equilíbrio, julgando cada caso em Arton.`,
-            `Sem extremos, ${character.name} vive conforme a situação exige.`
+            `${character.name} vive conforme a situação exige, sem extremos.`
         ],
         'Caótico e Neutro': [
             `${character.name} valoriza sua liberdade acima de tudo em Arton.`,
@@ -568,17 +665,76 @@ function generateSimpleLore(character) {
     ];
     const adventureText = adventureHooks[Math.floor(Math.random() * adventureHooks.length)];
 
-    let backgroundText = '';
-    if (character.background && character.background.trim() !== '') {
-        backgroundText = `<p><em>${character.background}</em></p>`;
-    }
+    return `${raceText} ${classText} ${alignmentText} ${attributeText} ${adventureText}`;
+}
 
-    return `
-        <p>${raceText} ${classText}</p>
-        <p>${alignmentText} ${attributeText}</p>
-        <p>${adventureText}</p>
-        ${backgroundText}
-    `;
+// Função atualizada para gerar a história com o servidor local e corrigir o textArea
+async function generateCharacterLore() {
+    let characterData;
+    if (currentCharacterId) {
+        characterData = storage.getCharacterById(currentCharacterId);
+    } else {
+        characterData = {
+            name: document.getElementById('charName').value,
+            race: document.getElementById('charRace').value,
+            class: document.getElementById('charClass').value,
+            alignment: document.getElementById('charAlignment').value,
+            attributes: {
+                strength: parseInt(document.getElementById('attrStr').value),
+                dexterity: parseInt(document.getElementById('attrDex').value),
+                constitution: parseInt(document.getElementById('attrCon').value),
+                intelligence: parseInt(document.getElementById('attrInt').value),
+                wisdom: parseInt(document.getElementById('attrWis').value),
+                charisma: parseInt(document.getElementById('attrCha').value)
+            },
+            background: document.getElementById('charBackground').value
+        };
+    }
+    
+    if (!characterData.name) {
+        showMessage('Por favor, dê um nome ao seu personagem antes de gerar sua história.', 'is-danger');
+        return;
+    }
+    
+    openLoadingModal();
+    if (typeof magoCompanion !== 'undefined') {
+        magoCompanion.speak("Deixe-me consultar os pergaminhos antigos...", 3000);
+    }
+    
+    const prompt = generatePrompt(characterData);
+    console.log('Prompt enviado:', prompt);
+    const backstoryFromLocal = await fetchBackstoryFromLocal(prompt);
+    
+    let finalBackstory;
+    if (backstoryFromLocal) {
+        finalBackstory = backstoryFromLocal;
+        if (typeof magoCompanion !== 'undefined') {
+            magoCompanion.speak("Uma história digna das tavernas de Arton!", 3000);
+        }
+    } else {
+        console.log('Servidor local falhou, usando fallback...');
+        finalBackstory = generateSimpleLore(characterData);
+        if (typeof magoCompanion !== 'undefined') {
+            magoCompanion.speak("Minha magia falhou, mas os velhos contos ainda servem!", 3000);
+        }
+        showMessage('O servidor local falhou, mas geramos uma história alternativa!', 'is-warning');
+    }
+    
+    const backgroundTextArea = document.getElementById('charBackground');
+    backgroundTextArea.value = finalBackstory;
+    
+    if (currentCharacterId) {
+        const character = storage.getCharacterById(currentCharacterId);
+        if (character) {
+            character.background = finalBackstory;
+            storage.saveCharacter(character);
+        }
+    }
+    
+    closeModal(loadingModal);
+    showMessage('História gerada com sucesso!', 'is-success');
+    backgroundTextArea.classList.add('highlight');
+    setTimeout(() => backgroundTextArea.classList.remove('highlight'), 1000);
 }
 
 function openModal(modal) {
@@ -621,15 +777,9 @@ function showMessage(message, type = 'is-info') {
 }
 
 function clearForm() {
+    characterForm.reset();
     currentCharacterId = null;
-    document.getElementById('characterForm').reset();
-    document.getElementById('attrStr').value = 10;
-    document.getElementById('attrDex').value = 10;
-    document.getElementById('attrCon').value = 10;
-    document.getElementById('attrInt').value = 10;
-    document.getElementById('attrWis').value = 10;
-    document.getElementById('attrCha').value = 10;
-    document.getElementById('charBackground').value = '';
-    document.getElementById('charName').focus();
-    magoCompanion.speak("Pronto para forjar um novo herói de Arton? Vamos lá!", 3000);
+    saveCharacterBtn.innerHTML = '<i class="fas fa-save"></i>&nbsp; Salvar Personagem';
+    saveCharacterBtn.classList.remove('is-warning');
+    saveCharacterBtn.style.color = '';
 }

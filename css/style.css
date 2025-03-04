@@ -43,6 +43,11 @@ body {
     z-index: 10;
 }
 
+#charName::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
 #charBackground::placeholder {
     color: var(--text-color);
     opacity: 0.5;
@@ -564,4 +569,300 @@ body {
 .character-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajustes gerais para mobile */
+@media screen and (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+    }
+    
+
+    .main-container {
+        padding: 1rem;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    #characterForm {
+        flex-direction: column;
+        padding: 0.5rem;
+    }
+
+    .basic-info-column {
+        flex: 1;
+        border-right: none;
+        border-bottom: 0px solid var(--panel-border);
+        padding-right: 0;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    .attributes-column {
+        padding-left: 0;
+    }
+
+    .attributes-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .attributes-container .input {
+        font-size: 1rem;
+        height: 2rem;
+        padding: 0.25rem;
+    }
+
+    /* Ajuste do Mago Companion para mobile */
+    .companion-container {
+        padding: 0;
+        margin: 0;
+        right: -8%;
+        position: fixed;
+        width: 120px;
+        height: 80px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .companion-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        object-fit: cover;
+        background-color: var(--panel-bg);
+        z-index: 1002;
+    }
+
+    .companion-speech-bubble {
+        position: absolute;
+        left: -20px;
+        transform: translateX(-100%);
+        width: calc(90vw - 130px);
+        max-width: none;
+        min-width: 150px;
+        height: fit-content;
+        padding: 15px;
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 15px;
+        z-index: 1001;
+    }
+
+    .companion-speech-bubble p {
+        margin: 0;
+        padding: 0;
+        line-height: 1.4;
+        color: var(--text-color);
+        font-size: 1rem;
+        word-wrap: break-word;
+    }
+
+    .companion-speech-bubble::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        width: 0;
+        height: 0;
+        transform: translateY(-50%);
+        border-left: 12px solid var(--accent-color);
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+    }
+
+    /* Ajuste do footer para não sobrepor o companion */
+    .footer {
+        padding-bottom: 10px;
+    }
+
+    /* Garantir que o container principal não cause overflow */
+    .main-container {
+        overflow-x: hidden;
+        width: 100%;
+        margin-bottom: 60px;
+    }
+
+    /* Ajuste para telas muito pequenas */
+    @media screen and (max-width: 320px) {
+        .companion-speech-bubble {
+            width: calc(85vw - 100px);
+            min-width: 120px;
+        }
+    }
+
+    /* Ajuste dos botões em mobile */
+    .field.is-grouped.is-grouped-centered {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 1rem;
+    }
+
+    .field.is-grouped.is-grouped-centered .control {
+        width: 100%;
+        margin: 0.25rem 0 !important;
+    }
+
+    .field.is-grouped.is-grouped-centered .control .button {
+        width: 100%;
+        justify-content: center;
+        height: 3rem; /* Altura maior para melhor toque */
+    }
+
+    /* Define a ordem dos botões */
+    .field.is-grouped.is-grouped-centered .control:nth-child(1) { order: 3; } /* Salvar */
+    .field.is-grouped.is-grouped-centered .control:nth-child(2) { order: 1; } /* Gerar História */
+    .field.is-grouped.is-grouped-centered .control:nth-child(3) { order: 2; } /* Limpar */
+
+    /* Ajuste dos modais para mobile */
+    #characterModal .modal-card {
+        width: 95%;
+        margin: 0.5rem;
+        max-height: 95vh;
+    }
+
+    #loadingModal .modal-content {
+        width: 90%;
+        margin: 1rem;
+    }
+
+    /* Ajuste da lista de personagens para mobile */
+    .saved-characters-section {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    .saved-characters-section .title {
+        margin-bottom: 1rem !important;
+    }
+
+    .main-container {
+        overflow-x: hidden;
+        width: 100%;
+        margin-bottom: 2rem;
+        gap: 1rem;
+    }
+
+    .character-card {
+        width: 45%;
+        margin: 0.25rem;
+    }
+
+    .hero {
+        margin-bottom: .5rem !important;
+    }
+
+    /* Ajuste dos títulos */
+    .title {
+        margin-bottom: 0.5rem !important; /* Reduz espaço após o título principal */
+    }
+
+    .subtitle {
+        margin-top: 0 !important; /* Aumenta espaço após o subtítulo */
+        margin-bottom: 0 !important; /* Aumenta espaço antes do form */
+    }
+
+    /* Ajuste do espaçamento do form */
+    .form-title {
+        margin-bottom: 0 !important; /* Reduz espaço entre "Crie seu herói" e o form */
+    }
+
+    /* Ajuste do primeiro campo do form */
+    .field:first-of-type {
+        margin-top: 0; /* Reduz espaço antes do primeiro campo */
+    }
+}
+
+/* Companion em formato normal para telas grandes */
+@media screen and (min-width: 102px) {
+    .companion-container {
+        width: 67%;
+        height: 80%;
+        position: fixed;
+        top: -1%;
+        right: -12%;
+        display: block;
+        padding: 1rem;
+        z-index: -1;
+    }
+
+    .companion-avatar {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .companion-speech-bubble {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid var(--panel-border);
+        border-radius: 15px;
+        padding: 15px;
+        width: 280px;
+        position: absolute;
+        top: 13%;
+        left: 20%;
+        color: var(--secondary-color);
+        font-family: 'MedievalSharp', cursive;
+        z-index: 5;
+    }
+}
+
+/* Companion em formato circular para telas menores que 1020px */
+@media screen and (max-width: 1019px) {
+    .companion-container {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 80px;
+        height: 80px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .companion-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        object-fit: cover;
+        background-color: var(--panel-bg);
+        z-index: 1002;
+    }
+
+    .companion-speech-bubble {
+        position: absolute;
+        left: -20px;
+        transform: translateX(-100%);
+        width: calc(90vw - 130px);
+        max-width: none;
+        min-width: 150px;
+        height: fit-content;
+        padding: 15px;
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 15px;
+        z-index: 1001;
+    }
+
+    /* Garantir que o texto do balão use a cor correta em todas as telas abaixo de 1020px */
+    .companion-speech-bubble p {
+        color: var(--text-color) !important;
+        margin: 0;
+        padding: 0;
+        line-height: 1.4;
+        font-size: 1rem;
+        word-wrap: break-word;
+    }
 }
