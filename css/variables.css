@@ -1,0 +1,10 @@
+/* Estilo Base */
+:root {
+    --primary-color: #8B5A2B;
+    --secondary-color: #4A2511;
+    --accent-color: #D4AF37;
+    --bg-color: #2C1B0F;
+    --text-color: #E8DBBE;
+    --panel-bg: rgba(35, 25, 15, 0.85);
+    --panel-border: #8B5A2B;
+}

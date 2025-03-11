@@ -1,0 +1,63 @@
+/* Cartões de personagens */
+.character-card {
+    background-color: rgba(35, 25, 15, 0.9);
+    border: 2px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem;
+    width: 200px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.character-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    border-color: var(--accent-color);
+}
+
+.character-card .card-header {
+    background-color: rgba(30, 20, 10, 0.8);
+    border-radius: 5px 5px 0 0;
+    padding: 0.5rem;
+}
+
+.character-card .card-content {
+    padding: 0.5rem;
+}
+
+.character-card .subtitle {
+    color: var(--text-color);
+}
+
+.character-avatar {
+    background-color: var(--bg-color);
+    border: 2px solid var(--panel-border);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-avatar i {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+}
+
+.empty-list-message {
+    color: rgba(232, 219, 190, 0.6);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+}
+
+.saved-characters-section {
+    background-color: rgba(35, 25, 15, 1);
+    width: 100vw;
+    padding: 2rem 0;
+    margin-top: 2rem;
+    position: relative;
+}

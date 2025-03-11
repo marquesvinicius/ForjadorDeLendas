@@ -1,0 +1,10 @@
+/* Footer */
+.footer {
+    background-color: rgba(30, 20, 10, 1);
+    border-top: 1px solid var(--panel-border);
+    padding: 1.5rem;
+}
+
+#footer-text strong {
+    color: var(--text-color);
+}

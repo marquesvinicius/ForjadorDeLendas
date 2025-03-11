@@ -1,0 +1,28 @@
+/* Botões */
+.button {
+    font-family: 'MedievalSharp', cursive;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button.is-primary {
+    background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+}
+
+.button.is-primary:hover {
+    background: linear-gradient(145deg, var(--secondary-color), var(--primary-color));
+}
+
+.button.is-info {
+    background-color: #4a6fa5;
+}
+
+.button.is-info:hover {
+    background-color: #3a5a8c;
+}

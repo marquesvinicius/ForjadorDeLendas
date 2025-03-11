@@ -1,0 +1,38 @@
+/* Estilos de formulários */
+.label {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.input, .textarea, .select select {
+    background-color: rgba(40, 30, 20, 0.7);
+    border-color: var(--panel-border);
+    color: var(--text-color);
+    transition: all 0.3s;
+}
+
+.input:focus, .textarea:focus, .select select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.125em rgba(212, 175, 55, 0.25);
+}
+
+#charName::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+#charBackground::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+/* Efeito de highlight para a textArea */
+@keyframes highlightBackground {
+    0% { background-color: rgba(35, 25, 15, 0.7); }
+    50% { background-color: rgba(212, 175, 55, 0.2); }
+    100% { background-color: rgba(35, 25, 15, 0.7); }
+}
+
+.highlight {
+    animation: highlightBackground 1s ease;
+}

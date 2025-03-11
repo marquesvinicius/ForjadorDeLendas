@@ -1,0 +1,12 @@
+/* Arquivo principal que importa todos os outros */
+@import 'variables.css';
+@import 'base.css';
+@import 'header.css';
+@import 'forms.css';
+@import 'buttons.css';
+@import 'character-creation.css';
+@import 'character-cards.css';
+@import 'companion.css';
+@import 'modals.css';
+@import 'footer.css';
+@import 'responsive.css';

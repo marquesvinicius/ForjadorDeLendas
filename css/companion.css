@@ -1,0 +1,61 @@
+/* Estilo padrão do companion para telas grandes */
+.companion-container {
+    width: 67%;
+    height: 80%;
+    position: fixed;
+    top: -1%;
+    right: -12%;
+    display: block;
+    padding: 1rem;
+    z-index: 10;
+}
+
+.companion-avatar {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.companion-speech-bubble {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--panel-border);
+    border-radius: 15px;
+    padding: 15px;
+    width: 280px;
+    position: absolute;
+    top: 13%;
+    left: 20%;
+    color: var(--secondary-color);
+    font-family: 'MedievalSharp', cursive;
+    z-index: 5;
+}
+
+.companion-speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 30px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid var(--panel-border);
+}
+
+/* Draggable handle for the speech bubble */
+.bubble-drag-handle {
+    height: 10px;
+    width: 50px;
+    background-color: var(--accent-color);
+    opacity: 0.5;
+    border-radius: 5px;
+    margin: -5px auto 10px;
+    cursor: grab;
+}
+
+.bubble-drag-handle:active {
+    cursor: grabbing;
+}

@@ -1,0 +1,79 @@
+/* Seção de criação de personagem */
+.character-creation-section {
+    display: flex;
+    position: relative;
+    width: 90%;
+    min-height: 600px;
+    border-radius: 15px;
+    align-self: center;
+}
+
+.character-panel-container {
+    width: 100%;
+}
+
+.character-panel {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Ajustes no layout do formulário de criação */
+#characterForm {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+/* Coluna da esquerda (dados básicos) */
+.basic-info-column {
+    flex: 0 0 58%;
+    border-right: 2px solid var(--panel-border);
+    padding-right: 2rem;
+}
+
+/* Coluna da direita (atributos) */
+.attributes-column {
+    flex: 1;
+    padding-left: 1rem;
+}
+
+.attributes-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.attributes-container .field {
+    margin-bottom: 0.5rem;
+}
+
+.attributes-container .input {
+    text-align: center;
+    font-size: 1.2rem;
+    height: 2.5rem;
+}
+
+/* Título dos atributos */
+.attributes-title {
+    grid-column: span 2;
+    margin-bottom: 1rem !important;
+}
+
+/* Botão de rolar atributos */
+#rollAttributes {
+    grid-column: span 2;
+    margin-top: 1rem;
+}
+
+/* Atributos */
+.attributes-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.attributes-container .button {
+    grid-column: span 2;
+    margin-top: 0.5rem;
+}
