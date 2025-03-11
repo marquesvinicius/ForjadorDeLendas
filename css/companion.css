@@ -1,4 +1,4 @@
-/* Estilo padrão do companion para telas grandes */
+/* Companion à direita */
 .companion-container {
     width: 67%;
     height: 80%;
@@ -7,7 +7,7 @@
     right: -12%;
     display: block;
     padding: 1rem;
-    z-index: 10;
+    z-index: -1;
 }
 
 .companion-avatar {
@@ -43,19 +43,4 @@
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-top: 10px solid var(--panel-border);
-}
-
-/* Draggable handle for the speech bubble */
-.bubble-drag-handle {
-    height: 10px;
-    width: 50px;
-    background-color: var(--accent-color);
-    opacity: 0.5;
-    border-radius: 5px;
-    margin: -5px auto 10px;
-    cursor: grab;
-}
-
-.bubble-drag-handle:active {
-    cursor: grabbing;
 }

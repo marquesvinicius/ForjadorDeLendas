@@ -13,10 +13,20 @@
     .character-creation-section {
         width: 100%;
     }
+
+    .companion-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        top: auto;
+        width: auto;
+        height: auto;
+        z-index: 100;
+    }
 }
 
 /* Companion em formato normal para telas grandes */
-@media screen and (min-width: 1024px) {
+@media screen and (min-width: 102px) {
     .companion-container {
         width: 67%;
         height: 80%;
@@ -50,36 +60,25 @@
         font-family: 'MedievalSharp', cursive;
         z-index: 5;
     }
-    
-    .companion-speech-bubble::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        right: 30px;
-        width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-top: 10px solid var(--panel-border);
-    }
 }
 
-/* Companion estilo messenger para telas menores que 1024px */
-@media screen and (max-width: 1023px) {
+/* Companion em formato circular para telas menores que 1020px */
+@media screen and (max-width: 1019px) {
     .companion-container {
         position: fixed;
-        bottom: 20px;
+        bottom: 80px;
         right: 20px;
-        width: 70px;
-        height: 70px;
+        width: 80px;
+        height: 80px;
         z-index: 1000;
-        padding: 0;
-        display: block;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
     }
 
     .companion-avatar {
-        width: 70px;
-        height: 70px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         border: 2px solid var(--accent-color);
         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
@@ -89,17 +88,21 @@
     }
 
     .companion-speech-bubble {
-        /* Make sure the bubble is not hidden by overflow */
+        position: absolute;
+        left: -20px;
+        transform: translateX(-100%);
+        width: calc(90vw - 130px);
+        max-width: none;
+        min-width: 150px;
+        height: fit-content;
+        padding: 15px;
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 15px;
         z-index: 1001;
-        position: fixed; /* Use fixed instead of absolute to allow positioning anywhere on screen */
-        /* Default position - will be overridden by dragging */
-        bottom: 85px;
-        right: 0;
-        
-        /* Add transition for smoother dragging visual */
-        transition: box-shadow 0.3s ease; /* Only animate shadow, not position */
     }
 
+    /* Garantir que o texto do balão use a cor correta em todas as telas abaixo de 1020px */
     .companion-speech-bubble p {
         color: var(--text-color) !important;
         margin: 0;
@@ -107,22 +110,6 @@
         line-height: 1.4;
         font-size: 1rem;
         word-wrap: break-word;
-    }
-
-    .companion-speech-bubble::after {
-        content: '';
-        position: absolute;
-        top: auto;
-        bottom: -12px;
-        right: 25px;
-        width: 0;
-        height: 0;
-        border-left: 12px solid transparent;
-        border-right: 12px solid transparent;
-        border-top: 12px solid var(--accent-color);
-        border-bottom: none;
-        transform: none;
-        left: auto;
     }
 }
 
@@ -138,7 +125,6 @@
         padding: 1rem;
         width: 100%;
         overflow-x: hidden;
-        margin-bottom: 60px;
     }
 
     #characterForm {
@@ -170,15 +156,78 @@
         padding: 0.25rem;
     }
 
+    /* Ajuste do Mago Companion para mobile */
+    .companion-container {
+        padding: 0;
+        margin: 0;
+        right: -8%;
+        position: fixed;
+        width: 120px;
+        height: 80px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .companion-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        object-fit: cover;
+        background-color: var(--panel-bg);
+        z-index: 1002;
+    }
+
+    .companion-speech-bubble {
+        position: absolute;
+        left: -20px;
+        transform: translateX(-100%);
+        width: calc(90vw - 130px);
+        max-width: none;
+        min-width: 150px;
+        height: fit-content;
+        padding: 15px;
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 15px;
+        z-index: 1001;
+    }
+
+    .companion-speech-bubble p {
+        margin: 0;
+        padding: 0;
+        line-height: 1.4;
+        color: var(--text-color);
+        font-size: 1rem;
+        word-wrap: break-word;
+    }
+
+    .companion-speech-bubble::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        width: 0;
+        height: 0;
+        transform: translateY(-50%);
+        border-left: 12px solid var(--accent-color);
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+    }
+
     /* Ajuste do footer para não sobrepor o companion */
     .footer {
         padding-bottom: 10px;
     }
 
-    .companion-speech-bubble {
-        max-width: 70vw; /* Prevent it from getting too wide */
-        max-height: 40vh; /* Prevent it from getting too tall */
-        overflow-y: auto; /* Allow scrolling for long messages */
+    /* Garantir que o container principal não cause overflow */
+    .main-container {
+        overflow-x: hidden;
+        width: 100%;
+        margin-bottom: 60px;
     }
 
     /* Ajuste para telas muito pequenas */
@@ -268,19 +317,5 @@
     /* Ajuste do primeiro campo do form */
     .field:first-of-type {
         margin-top: 0; /* Reduz espaço antes do primeiro campo */
-    }
-}
-
-/* Ajustes específicos para dispositivos muito pequenos */
-@media screen and (max-width: 375px) {
-    .companion-container {
-        bottom: 20px;
-        right: 10px;
-    }
-    
-    .companion-speech-bubble {
-        width: calc(100vw - 100px);
-        max-width: 250px;
-        bottom: 85px;
     }
 }
