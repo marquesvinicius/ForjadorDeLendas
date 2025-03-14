@@ -1,6 +1,6 @@
 /* Estilos gerais da página */
 body {
-    background-image: url('../assets/img/background_upscayl_4x_realesrgan-x4plus.png');
+    background-image: url('../assets/img/background-compressed.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -13,6 +13,8 @@ body {
     perspective: 1000px;
     will-change: transform;
 }
+
+
 
 .container.is-fluid.main-container {
     padding: 0px;

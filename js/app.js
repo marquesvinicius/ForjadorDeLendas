@@ -20,14 +20,14 @@ let currentCharacterId = null;
 // Classe para ícones de cada classe de personagem
 const classIcons = {
     'Arcanista': 'fa-hat-wizard',
-    'Bárbaro': 'fa-axe-battle',
+    'Bárbaro': 'fa-gavel',
     'Bardo': 'fa-guitar',
-    'Bucaneiro': 'fa-sword-cross',
-    'Caçador': 'fa-bow-arrow',
-    'Cavaleiro': 'fa-horse',
+    'Bucaneiro': 'fa-sailboat',
+    'Caçador': 'fa-shoe-prints',
+    'Cavaleiro': 'fa-horse-head',
     'Clérigo': 'fa-pray',
     'Druida': 'fa-leaf',
-    'Guerreiro': 'fa-sword',
+    'Guerreiro': 'fa-jedi',
     'Inventor': 'fa-tools',
     'Ladino': 'fa-mask',
     'Lutador': 'fa-fist-raised',
@@ -41,12 +41,14 @@ const storage = characterStorage;
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     loadCharacters();
+    const characters = characterStorage.getAllCharacters();
     setupEventListeners();
     if (typeof magoCompanion !== 'undefined') {
         magoCompanion.init();
     } else {
         console.error('magoCompanion não está definido. Verifique companion.js');
     }
+    renderCharactersList(characters);
 });
 
 // Configuração de listeners de eventos

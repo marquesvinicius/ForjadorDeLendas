@@ -29,7 +29,6 @@
 @media screen and (min-width: 102px) {
     .companion-container {
         width: 67%;
-        height: 80%;
         position: fixed;
         top: -1%;
         right: -12%;
@@ -268,9 +267,15 @@
         max-height: 95vh;
     }
 
-    #loadingModal .modal-content {
-        width: 90%;
-        margin: 1rem;
+    #loadingModal.modal-content {
+        max-width: 95%;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        overflow-y: auto; /* Garante scroll se necessário */
+    }
+    #loadingModal.modal-background {
+        height: 100vh; /* Corrige altura em mobile */
     }
 
     /* Ajuste da lista de personagens para mobile */
