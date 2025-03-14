@@ -40,15 +40,13 @@ const storage = characterStorage;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
-    loadCharacters();
-    const characters = characterStorage.getAllCharacters();
     setupEventListeners();
+    renderCharactersList();
     if (typeof magoCompanion !== 'undefined') {
         magoCompanion.init();
     } else {
         console.error('magoCompanion não está definido. Verifique companion.js');
     }
-    renderCharactersList(characters);
 });
 
 // Configuração de listeners de eventos
@@ -66,16 +64,11 @@ function setupEventListeners() {
 
 // Carregar personagens do localStorage
 function loadCharacters() {
-    const savedCharacters = localStorage.getItem('rpgCharacters');
+    const savedCharacters = localStorage.getItem('rpg_characters');
     if (savedCharacters) {
         characters = JSON.parse(savedCharacters);
         renderCharactersList();
     }
-}
-
-// Salvar personagem no localStorage
-function saveCharacters() {
-    localStorage.setItem('rpgCharacters', JSON.stringify(characters));
 }
 
 // Manipuladores de eventos
@@ -144,10 +137,12 @@ function rollAttributes() {
 
 function renderCharactersList() {
     const characters = storage.getAllCharacters();
+    console.log('Personagens carregados:', characters); // Debug
     if (characters.length === 0) {
         savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado ainda. Comece a forjar sua lenda!</p>';
         return;
     }
+    
     
     savedCharactersList.innerHTML = '';
     characters.forEach(character => {
