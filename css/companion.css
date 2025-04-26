@@ -1,8 +1,9 @@
 /* Companion - estilos base */
 .companion-container {
   /* Transições suaves para mudanças de posição/transformação */
-  transition: transform 0.1s ease, top 0.3s ease, bottom 0.3s ease, right 0.3s ease, left 0.3s ease;
-  will-change: transform; /* Melhora o desempenho de animações */
+  transition: transform 0.1s ease, top 0.3s ease, bottom 0.3s ease, right 0.3s ease, left 0.3s ease, opacity 0.5s ease;
+  will-change: transform, opacity; /* Melhora o desempenho de animações */
+  opacity: 1; /* Garante que o mago comece visível por padrão */
 }
 
 .companion-avatar {
@@ -46,6 +47,7 @@
       transform: none !important; /* Remove qualquer transformação residual */
       /* Remover propriedades de arrasto para desktop */
       touch-action: auto; /* Comportamento de toque padrão */
+      opacity: 1 !important; /* Sempre visível em desktop */
   }
 
   .companion-avatar {
@@ -98,61 +100,53 @@
 /* Estilos para MOBILE (telas de até 1023px) - Ícone flutuante FIXO */
 @media screen and (max-width: 1023px) {
   .companion-container {
-      position: fixed !important; /* Garante a posição fixa, sobrepondo JS */
-      bottom: 20px !important;   /* Distância fixa da parte inferior */
-      right: 20px !important;    /* Distância fixa da direita */
-      top: auto !important;      /* Impede posicionamento pelo topo */
-      left: auto !important;     /* Impede posicionamento pela esquerda */
-      transform: none !important; /* Remove qualquer transformação de posição */
-      width: 80px;               /* Largura fixa do container */
-      height: 80px;              /* Altura fixa do container */
-      z-index: 1000;             /* Garante que fique sobre outros elementos */
-      touch-action: auto;        /* Permite interações de toque normais (clique) */
+      position: fixed !important;
+      bottom: 20px !important;
+      right: 20px !important;
+      top: auto !important;
+      left: auto !important;
+      transform: none !important;
+      width: 80px;
+      height: 80px;
+      z-index: 1000;
+      touch-action: auto;
+      transition: opacity 0.4s ease;
+      opacity: 1;
+      will-change: opacity; /* Adicionado para melhor performance */
+  }
+
+  .companion-container.companion-fade-out {
+      opacity: 0 !important; /* Forçando a opacidade 0 */
+      pointer-events: none;
   }
 
   .companion-avatar {
       width: 80px;
       height: 80px;
-      border-radius: 50%; /* Ícone redondo */
+      border-radius: 50%;
       border: 2px solid var(--accent-color);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       object-fit: cover;
-      background-color: var(--panel-bg); /* Fundo para melhor visibilidade */
-      cursor: pointer !important; /* Cursor de clique, pois não é mais arrastável */
-      -webkit-tap-highlight-color: transparent; /* Remove highlight ao tocar */
+      background-color: var(--panel-bg);
+      cursor: pointer !important;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      z-index: 1;
+      transition: opacity 0.4s ease; /* Adicionado para transição suave */
   }
 
-  /* Remove o cursor 'grabbing' que era usado no arrasto */
-  .companion-avatar:active {
-      cursor: pointer;
-      transform: scale(0.95); /* Efeito de clique */
+  .companion-container.companion-fade-out .companion-avatar {
+      opacity: 0; /* Garante que o avatar também desapareça */
   }
 
   .companion-speech-bubble {
-      position: absolute; /* Posicionado em relação ao .companion-container */
-      bottom: 90px; /* Acima do ícone */
-      right: 0;     /* Alinhado à direita do container */
-      width: 250px; /* Largura do balão */
-      max-width: calc(100vw - 40px); /* Garante que não saia da tela (considera padding/margem) */
-      background: var(--panel-bg);
-      border: 2px solid var(--accent-color);
-      border-radius: 15px;
-      padding: 15px;
-      z-index: 1001; /* Acima do ícone */
-      transform-origin: bottom right; /* Animação de escala a partir do canto */
+      transition: opacity 0.3s ease, transform 0.3s ease;
   }
 
-  /* Estilo do "balão" apontando para o ícone no mobile */
-  .companion-speech-bubble::after {
-      content: "";
-      position: absolute;
-      bottom: -10px; /* Abaixo do balão */
-      right: 30px;   /* Posição horizontal */
-      width: 0;
-      height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-top: 10px solid var(--accent-color); /* Cor da seta */
+  .companion-speech-bubble.hidden {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
   }
 }
 

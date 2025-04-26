@@ -1,10 +1,19 @@
 class MagoCompanion {
     constructor() {
+        this.companionContainer = document.querySelector('.companion-container');
         this.speechBubble = document.querySelector('.companion-speech-bubble');
         this.companionText = document.getElementById('companionText');
         this.companionAvatar = document.querySelector('.companion-avatar');
+        this.lastMessage = '';
+        
+        // Garantir que o mago comece visível
+        if (this.companionContainer) {
+            this.companionContainer.style.opacity = '1';
+        }
+        
         this.setupEventListeners();
         this.setupMobileEvents();
+        this.setupScrollListener();
         this.greet();
     }
 
@@ -43,26 +52,64 @@ class MagoCompanion {
     }
 
     setupMobileEvents() {
-        if (window.innerWidth <= 768) {
-            this.companionAvatar.addEventListener('click', () => {
+        this.companionAvatar.addEventListener('click', () => {
+            if (window.innerWidth < 1023) {
                 if (this.speechBubble.classList.contains('hidden')) {
                     this.showLastMessage();
                 } else {
                     this.hideSpeechBubble();
                 }
-            });
+            }
+        });
 
-            // Esconde o balão quando clicar fora
-            document.addEventListener('click', (e) => {
-                if (!this.companionAvatar.contains(e.target) && 
-                    !this.speechBubble.contains(e.target)) {
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1023) {
+                if (!this.companionAvatar.contains(e.target) &&
+                    !this.speechBubble.contains(e.target) &&
+                    !this.speechBubble.classList.contains('hidden')) {
                     this.hideSpeechBubble();
                 }
-            });
-        }
+            }
+        });
+    }
+
+    setupScrollListener() {
+        let isNearBottom = false;
+        const threshold = 100;
+
+        const checkFooterPosition = () => {
+            if (window.innerWidth >= 1023) return;
+
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const distanceFromBottom = documentHeight - (scrollPosition + windowHeight);
+
+            if (distanceFromBottom <= threshold) {
+                if (!isNearBottom) {
+                    this.companionContainer.classList.add('companion-fade-out');
+                    isNearBottom = true;
+                }
+            } else {
+                if (isNearBottom) {
+                    this.companionContainer.classList.remove('companion-fade-out');
+                    isNearBottom = false;
+                }
+            }
+        };
+
+        // Verifica no scroll
+        window.addEventListener('scroll', checkFooterPosition, { passive: true });
+
+        // Verifica no carregamento
+        checkFooterPosition();
+
+        // Verifica também no redimensionamento
+        window.addEventListener('resize', checkFooterPosition);
     }
 
     speak(text, duration = null) {
+        this.companionContainer.classList.remove('companion-fade-out');
         this.lastMessage = text;
         this.speechBubble.classList.remove('hidden');
         this.speechBubble.classList.add('fade-in');
@@ -172,6 +219,7 @@ class MagoCompanion {
 
     showLastMessage() {
         if (this.lastMessage) {
+            this.companionContainer.classList.remove('companion-fade-out');
             this.speak(this.lastMessage);
         }
     }
