@@ -12,6 +12,8 @@ const deleteCharacterBtn = document.getElementById('deleteCharacter');
 const editCharacterBtn = document.getElementById('editCharacter');
 const characterDetails = document.getElementById('characterDetails');
 const loreText = document.getElementById('loreText');
+const backgroundTextArea = document.getElementById('charBackground');
+
 
 // Dados de estado
 let characters = [];
@@ -39,7 +41,7 @@ const classIcons = {
 const storage = characterStorage;
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     setupEventListeners();
     renderCharactersList();
     if (typeof magoCompanion !== 'undefined') {
@@ -94,22 +96,22 @@ function saveCharacter(e) {
             wisdom: parseInt(document.getElementById('attrWis').value),
             charisma: parseInt(document.getElementById('attrCha').value)
         },
-        background: document.getElementById('charBackground').value
+        background: backgroundTextArea.value
     };
 
     const savedCharacter = storage.saveCharacter(character);
     renderCharactersList();
-    
+
     // Resetar o formulário e o botão de salvar
     clearForm();
     saveCharacterBtn.innerHTML = '<i class="fas fa-save"></i>&nbsp; Salvar Personagem';
     saveCharacterBtn.classList.remove('is-warning');
     saveCharacterBtn.style.color = '';
-    
+
     // Feedback baseado em se foi uma criação ou atualização
     const isUpdate = currentCharacterId !== null;
     currentCharacterId = null;
-    
+
     if (isUpdate) {
         showMessage(`Personagem ${savedCharacter.name} atualizado com sucesso!`, 'is-success');
         magoCompanion.speak(`${savedCharacter.name} foi atualizado em seu grimório!`, 4000);
@@ -117,13 +119,13 @@ function saveCharacter(e) {
         showMessage(`Personagem ${savedCharacter.name} salvo com sucesso!`, 'is-success');
         magoCompanion.speak(`${savedCharacter.name} foi adicionado ao seu grimório de heróis!`, 4000);
     }
-    
+
     document.querySelector('.saved-characters-section').scrollIntoView({ behavior: 'smooth' });
 }
 
 function rollAttributes() {
     function rollStat() {
-        const rolls = Array.from({length: 4}, () => Math.floor(Math.random() * 6) + 1);
+        const rolls = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1);
         rolls.sort((a, b) => a - b);
         return rolls.slice(1).reduce((sum, roll) => sum + roll, 0);
     }
@@ -142,8 +144,8 @@ function renderCharactersList() {
         savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado ainda. Comece a forjar sua lenda!</p>';
         return;
     }
-    
-    
+
+
     savedCharactersList.innerHTML = '';
     characters.forEach(character => {
         const characterCard = document.createElement('div');
@@ -178,7 +180,7 @@ function openCharacterModal(characterId) {
         console.error('Personagem não encontrado:', characterId);
         return;
     }
-    
+
     currentCharacterId = characterId;
     characterDetails.innerHTML = `
         <div class="columns is-multiline">
@@ -218,34 +220,34 @@ function openCharacterModal(characterId) {
         </div>
     `;
     document.getElementById('loreContent').style.display = 'none';
-    
+
     // Configurar os botões do modal
     const editBtn = document.getElementById('editCharacter');
     const deleteBtn = document.getElementById('deleteCharacter');
     const closeBtn = document.getElementById('closeModal');
-    
+
     // Remover event listeners antigos para evitar duplicação
     editBtn.replaceWith(editBtn.cloneNode(true));
     deleteBtn.replaceWith(deleteBtn.cloneNode(true));
     closeBtn.replaceWith(closeBtn.cloneNode(true));
-    
+
     // Adicionar novos event listeners
     document.getElementById('editCharacter').addEventListener('click', editCurrentCharacter);
     document.getElementById('deleteCharacter').addEventListener('click', deleteCurrentCharacter);
     document.getElementById('closeModal').addEventListener('click', () => closeModal(characterModal));
-    
+
     openModal(characterModal);
 }
 
 function editCurrentCharacter() {
     if (!currentCharacterId) return;
-    
+
     const character = storage.getCharacterById(currentCharacterId);
     if (!character) {
         showMessage('Personagem não encontrado.', 'is-danger');
         return;
     }
-    
+
     // Preencher o formulário com os dados do personagem
     document.getElementById('charName').value = character.name;
     document.getElementById('charRace').value = character.race;
@@ -258,18 +260,18 @@ function editCurrentCharacter() {
     document.getElementById('attrWis').value = character.attributes.wisdom;
     document.getElementById('attrCha').value = character.attributes.charisma;
     document.getElementById('charBackground').value = character.background || '';
-    
+
     // Atualizar o botão de salvar para indicar que é uma edição
     saveCharacterBtn.innerHTML = '<i class="fas fa-save"></i>&nbsp; Atualizar Personagem';
     saveCharacterBtn.classList.add('is-warning');
-    
+
     // Garantir que o texto permaneça branco
     saveCharacterBtn.style.color = 'white';
-    
+
     // Fechar o modal e rolar para o formulário
     closeModal(characterModal);
     characterForm.scrollIntoView({ behavior: 'smooth' });
-    
+
     // Feedback visual
     showMessage('Editando personagem: ' + character.name, 'is-info');
     if (typeof magoCompanion !== 'undefined') {
@@ -279,7 +281,7 @@ function editCurrentCharacter() {
 
 function deleteCurrentCharacter() {
     if (!currentCharacterId) return;
-    
+
     // Confirmar exclusão
     if (confirm('Tem certeza que deseja excluir este personagem? Esta ação não pode ser desfeita.')) {
         const character = storage.getCharacterById(currentCharacterId);
@@ -287,23 +289,23 @@ function deleteCurrentCharacter() {
             showMessage('Personagem não encontrado.', 'is-danger');
             return;
         }
-        
+
         // Excluir o personagem
         const success = storage.deleteCharacter(currentCharacterId);
-        
+
         if (success) {
             // Atualizar a lista de personagens
             renderCharactersList();
-            
+
             // Fechar o modal
             closeModal(characterModal);
-            
+
             // Feedback visual
             showMessage(`Personagem ${character.name} excluído com sucesso!`, 'is-warning');
             if (typeof magoCompanion !== 'undefined') {
                 magoCompanion.speak(`${character.name} foi removido do seu grimório de heróis!`, 3000);
             }
-            
+
             // Resetar o ID atual
             currentCharacterId = null;
         } else {
@@ -318,11 +320,11 @@ function openLoadingModal() {
         console.error('Modal de carregamento não encontrado');
         return;
     }
-    
+
     // Força o modal a aparecer
     loadingModal.style.display = 'flex';
     loadingModal.classList.add('is-active');
-    
+
     // Garante que o conteúdo do modal seja visível
     const modalContent = loadingModal.querySelector('.modal-content');
     if (modalContent) {
@@ -334,12 +336,12 @@ function openLoadingModal() {
 // Função para fechar o modal de carregamento
 function closeLoadingModal() {
     if (!loadingModal) return;
-    
+
     // Adiciona um delay mínimo de 2 segundos antes de fechar
     setTimeout(() => {
         // Remove a classe ativa
         loadingModal.classList.remove('is-active');
-        
+
         // Esconde o modal após a transição
         setTimeout(() => {
             loadingModal.style.display = 'none';
@@ -350,54 +352,63 @@ function closeLoadingModal() {
 // Função para gerar o prompt com contexto de raças e classes
 function generatePrompt(characterData) {
     const raceSummaries = {
-        'Humano': 'Versátil e adaptável, sem bônus ou penalidades especiais. Representam a maioria em Arton, com grande presença em cidades como Valkaria.',
-        'Anão': 'Robustos e resilientes, com bônus em Constituição e penalidade em Carisma. Habitam montanhas como Doherimm, são exímios mineiros e ferreiros.',
-        'Dahllan': 'Semelhantes a meio-elfos, ligados à natureza, com bônus em Sabedoria e Destreza, penalidade em Inteligência. Têm habilidades relacionadas a plantas e animais, como lançar magias de controle de plantas.',
-        'Elfo': 'Graciosos e longevos, com bônus em Destreza e Inteligência, penalidade em Constituição. Vivem em florestas como Lenórienn, são arqueros e magos habilidosos.',
-        'Goblin': 'Pequenos e astutos, com bônus em Destreza, penalidades em Força ou Carisma. Especializados em furtividade e armadilhas, comuns em áreas como Tollon.',
-        'Lefou': 'Meio-demônios afetados pela Tormenta, com bônus em dois atributos (exceto Carisma) e penalidade em Carisma. Têm visão no escuro e habilidades monstruosas, ligados à escuridão.',
-        'Minotauro': 'Fortes e ferozes, com bônus em Força e Constituição, penalidades em Inteligência ou Carisma. Excelentes em combate, intimidam facilmente, habitam áreas selvagens.',
-        'Qareen': 'Meio-gênios com habilidades mágicas, bônus em Carisma e Inteligência, penalidade em Sabedoria. Podem conceder desejos, com resistência a elementos, comuns em áreas mágicas.',
-        'Golem': 'Seres artificiais, com alta resistência e força, sem necessidade de sono ou comida. Podem ter imunidades a certos efeitos, como medo.',
-        'Hynne': 'Pequenas criaturas mágicas, com bônus em Destreza e Carisma, penalidade em Força. Têm habilidades de sorte, como rolar novamente testes de resistência, e são ágeis.',
-        'Kliren': 'Semelhantes a gnomos, com bônus em Inteligência, penalidade em Força. Têm habilidades lógicas, como usar Inteligência em testes variados, e são engenhosos.',
-        'Medusa': 'Inspiradas na mitologia, com possíveis habilidades de petrificação, bônus em Carisma ou Destreza. Têm aparência exótica, comuns em áreas isoladas.',
-        'Osteon': 'Esqueletos animados, possivelmente não mortos, com imunidades a efeitos como sono, bônus em Constituição. Têm resistência física elevada.',
-        'Sereia/Tritão': 'Seres aquáticos, com bônus em Destreza e Constituição, habilidades de natação e sobrevivência na água, ligados a oceanos e rios.',
-        'Sílfide': 'Relacionadas ao ar e vento, com bônus em Destreza e Inteligência, habilidades mágicas ligadas ao elemento, leves e ágeis.',
-        'Suraggel': 'Descendentes de anjos ou demônios, com bônus em Sabedoria ou Carisma, habilidades baseadas em sua herança divina ou infernal, ligados a planos espirituais.',
-        'Trong': 'Provavelmente trolls ou criaturas similares, com bônus em Força e Constituição, habilidades de regeneração, resistentes e ferozes em combate.'
+        'Humano': 'Versáteis, ambiciosos e adaptáveis, os humanos representam a maioria em Arton. Capazes de trilhar qualquer caminho, moldam o mundo com sua vontade e perseverança. Seguem Valkaria, a Deusa da Evolução e da Jornada. Presentes em todas as cidades, dominam centros como Valkaria, Deheon e Portsmouth. Sua diversidade é sua maior força.',
+        'Anão': 'Oriundos das montanhas de Doherimm, anões são robustos, honrados e resilientes. Artesãos lendários, mestres das forjas e da mineração, reverenciam Khalmyr, deus da justiça. Vivem em sociedades rigidamente hierárquicas, prezando pela tradição, pela palavra dada e pela vingança contra inimigos antigos.',
+        'Dahllan': 'Criaturas féericas criadas pela Deusa Allihanna para proteger a natureza. Sua aparência mistura traços humanos e vegetais, com seiva em vez de sangue e flores adornando seus corpos. Dahllan têm forte ligação com as florestas de Arton, como as matas de Lenórienn, e carregam o peso da missão de equilibrar o mundo natural contra a devastação.',
+        'Elfo': 'Antigos senhores de Lenórienn, os elfos são graciosos, longevos e dotados de afinidade natural com a magia. A destruição de sua cidade pela Tormenta marcou-os para sempre, gerando facções: uns buscam reconstrução, outros, vingança. São orgulhosos, refinados e fortemente ligados às artes arcanas e ao culto de Glórienn.',
+        'Goblin': 'Pequenos sobreviventes de Tollon, goblins são engenhosos, caóticos e extremamente adaptáveis. Embora vistos como trapaceiros e canalhas pela maioria das raças civilizadas, suas sociedades florescem no subterrâneo e nas ruínas, onde criam engenhocas improvisadas e técnicas peculiares de sobrevivência.',
+        'Lefou': 'Marcados pela corrupção da Tormenta, Lefou são seres deformados, mas ainda dotados de alma. Lutar contra sua natureza é um desafio constante: alguns buscam redenção; outros aceitam sua monstruosidade. Sua mera presença desperta medo e preconceito em Arton, mesmo entre aventureiros.',
+        'Minotauro': 'Guerreiros orgulhosos oriundos de Tapista, minotauros veneravam Tauron, o deus da força, agora morto. Em busca de um novo propósito, muitos abandonaram o militarismo cego e hoje lutam para provar seu valor, com força bruta e disciplina férrea. Sua cultura valoriza honra e conquista.',
+        'Qareen': 'Descendentes dos gênios, os qareen são belos, carismáticos e profundamente ligados à magia elemental. Têm uma aura sobrenatural e são considerados afortunados ou amaldiçoados. Vivem principalmente em Wynlla, a nação da magia, e são conhecidos por sua facilidade em manipular energias místicas.',
+        'Golem': 'Seres artificiais criados por magos há séculos, golems desenvolveram consciência própria. Sem fome, sede ou necessidade de descanso, buscam compreender o significado da vida. Alguns servem seus criadores, outros viajam em busca de identidade própria. Carregam resistência sobrenatural e emoções adormecidas.',
+        'Hynne': 'Pequenos seres similares a halflings, vindos de comunidades alegres e viajantes como Tapista. Hynne são amantes da boa vida, da sorte e da liberdade. Preferem evitar confrontos, usando sua agilidade e astúcia para escapar de perigos, mas podem surpreender com coragem inesperada.',
+        'Kliren': 'Descendentes de gnomos vindos de outros planos, kliren são inovadores, excêntricos e altamente inteligentes. Obcecados por tecnologia, experimentam incessantemente com alquimia, invenções e magia científica. Muitos vivem em Vectora, a cidade voadora, buscando desafios intelectuais.',
+        'Medusa': 'Seres amaldiçoados por aparências monstruosas e olhos capazes de petrificar. Medusas vivem isoladas por medo ou são caçadas como aberrações. Algumas buscam integrar-se à sociedade de Arton, ocultando sua natureza; outras abraçam sua solidão ou formam enclaves secretos.',
+        'Osteon': 'Mortos-vivos conscientes originados por alterações no ciclo natural da morte. Mantêm sua inteligência e personalidade após a morte, mas enfrentam o preconceito dos vivos. Muitos osteon são movidos por deveres inacabados ou propósitos maiores, rejeitando o destino de simples cadáveres ambulantes.',
+        'Sereia/Tritão': 'Seres anfíbios, habitantes dos oceanos que cercam Arton, como o Grande Oceano. Dotados de voz encantadora e adaptabilidade aquática, sereias e tritões exploram tanto os recifes secretos quanto as cidades costeiras, equilibrando curiosidade e desconfiança dos terrestres.',
+        'Sílfide': 'Espíritos alados ligados ao vento, as sílfides são leves, esvoaçantes e brincalhonas. Vivem entre nuvens e montanhas, muitas vezes servindo Marah, deusa da bondade e da liberdade. Possuem habilidades mágicas relacionadas ao ar e à fuga.',
+        'Suraggel': 'Descendentes de extraplanares — anjos, demônios, ou ambos. Suraggel vivem divididos entre luz e trevas, carregando características de seus ancestrais. São admirados e temidos em igual medida, tanto entre nobres quanto entre camponeses supersticiosos.',
+        'Trong': 'Seres reptilianos de força colossal, oriundos de regiões pantanosas e cavernosas. Apesar da aparência bruta e da fala limitada, possuem inteligência pragmática e uma ferocidade incomparável em batalha. Valorizam clãs e sobrevivência acima de tudo.'
     };
 
     const classSummaries = {
-        'Arcanista': 'Especialista em magias arcanas, lança feitiços ofensivos e utilitários, como estudante da Academia Arcana de Yuden, central em combate mágico.',
-        'Bárbaro': 'Guerreiro focado em força e fúria, ganha bônus em dano e resistência ao entrar em raiva, ideal para combates brutais, comum em áreas selvagens.',
-        'Bardo': 'Carismático, usa música e performance para inspirar aliados e manipular inimigos, lança magias leves, central em interações sociais, como em tavernas de Norm.',
-        'Bucaneiro': 'Espadachim e navegador, com habilidades de acrobacia e pirataria, proficiente em espadas e navegação, comum em mares e portos como Portsmonth.',
-        'Caçador': 'Rastreador e arqueiro, com habilidades de sobrevivência e manejo de animais, protege fronteiras, como nas florestas de Sckharshantallas, versátil em combate à distância.',
-        'Cavaleiro': 'Cavaleiro montado, focado em combate com armadura pesada e lança, segue código de cavalaria, central em batalhas organizadas, como em Vectora.',
-        'Clérigo': 'Sacerdote devoto, cura aliados e combate com magias divinas, ligado a deuses como Khalmyr, essencial em apoio e combate contra o mal.',
-        'Druida': 'Conectado à natureza, lança magias baseadas em elementos, pode se transformar, protege florestas, como em Lenórienn, central em equilíbrio natural.',
-        'Guerreiro': 'Combatente geral, proficiente em armas e armaduras, equilibrado sem especializações, comum em batalhas diversas, como em Norm.',
-        'Inventor': 'Tecnólogo, cria gadgets e máquinas, usa dispositivos em combate e exploração, inovador, central em estratégias criativas, como em Deheon.',
-        'Ladino': 'Ladrão furtivo, especialista em furtividade, armadilhas e ataques sorrateiros, comum em ruas de Malpetrim, central em missões clandestinas.',
-        'Lutador': 'Combatente corpo a corpo, focado em artes marciais, proficiente em lutas desarmadas, ágil em combate próximo, como em arenas.',
-        'Nobre': 'Classe de status social, com liderança e influência, pode ter treinamento em combate, central em política e diplomacia, como em Valkaria.',
-        'Paladino': 'Guerreiro sagrado, segue código de honra, lança magias divinas, combate o mal, como em Yuden, central em missões de justiça.'
+        'Arcanista': 'Mestre das artes arcanas, os arcanistas canalizam o poder mágico puro através de anos de estudo ou talento inato. Podem ser magos eruditos da Academia Arcana em Wynlla ou feiticeiros cuja magia pulsa no sangue. Moldam a realidade com feitiços devastadores, ilusões complexas e proteções místicas.',
+        'Bárbaro': 'Guerreiros selvagens que lutam impulsionados por uma fúria primal, os bárbaros dominam as regiões mais indomadas de Arton, como as estepes de Tapista ou os ermos de Lamnor. Preferem a força bruta e o instinto ao invés da estratégia refinada, canalizando raiva em resistência sobrenatural.',
+        'Bardo': 'Artistas inspirados, os bardos tecem magia através da música, poesia e oratória. Viajantes incansáveis, eles são historiadores, espiões e líderes carismáticos. Utilizando canções arcanas, podem curar ferimentos, lançar encantamentos e motivar aliados em combates épicos ou intrigas cortesãs.',
+        'Bucaneiro': 'Corsários e aventureiros marítimos, os bucaneiros são exímios em navegação, combate ágil e vida pirata. Dominam cidades portuárias como Portsmouth e navegam os mares de Arton em busca de glória, ouro e liberdade. Mestres do acrobático e do improviso em batalha.',
+        'Caçador': 'Especialistas em sobrevivência e rastreamento, caçadores dominam as fronteiras do Reinado, protegendo civilizações contra feras e horrores da Tormenta. Arqueiros letais e mestres dos terrenos difíceis, sua ligação com a natureza é tanto pragmática quanto reverente.',
+        'Cavaleiro': 'Defensores da honra e da justiça, cavaleiros seguem códigos rígidos de conduta e lealdade. Lutam montados em corcéis treinados, vestindo armaduras reluzentes. São figuras de prestígio em reinos como Deheon e Valkaria, sendo tanto campeões de guerras quanto ícones de esperança.',
+        'Clérigo': 'Canalizadores da vontade divina, clérigos servem deuses do Panteão como Khalmyr, Lena ou Azgher. Capazes de curar aliados, banir mortos-vivos e invocar milagres, são tanto pregadores fervorosos quanto guerreiros sagrados. Seu poder varia conforme a fé e a divindade servida.',
+        'Druida': 'Protetores do ciclo natural, druidas reverenciam Allihanna e os espíritos da terra, transformando-se em animais ou controlando as forças da natureza. Guardiões secretos de florestas como Lenórienn ou protetores de regiões intocadas, eles lutam para manter o equilíbrio vital de Arton.',
+        'Guerreiro': 'Combatentes versáteis, treinados em todas as armas e estilos, guerreiros formam o núcleo de exércitos, milícias e companhias mercenárias. De soldados de Yuden a gladiadores em arenas de Valkaria, são mestres em aproveitar a vantagem física no campo de batalha.',
+        'Inventor': 'Mentes brilhantes em um mundo mágico, inventores criam engenhocas e dispositivos fantásticos. Unem ciência e magia, combinando alquimia, mecânica e engenhosidade em armas, armaduras e armadilhas inovadoras. Muitos se destacam em centros como Vectora, onde tecnologia e magia se entrelaçam.',
+        'Ladino': 'Mestres das sombras, furtividade e trapaças, ladinos são especialistas em infiltração, espionagem e combate sorrateiro. Agem nas vielas de Malpetrim, nos becos de Portsmouth ou infiltram-se nas cortes do Reinado, usando astúcia, destreza e inteligência para sobreviver e prosperar.',
+        'Lutador': 'Especialistas no combate corpo a corpo, lutadores aprimoram seu corpo como uma arma mortal. Treinados em academias de combate como as de Tapista ou autodidatas endurecidos pelas ruas, são capazes de subjugar oponentes com técnica pura, sem depender de armas ou armaduras pesadas.',
+        'Nobre': 'Membros da aristocracia, nobres combinam refinamento, estratégia política e habilidade marcial. Treinados desde jovens em etiqueta, diplomacia e guerra, exercem influência sobre reinos e guildas. Alguns empunham espadas com tanta destreza quanto lidam com intrigas de salão.',
+        'Paladino': 'Campeões sagrados, paladinos juram lealdade inquebrantável a deuses da justiça, como Khalmyr, ou da guerra justa, como Valkaria. Portadores de bênçãos divinas, curam aliados, banem criaturas malignas e erguem suas espadas pela ordem e pela honra, servindo como exemplo de virtude em tempos sombrios.'
     };
 
     const raceSummary = raceSummaries[characterData.race] || raceSummaries['Humano'];
     const classSummary = classSummaries[characterData.class] || classSummaries['Guerreiro'];
 
+    const backgroundNote = characterData.background && characterData.background.trim() !== ""
+        ? `Considere também esta informação adicional fornecida pelo jogador para enriquecer a história: "${characterData.background.trim()}".`
+        : '';
+
     return `
-        Gere uma história curta (100-200 palavras) para um personagem de RPG no mundo de Arton, do sistema Tormenta 20. Aqui estão os detalhes do personagem:
-        - Nome: ${characterData.name}
-        - Raça: ${characterData.race} (${raceSummary})
-        - Classe: ${characterData.class} (${classSummary})
-        - Alinhamento: ${characterData.alignment}
-        - Atributos: Força ${characterData.attributes.strength}, Destreza ${characterData.attributes.dexterity}, Constituição ${characterData.attributes.constitution}, Inteligência ${characterData.attributes.intelligence}, Sabedoria ${characterData.attributes.wisdom}, Carisma ${characterData.attributes.charisma}
-        A história deve ser escrita em português, em um estilo de fantasia épica, refletindo o lore de Arton e as características da raça e classe do personagem.
-    `;
+Gere uma história curta (100-200 palavras) para um personagem de RPG no mundo de Arton, do sistema Tormenta 20. Aqui estão os detalhes do personagem:
+- Nome: ${characterData.name}
+- Raça: ${characterData.race} (${raceSummary})
+- Classe: ${characterData.class} (${classSummary})
+- Alinhamento: ${characterData.alignment}
+- Atributos: Força ${characterData.attributes.strength}, Destreza ${characterData.attributes.dexterity}, Constituição ${characterData.attributes.constitution}, Inteligência ${characterData.attributes.intelligence}, Sabedoria ${characterData.attributes.wisdom}, Carisma ${characterData.attributes.charisma}
+${backgroundNote}
+
+Instruções adicionais:
+- A história deve ser escrita em português com linguagem acessível e envolvente, em um estilo de fantasia épica, refletindo fielmente o lore de Arton e as características da raça e classe do personagem.
+- Tente integrar elementos relevantes do cenário de Arton, como locais (Valkaria, Lenórienn, Vectora), eventos (Tormenta), e a influência dos deuses, se apropriado.
+- A história deve ser coesa, fluida e envolvente, com um tom compatível com um mundo fantástico heróico.
+`;
 }
 
 // Função para chamar o servidor local Python
@@ -689,24 +700,24 @@ async function generateCharacterLore() {
                 wisdom: parseInt(document.getElementById('attrWis').value),
                 charisma: parseInt(document.getElementById('attrCha').value)
             },
-            background: document.getElementById('charBackground').value
+            background: backgroundTextArea.value
         };
     }
-    
+
     if (!characterData.name) {
         showMessage('Por favor, dê um nome ao seu personagem antes de gerar sua história.', 'is-danger');
         return;
     }
-    
+
     openLoadingModal();
     if (typeof magoCompanion !== 'undefined') {
         magoCompanion.speak("Deixe-me consultar os pergaminhos antigos...", 3000);
     }
-    
+
     const prompt = generatePrompt(characterData);
     console.log('Prompt enviado:', prompt);
     const backstoryFromLocal = await fetchBackstoryFromLocal(prompt);
-    
+
     let finalBackstory;
     if (backstoryFromLocal) {
         finalBackstory = backstoryFromLocal;
@@ -721,10 +732,9 @@ async function generateCharacterLore() {
         }
         showMessage('O servidor local falhou, mas geramos uma história alternativa!', 'is-warning');
     }
-    
-    const backgroundTextArea = document.getElementById('charBackground');
+
     backgroundTextArea.value = finalBackstory;
-    
+
     if (currentCharacterId) {
         const character = storage.getCharacterById(currentCharacterId);
         if (character) {
@@ -732,7 +742,7 @@ async function generateCharacterLore() {
             storage.saveCharacter(character);
         }
     }
-    
+
     closeLoadingModal();
     showMessage('História gerada com sucesso!', 'is-success');
     backgroundTextArea.classList.add('highlight');
@@ -807,4 +817,5 @@ function clearForm() {
     saveCharacterBtn.innerHTML = '<i class="fas fa-save"></i>&nbsp; Salvar Personagem';
     saveCharacterBtn.classList.remove('is-warning');
     saveCharacterBtn.style.color = '';
+    backgroundTextArea.value = '';
 }
