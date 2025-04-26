@@ -312,34 +312,39 @@ function deleteCurrentCharacter() {
     }
 }
 
-// Função para abrir o modal de carregamento, centralizado na viewport
+// Função para abrir o modal de carregamento
 function openLoadingModal() {
     if (!loadingModal) {
         console.error('Modal de carregamento não encontrado');
         return;
     }
     
+    // Força o modal a aparecer
+    loadingModal.style.display = 'flex';
     loadingModal.classList.add('is-active');
     
+    // Garante que o conteúdo do modal seja visível
     const modalContent = loadingModal.querySelector('.modal-content');
     if (modalContent) {
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-        const modalHeight = modalContent.offsetHeight;
-        const modalWidth = modalContent.offsetWidth;
-
-        const topPosition = (viewportHeight - modalHeight) / 2 + window.scrollY;
-        const leftPosition = (viewportWidth - modalWidth) / 2 + window.scrollX;
-
-        modalContent.style.top = `${topPosition}px`;
-        modalContent.style.left = `${leftPosition}px`;
-        modalContent.style.transform = 'none';
-        modalContent.style.opacity = '0';
-        
-        setTimeout(() => {
-            modalContent.style.opacity = '1';
-        }, 50);
+        modalContent.style.opacity = '1';
+        modalContent.style.transform = 'translateY(0)';
     }
+}
+
+// Função para fechar o modal de carregamento
+function closeLoadingModal() {
+    if (!loadingModal) return;
+    
+    // Adiciona um delay mínimo de 2 segundos antes de fechar
+    setTimeout(() => {
+        // Remove a classe ativa
+        loadingModal.classList.remove('is-active');
+        
+        // Esconde o modal após a transição
+        setTimeout(() => {
+            loadingModal.style.display = 'none';
+        }, 300);
+    }, 2000); // 2 segundos de delay mínimo
 }
 
 // Função para gerar o prompt com contexto de raças e classes
@@ -728,7 +733,7 @@ async function generateCharacterLore() {
         }
     }
     
-    closeModal(loadingModal);
+    closeLoadingModal();
     showMessage('História gerada com sucesso!', 'is-success');
     backgroundTextArea.classList.add('highlight');
     setTimeout(() => backgroundTextArea.classList.remove('highlight'), 1000);

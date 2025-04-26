@@ -20,39 +20,54 @@
 /* Modal de Carregamento - ajustado para posição relativa ao scroll */
 #loadingModal {
     z-index: 9999;
-    display: none; /* Garantimos que o modal comece oculto */
-}
-
-#loadingModal.is-active {
-    display: flex; /* Flex para centralizar corretamente quando ativo */
-}
-
-#loadingModal .modal-background {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    align-items: center;
+    justify-content: center;
     background-color: rgba(0, 0, 0, 0.5);
+    padding: 2vw;
+    box-sizing: border-box;
+}
+
+#loadingModal.is-active {
+    display: flex;
 }
 
 #loadingModal .modal-content {
-    position: fixed; /* Sempre fixo em relação à viewport */
     background-color: var(--panel-bg);
     border: 3px solid var(--panel-border);
-    border-radius: 8px;
-    padding: 1rem;
+    border-radius: 12px;
+    padding: 2rem;
     width: auto;
-    max-width: 90%;
+    max-width: 90vw;
     text-align: center;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    transition: opacity 0.3s ease; /* Transição suave ao aparecer */
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    margin: 0 auto;
+}
+
+#loadingModal.is-active .modal-content {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 #loadingModal .modal-content p {
     font-size: 1.2rem;
     color: var(--text-color);
     margin-top: 1rem;
+}
+
+#loadingModal .box {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
 }
 
 /* Ajuste da animação do progress bar */
