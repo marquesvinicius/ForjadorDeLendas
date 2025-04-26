@@ -1,46 +1,189 @@
-/* Companion à direita */
+/* Companion - estilos base */
 .companion-container {
-    width: 67%;
-    height: 80%;
-    position: fixed;
-    top: -1%;
-    right: -12%;
-    display: block;
-    padding: 1rem;
-    z-index: -1;
+  /* Transições suaves para mudanças de posição/transformação */
+  transition: transform 0.1s ease, top 0.3s ease, bottom 0.3s ease, right 0.3s ease, left 0.3s ease;
+  will-change: transform; /* Melhora o desempenho de animações */
 }
 
 .companion-avatar {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Classe adicionada via JS durante o arrasto (agora apenas para feedback se necessário) */
+.companion-avatar.dragging {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--accent-color);
 }
 
 .companion-speech-bubble {
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid var(--panel-border);
-    border-radius: 15px;
-    padding: 15px;
-    width: 280px;
-    position: absolute;
-    top: 13%;
-    left: 20%;
-    color: var(--secondary-color);
-    font-family: 'MedievalSharp', cursive;
-    z-index: 5;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.companion-speech-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    right: 30px;
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 10px solid var(--panel-border);
+.companion-speech-bubble.hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.companion-speech-bubble p {
+  word-wrap: break-word; /* Garante que o texto quebre corretamente */
+}
+
+/* Estilos para DESKTOP (telas maiores que 1023px) - Layout original */
+@media screen and (min-width: 1024px) {
+  .companion-container {
+      /* Layout original que divide a tela */
+      width: 69%;
+      position: absolute; /* Mantém fixo em relação à viewport */
+      top: -1%;
+      right: -12%;
+      bottom: auto; /* Garante que não seja afetado por 'bottom' */
+      left: auto;  /* Garante que não seja afetado por 'left' */
+      display: block;
+      padding: 1rem;
+      z-index: 1; /* Fica atrás de outros elementos */
+      transform: none !important; /* Remove qualquer transformação residual */
+      /* Remover propriedades de arrasto para desktop */
+      touch-action: auto; /* Comportamento de toque padrão */
+  }
+
+  .companion-avatar {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      position: relative;
+      cursor: default; /* Não é arrastável em desktop */
+      border-radius: 0; /* Restaurar forma original */
+      border: none;
+      box-shadow: none;
+      background-color: transparent; 
+      z-index: -1;/* Fundo transparente no desktop */
+  }
+
+  .companion-speech-bubble {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid var(--panel-border);
+      border-radius: 15px;
+      padding: 15px;
+      width: 280px;
+      position: absolute;
+      top: 13%;
+      left: 20%;
+      color: var(--secondary-color);
+      font-family: "MedievalSharp", cursive;
+      z-index: 5;
+      transform-origin: center center; /* Ajusta a origem da transformação */
+  }
+
+  /* Estilo do "balão" apontando para o mago no desktop */
+  .companion-speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -10px; /* Posiciona abaixo do balão */
+      right: 30px;   /* Ajusta a posição horizontal */
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid var(--panel-border); /* Cor da borda */
+  }
+
+  .saved-characters-section {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Estilos para MOBILE (telas de até 1023px) - Ícone flutuante FIXO */
+@media screen and (max-width: 1023px) {
+  .companion-container {
+      position: fixed !important; /* Garante a posição fixa, sobrepondo JS */
+      bottom: 20px !important;   /* Distância fixa da parte inferior */
+      right: 20px !important;    /* Distância fixa da direita */
+      top: auto !important;      /* Impede posicionamento pelo topo */
+      left: auto !important;     /* Impede posicionamento pela esquerda */
+      transform: none !important; /* Remove qualquer transformação de posição */
+      width: 80px;               /* Largura fixa do container */
+      height: 80px;              /* Altura fixa do container */
+      z-index: 1000;             /* Garante que fique sobre outros elementos */
+      touch-action: auto;        /* Permite interações de toque normais (clique) */
+  }
+
+  .companion-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%; /* Ícone redondo */
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      object-fit: cover;
+      background-color: var(--panel-bg); /* Fundo para melhor visibilidade */
+      cursor: pointer !important; /* Cursor de clique, pois não é mais arrastável */
+      -webkit-tap-highlight-color: transparent; /* Remove highlight ao tocar */
+  }
+
+  /* Remove o cursor 'grabbing' que era usado no arrasto */
+  .companion-avatar:active {
+      cursor: pointer;
+      transform: scale(0.95); /* Efeito de clique */
+  }
+
+  .companion-speech-bubble {
+      position: absolute; /* Posicionado em relação ao .companion-container */
+      bottom: 90px; /* Acima do ícone */
+      right: 0;     /* Alinhado à direita do container */
+      width: 250px; /* Largura do balão */
+      max-width: calc(100vw - 40px); /* Garante que não saia da tela (considera padding/margem) */
+      background: var(--panel-bg);
+      border: 2px solid var(--accent-color);
+      border-radius: 15px;
+      padding: 15px;
+      z-index: 1001; /* Acima do ícone */
+      transform-origin: bottom right; /* Animação de escala a partir do canto */
+  }
+
+  /* Estilo do "balão" apontando para o ícone no mobile */
+  .companion-speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -10px; /* Abaixo do balão */
+      right: 30px;   /* Posição horizontal */
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid var(--accent-color); /* Cor da seta */
+  }
+}
+
+/* Animações (mantidas como estavam) */
+@keyframes pulse {
+  0% {
+      transform: scale(1);
+  }
+  50% {
+      transform: scale(1.05);
+  }
+  100% {
+      transform: scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+.companion-avatar.pulse {
+  animation: pulse 1s infinite;
+}
+
+.companion-speech-bubble.fade-in {
+  animation: fadeInUp 0.3s forwards;
 }

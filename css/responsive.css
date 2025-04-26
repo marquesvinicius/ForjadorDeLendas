@@ -1,326 +1,464 @@
-/* Responsividade */
+/* css/responsive.css - Mesclado */
+
+/* Responsividade Geral (Tablet e acima) */
 @media screen and (max-width: 1023px) {
-    .main-container {
-        flex-direction: column;
-        padding: 1rem;
-    }
 
-    .left-section {
-        width: 100%;
-        padding-top: 1rem;
-    }
+  /* Ajustes gerais do container principal */
+  .main-container {
+    flex-direction: column;
+    /* Empilha seções */
+    padding: 1rem;
+    /* Reduz padding */
+    /* Adiciona espaço inferior para o companion não cobrir o footer */
+    /* Ajuste o valor conforme a altura do seu footer + companion */
+    padding-bottom: 120px;
+  }
 
-    .character-creation-section {
-        width: 100%;
-    }
+  /* Seção esquerda ocupa toda a largura */
+  .left-section {
+    width: 100%;
+    padding-top: 1rem;
+  }
 
-    .companion-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        top: auto;
-        width: auto;
-        height: auto;
-        z-index: 100;
-    }
+  /* Seção de criação ocupa toda a largura */
+  .character-creation-section {
+    width: 100%;
+  }
+
+  /* --- ESTILOS DO COMPANION PARA MOBILE (FIXO) - Mantidos do responsive_css_filtered --- */
+  .companion-container {
+    position: fixed !important;
+    /* Garante a posição fixa na viewport */
+    bottom: 20px !important;
+    /* Distância fixa da parte inferior */
+    right: 20px !important;
+    /* Distância fixa da direita */
+    top: auto !important;
+    /* Impede posicionamento pelo topo */
+    left: auto !important;
+    /* Impede posicionamento pela esquerda */
+    transform: none !important;
+    /* Remove qualquer transformação */
+    width: 80px;
+    /* Largura fixa do container */
+    height: 80px;
+    /* Altura fixa do container */
+    z-index: 1000;
+    /* Garante que fique sobre outros elementos */
+    touch-action: auto;
+    /* Permite interações de toque normais (clique) */
+    display: block;
+    /* Garante que seja visível */
+  }
+
+  .companion-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    /* Ícone redondo */
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    background-color: var(--panel-bg);
+    /* Fundo para melhor visibilidade */
+    cursor: pointer !important;
+    /* Cursor de clique */
+    -webkit-tap-highlight-color: transparent;
+    /* Remove highlight ao tocar */
+    position: relative;
+    /* Necessário para z-index */
+    z-index: 1001;
+    /* Avatar acima do balão base */
+  }
+
+  /* Efeito de clique no avatar mobile */
+  .companion-avatar:active {
+    cursor: pointer;
+    transform: scale(0.95);
+  }
+
+  .companion-speech-bubble {
+    position: absolute;
+    /* Posicionado em relação ao .companion-container */
+    bottom: 90px;
+    /* Acima do ícone */
+    right: 0;
+    /* Alinhado à direita do container */
+    width: 250px;
+    /* Largura do balão */
+    max-width: calc(100vw - 40px - 20px);
+    /* Garante que não saia da tela (viewport - padding - right offset) */
+    background: var(--panel-bg);
+    border: 2px solid var(--accent-color);
+    border-radius: 15px;
+    padding: 15px;
+    z-index: 1000;
+    /* Abaixo do avatar para a seta parecer sair dele */
+    transform-origin: bottom right;
+    /* Animação de escala a partir do canto */
+    color: var(--text-color);
+    /* Cor do texto clara */
+    font-family: "MedievalSharp", cursive;
+    /* Transições gerenciadas por .hidden/.fade-in em base.css */
+  }
+
+  /* Garante a cor do texto dentro do parágrafo do balão */
+  .companion-speech-bubble p {
+    color: var(--text-color) !important;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    font-size: 1rem;
+    word-wrap: break-word;
+  }
+
+
+  /* Seta do balão no mobile */
+  .companion-speech-bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    /* Abaixo do balão */
+    right: 30px;
+    /* Posição horizontal */
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid var(--accent-color);
+    /* Cor da seta */
+  }
+
+  /* --- FIM DOS ESTILOS DO COMPANION PARA MOBILE --- */
 }
 
-/* Companion em formato normal para telas grandes */
-@media screen and (min-width: 102px) {
-    .companion-container {
-        width: 67%;
-        position: fixed;
-        top: -1%;
-        right: -12%;
-        display: block;
-        padding: 1rem;
-        z-index: -1;
-    }
 
-    .companion-avatar {
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-        position: relative;
-    }
-
-    .companion-speech-bubble {
-        background: rgba(255, 255, 255, 0.9);
-        border: 2px solid var(--panel-border);
-        border-radius: 15px;
-        padding: 15px;
-        width: 280px;
-        position: absolute;
-        top: 13%;
-        left: 20%;
-        color: var(--secondary-color);
-        font-family: 'MedievalSharp', cursive;
-        z-index: 5;
-    }
-}
-
-/* Companion em formato circular para telas menores que 1020px */
-@media screen and (max-width: 1019px) {
-    .companion-container {
-        position: fixed;
-        bottom: 80px;
-        right: 20px;
-        width: 80px;
-        height: 80px;
-        z-index: 1000;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-    }
-
-    .companion-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        border: 2px solid var(--accent-color);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        object-fit: cover;
-        background-color: var(--panel-bg);
-        z-index: 1002;
-    }
-
-    .companion-speech-bubble {
-        position: absolute;
-        left: -20px;
-        transform: translateX(-100%);
-        width: calc(90vw - 130px);
-        max-width: none;
-        min-width: 150px;
-        height: fit-content;
-        padding: 15px;
-        background: var(--panel-bg);
-        border: 2px solid var(--accent-color);
-        border-radius: 15px;
-        z-index: 1001;
-    }
-
-    /* Garantir que o texto do balão use a cor correta em todas as telas abaixo de 1020px */
-    .companion-speech-bubble p {
-        color: var(--text-color) !important;
-        margin: 0;
-        padding: 0;
-        line-height: 1.4;
-        font-size: 1rem;
-        word-wrap: break-word;
-    }
-}
-
-/* Ajustes gerais para mobile */
+/* Ajustes gerais para MOBILE MENOR (Celular) */
 @media screen and (max-width: 768px) {
-    body {
-        overflow-x: hidden;
-        width: 100%;
-        position: relative;
-    }
-    
-    .main-container {
-        padding: 1rem;
-        width: 100%;
-        overflow-x: hidden;
-    }
+  body {
+    overflow-x: hidden;
+    /* Previne scroll horizontal */
+    /* position: relative; */
+    /* Removido pois não é necessário aqui e pode conflitar */
+  }
 
-    #characterForm {
-        flex-direction: column;
-        padding: 0.5rem;
-    }
+  /* Container principal */
+  .main-container {
+    padding: 1rem;
+    /* Mantém padding */
+    width: 100%;
+    overflow-x: hidden;
+    /* Garante */
+    margin-bottom: 60px;
+    /* Espaço para footer/companion */
+    /* gap: 1rem; */
+    /* Gap não se aplica diretamente ao flex-direction column aqui */
+  }
 
-    .basic-info-column {
-        flex: 1;
-        border-right: none;
-        border-bottom: 0px solid var(--panel-border);
-        padding-right: 0;
-        padding-bottom: 0;
-        margin-bottom: 0;
-    }
+  /* Layout do formulário em coluna */
+  #characterForm {
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 1rem;
+    /* Espaçamento entre colunas do form */
+  }
 
-    .attributes-column {
-        padding-left: 0;
-    }
+  .basic-info-column {
+    flex: 1;
+    border-right: none;
+    /* Remove borda direita */
+    border-bottom: 1px solid var(--panel-border);
+    /* Adiciona borda inferior */
+    padding-right: 0;
+    padding-bottom: 1rem;
+    /* Espaçamento antes da seção de atributos */
+    margin-bottom: 1rem;
+    /* Espaçamento antes da seção de atributos */
+  }
 
-    .attributes-container {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-    }
+  .attributes-column {
+    padding-left: 0;
+    /* Remove padding esquerdo */
+  }
 
-    .attributes-container .input {
-        font-size: 1rem;
-        height: 2rem;
-        padding: 0.25rem;
-    }
+  /* Grid de atributos com 2 colunas */
+  .attributes-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    /* Espaçamento entre campos de atributo */
+  }
 
-    /* Ajuste do Mago Companion para mobile */
-    .companion-container {
-        padding: 0;
-        margin: 0;
-        right: -8%;
-        position: fixed;
-        width: 120px;
-        height: 80px;
-        z-index: 1000;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-    }
+  .attributes-container .input {
+    font-size: 1rem;
+    /* Fonte menor nos inputs */
+    height: 2.2rem;
+    /* Altura ligeiramente maior para toque */
+    padding: 0.25rem 0.5rem;
+    /* Padding interno */
+  }
 
-    .companion-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        border: 2px solid var(--accent-color);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        object-fit: cover;
-        background-color: var(--panel-bg);
-        z-index: 1002;
-    }
+  /* Ajuste dos cartões de personagem (2 por linha) */
+  .character-card {
+    /* Ajustado para 2 cards com gap menor */
+    margin: 0.25rem;
+  }
 
-    .companion-speech-bubble {
-        position: absolute;
-        left: -20px;
-        transform: translateX(-100%);
-        width: calc(90vw - 130px);
-        max-width: none;
-        min-width: 150px;
-        height: fit-content;
-        padding: 15px;
-        background: var(--panel-bg);
-        border: 2px solid var(--accent-color);
-        border-radius: 15px;
-        z-index: 1001;
-    }
+  #savedCharactersList {
+    gap: 0.5rem;
+    /* Espaçamento entre cards */
+  }
 
-    .companion-speech-bubble p {
-        margin: 0;
-        padding: 0;
-        line-height: 1.4;
-        color: var(--text-color);
-        font-size: 1rem;
-        word-wrap: break-word;
-    }
 
-    .companion-speech-bubble::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 100%;
-        width: 0;
-        height: 0;
-        transform: translateY(-50%);
-        border-left: 12px solid var(--accent-color);
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-    }
+  /* Ajuste dos botões do formulário (empilhados) */
+  .field.is-grouped.is-grouped-centered {
+    flex-direction: column;
+    /* Empilha os botões */
+    width: 100%;
+    align-items: stretch;
+    /* Faz os botões ocuparem a largura */
+    padding: 0 1rem;
+    /* Padding horizontal para centralizar */
+  }
 
-    /* Ajuste do footer para não sobrepor o companion */
-    .footer {
-        padding-bottom: 10px;
-    }
+  .field.is-grouped.is-grouped-centered .control {
+    width: 100%;
+    /* Controle ocupa 100% */
+    margin: 0.25rem 0 !important;
+    /* Espaçamento vertical entre botões */
+  }
 
-    /* Garantir que o container principal não cause overflow */
-    .main-container {
-        overflow-x: hidden;
-        width: 100%;
-        margin-bottom: 60px;
-    }
+  .field.is-grouped.is-grouped-centered .control .button {
+    width: 100%;
+    /* Botão ocupa 100% do controle */
+    justify-content: center;
+    /* Centraliza texto/ícone */
+    height: 3rem;
+    /* Altura maior para toque */
+  }
 
-    /* Ajuste para telas muito pequenas */
-    @media screen and (max-width: 320px) {
-        .companion-speech-bubble {
-            width: calc(85vw - 100px);
-            min-width: 120px;
-        }
-    }
+  /* Ordem visual dos botões no mobile */
+  .field.is-grouped.is-grouped-centered .control:nth-child(1) {
+    order: 3;
+  }
 
-    /* Ajuste dos botões em mobile */
-    .field.is-grouped.is-grouped-centered {
-        flex-direction: column;
-        width: 100%;
-        padding: 0 1rem;
-    }
+  /* Salvar/Atualizar */
+  .field.is-grouped.is-grouped-centered .control:nth-child(2) {
+    order: 1;
+  }
 
-    .field.is-grouped.is-grouped-centered .control {
-        width: 100%;
-        margin: 0.25rem 0 !important;
-    }
+  /* Gerar História */
+  .field.is-grouped.is-grouped-centered .control:nth-child(3) {
+    order: 2;
+  }
 
-    .field.is-grouped.is-grouped-centered .control .button {
-        width: 100%;
-        justify-content: center;
-        height: 3rem; /* Altura maior para melhor toque */
-    }
+  /* Limpar */
 
-    /* Define a ordem dos botões */
-    .field.is-grouped.is-grouped-centered .control:nth-child(1) { order: 3; } /* Salvar */
-    .field.is-grouped.is-grouped-centered .control:nth-child(2) { order: 1; } /* Gerar História */
-    .field.is-grouped.is-grouped-centered .control:nth-child(3) { order: 2; } /* Limpar */
 
-    /* Ajuste dos modais para mobile */
-    #characterModal .modal-card {
-        width: 95%;
-        margin: 0.5rem;
-        max-height: 95vh;
-    }
+  /* Ajuste dos modais */
+  #characterModal .modal-card {
+    width: 95%;
+    /* Modal mais largo */
+    margin: 1rem auto;
+    /* Margem vertical */
+    max-height: 90vh;
+    /* Altura máxima */
+  }
 
-    #loadingModal.modal-content {
-        max-width: 95%;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        overflow-y: auto; /* Garante scroll se necessário */
-    }
-    #loadingModal.modal-background {
-        height: 100vh; /* Corrige altura em mobile */
-    }
+  #loadingModal .modal-content {
+    max-width: 95%;
+    /* Largura do modal de loading */
+    /* Centralização já deve funcionar com display:flex no modal */
+    /* top: 50% !important; */
+    /* left: 50% !important; */
+    /* transform: translate(-50%, -50%) !important; */
+    overflow-y: auto;
+    /* Garante scroll se necessário */
+  }
 
-    /* Ajuste da lista de personagens para mobile */
-    .saved-characters-section {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-    }
+  #loadingModal .modal-background {
+    /* height: 100vh; */
+    /* Geralmente não necessário se o modal for flex */
+  }
 
-    .saved-characters-section .title {
-        margin-bottom: 1rem !important;
-    }
 
-    .main-container {
-        overflow-x: hidden;
-        width: 100%;
-        margin-bottom: 2rem;
-        gap: 1rem;
-    }
+  /* Ajuste da lista de personagens */
+  .saved-characters-section {
+    padding-top: 1rem !important;
+    /* Adiciona padding superior */
+    margin-top: 1rem !important;
+    /* Adiciona margem superior */
+  }
 
-    .character-card {
-        width: 45%;
-        margin: 0.25rem;
-    }
+  .saved-characters-section .title {
+    margin-bottom: 1rem !important;
+  }
 
-    .hero {
-        margin-bottom: .5rem !important;
-    }
+  /* Ajuste do header - Mantido do responsive_css_filtered */
+  .hero {
+    margin-bottom: .5rem !important;
+    /* Reduz margem inferior do hero */
+  }
 
-    /* Ajuste dos títulos */
-    .title {
-        margin-bottom: 0.5rem !important; /* Reduz espaço após o título principal */
-    }
+  .hero .title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem !important;
+    /* Espaçamento após título */
+  }
 
-    .subtitle {
-        margin-top: 0 !important; /* Aumenta espaço após o subtítulo */
-        margin-bottom: 0 !important; /* Aumenta espaço antes do form */
-    }
+  .hero .subtitle {
+    font-size: 1.2rem;
+    margin-top: 0 !important;
+    /* Remove margem superior */
+    margin-bottom: 1rem !important;
+    /* Adiciona espaço antes do form */
+  }
 
-    /* Ajuste do espaçamento do form */
-    .form-title {
-        margin-bottom: 0 !important; /* Reduz espaço entre "Crie seu herói" e o form */
-    }
+  /* Ajuste fino do balão do mago para telas menores - Mantido do responsive_css_filtered */
+  .companion-speech-bubble {
+    width: calc(100vw - 40px - 15px);
+    /* Ajusta largura máxima */
+    bottom: 85px;
+    /* Um pouco mais baixo */
+    right: 5px;
+    /* Mais próximo da borda */
+    padding: 10px;
+    /* Menos padding */
+    font-size: 0.9rem;
+  }
 
-    /* Ajuste do primeiro campo do form */
-    .field:first-of-type {
-        margin-top: 0; /* Reduz espaço antes do primeiro campo */
-    }
+  .companion-speech-bubble::after {
+    right: 20px;
+    /* Ajusta posição da seta */
+  }
+
+  /* Ajuste do espaçamento do form title */
+  .character-panel .title.is-3 {
+    /* Seleciona "Crie seu Herói" */
+    margin-bottom: 1rem !important;
+    /* Reduz espaço antes do form */
+  }
+
+  /* Ajuste do primeiro campo do form */
+  #characterForm .field:first-of-type {
+    margin-top: 0;
+    /* Remove espaço extra antes do primeiro campo */
+  }
+
+  /* Ajuste do footer */
+  .footer {
+    padding-bottom: 10px;
+    /* Mantém padding inferior */
+  }
+}
+
+/* Ajustes para telas MUITO PEQUENAS */
+@media screen and (max-width: 480px) {
+  .main-container {
+    padding: 0.5rem;
+    /* Menos padding ainda */
+    padding-bottom: 110px;
+    /* Mais espaço para o companion */
+  }
+
+  /* 1 card por linha */
+  .character-card {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  /* Header ainda menor - Mantido do responsive_css_filtered */
+
+  /* Ajuste fino dos atributos */
+  .attributes-container {
+    gap: 0.5rem;
+    /* Menor espaçamento */
+  }
+
+  .attributes-container .input {
+    height: 2rem;
+    /* Altura padrão */
+    font-size: 0.9rem;
+    /* Fonte um pouco menor */
+  }
+
+  /* Ajuste fino dos botões do formulário */
+  .field.is-grouped.is-grouped-centered .control .button {
+    height: 2.8rem;
+    /* Altura ligeiramente menor */
+    font-size: 0.9rem;
+  }
+
+  /* Ajuste fino do modal */
+  #characterModal .modal-card {
+    margin: 0.5rem auto;
+  }
+
+  #characterModal .modal-card-body {
+    padding: 1rem;
+    /* Menos padding no corpo do modal */
+  }
+
+  #characterModal .modal-card-foot .button {
+    font-size: 0.8rem;
+    /* Botões menores no rodapé do modal */
+  }
+
+  /* Ajuste fino do companion (já coberto por max-width: 768px, mas pode refinar se necessário) */
+  /* .companion-speech-bubble { ... } */
+}
+
+/* Ajuste específico para telas muito pequenas (max-width: 320px) */
+@media screen and (max-width: 320px) {
+
+  /* Ajuste fino do balão do companion */
+  .companion-speech-bubble {
+    width: calc(100vw - 40px - 5px);
+    /* Quase toda a largura */
+    min-width: auto;
+    /* Remove min-width */
+    right: 2px;
+    bottom: 82px;
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+
+  .companion-speech-bubble::after {
+    right: 15px;
+    /* Ajusta seta */
+  }
+
+  .hero {
+    margin-bottom: .5rem !important;
+  }
+
+  /* Ajuste dos títulos */
+  .title {
+    margin-bottom: 0.5rem !important;
+    /* Reduz espaço após o título principal */
+  }
+
+  .subtitle {
+    margin-top: 0 !important;
+    /* Aumenta espaço após o subtítulo */
+    margin-bottom: 0 !important;
+    /* Aumenta espaço antes do form */
+  }
+
+  /* Ajuste do espaçamento do form */
+  .form-title {
+    margin-bottom: 0 !important;
+    /* Reduz espaço entre "Crie seu herói" e o form */
+  }
+
+  /* Ajuste do primeiro campo do form */
+  .field:first-of-type {
+    margin-top: 0;
+    /* Reduz espaço antes do primeiro campo */
+  }
+
+  /* Ajuste dos botões */
+  .field.is-grouped.is-grouped-centered .control .button {
+    height: 2.5rem;
+    font-size: 0.8rem;
+  }
 }

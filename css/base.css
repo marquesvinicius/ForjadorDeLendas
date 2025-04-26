@@ -1,20 +1,23 @@
+/* css/base.css */
+
 /* Estilos gerais da página */
 body {
+    /* Imagem de fundo e configurações */
     background-image: url('../assets/img/background-compressed.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    background-attachment: fixed; /* Mantém o fundo fixo durante o scroll */
     color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
-    position: relative;
-    background-position: 50% 0;
-    transform: translateZ(0);
-    perspective: 1000px;
-    will-change: transform;
+    position: relative; /* Necessário para alguns posicionamentos filhos */
+
+    /* REMOVIDO: Estas propriedades quebram position: fixed relativo ao viewport */
+    /* transform: translateZ(0); */
+    /* perspective: 1000px; */
+    /* will-change: transform; */
 }
-
-
 
 .container.is-fluid.main-container {
     padding: 0px;
@@ -22,7 +25,7 @@ body {
 
 /* Overlay de névoa */
 .fog-overlay {
-    position: fixed;
+    position: fixed; /* Fixo na tela */
     top: 0;
     left: 0;
     width: 100%;
@@ -30,34 +33,54 @@ body {
     background-image: url('../assets/img/fog-overlay.webp');
     background-size: cover;
     opacity: 0.1;
-    pointer-events: none;
-    z-index: 10;
+    pointer-events: none; /* Não interfere com cliques */
+    z-index: 10; /* Fica sobre o conteúdo, mas abaixo de modais/companion */
 }
 
-/* Container principal */
+/* Container principal (ajustado) */
 .main-container {
     display: flex;
+    flex-direction: column; /* Empilha seções verticalmente por padrão */
     min-height: 100vh;
-    padding: 2rem;
+    padding: 2rem; /* Padding geral */
     position: relative;
+    z-index: 1; /* Acima do body, abaixo da névoa/modais */
 }
 
-.initial-section {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
+/* Layout inicial Desktop (usando flex para dividir) */
+@media screen and (min-width: 1024px) {
+    .initial-section {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .left-section {
+        flex-basis: 50%; /* Ajuste conforme necessário */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 1rem;
+    }
 }
 
-/* Seção esquerda (Header + Character Creation) */
-.left-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    width: 50%;
-    padding-top: 1rem;
+/* Layout inicial Mobile (elementos empilhados) */
+@media screen and (max-width: 1023px) {
+    .initial-section {
+        display: flex;
+        flex-direction: column; /* Empilha no mobile */
+        width: 100%;
+    }
+    .left-section {
+        width: 100%; /* Ocupa toda a largura */
+        padding-top: 1rem;
+    }
+    .main-container {
+        padding: 1rem; /* Padding menor no mobile */
+    }
 }
+
 
 /* Títulos em estilo medieval */
 .medieval-title {
@@ -75,25 +98,28 @@ body {
     border-radius: 8px;
 }
 
-/* Utilitários gerais */
+/* Utilitários gerais para esconder/mostrar com transição */
 .hidden {
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
+
 .fade-in {
     opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s linear 0s;
 }
 
-
+/* Animação de fadeIn (pode ser usada se necessário) */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-/* Adicione esta classe para o container principal */
-.parallax-wrapper {
-    position: relative;
-    z-index: 1;
-    transform-style: preserve-3d;
-    transform: translateZ(0);
+/* Classe temporária para forçar redraw (pode ser usada pelo JS se necessário) */
+.force-redraw {
+    /* Pode estar vazia, serve apenas como gatilho para JS */
 }
