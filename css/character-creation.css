@@ -34,7 +34,6 @@
 /* Coluna da direita (atributos) */
 .attributes-column {
     flex: 1;
-    padding-left: 1rem;
 }
 
 .attributes-container {

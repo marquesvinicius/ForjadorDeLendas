@@ -119,7 +119,3 @@ body {
     to { opacity: 1; }
 }
 
-/* Classe temporária para forçar redraw (pode ser usada pelo JS se necessário) */
-.force-redraw {
-/* Pode estar vazia, serve apenas como gatilho para JS */
-}
