@@ -13,7 +13,10 @@ const editCharacterBtn = document.getElementById('editCharacter');
 const characterDetails = document.getElementById('characterDetails');
 const loreText = document.getElementById('loreText');
 const backgroundTextArea = document.getElementById('charBackground');
+import { applyWorldTheme } from './themeManager.js';
 
+const savedWorld = localStorage.getItem('selectedWorld') || 'dnd';
+applyWorldTheme(savedWorld);
 
 // Dados de estado
 let characters = [];

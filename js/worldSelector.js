@@ -3,9 +3,9 @@
  */
 document.addEventListener('DOMContentLoaded', function () {
     const worlds = [
-        { id: 'tormenta', name: 'Tormenta 20', icon: 'assets/icons/tormenta-icon.png' },
-        { id: 'dnd', name: 'D&D 5e', icon: 'assets/icons/dnd-icon.png' },
-        { id: 'ordem-paranormal', name: 'Ordem Paranormal', icon: 'assets/icons/ordem-paranormal-icon.png' }
+        { id: 'tormenta', name: 'Tormenta 20', icon: 'assets/img/tormenta/icon.png' },
+        { id: 'dnd', name: 'D&D 5e', icon: 'assets/img/dnd/icon.png' },
+        { id: 'ordem-paranormal', name: 'Ordem Paranormal', icon: 'assets/img/ordem-paranormal/icon.png' }
     ];
 
     const mainContainer = document.querySelector('.container.is-fluid.main-container');
@@ -172,10 +172,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setTimeout(() => {
             confirmButton.classList.remove('is-loading');
+
+            if (window.applyWorldTheme) {
+                window.applyWorldTheme(selectedWorld.id);
+            }
+
+            localStorage.setItem('selectedWorld', selectedWorld.id);
+
             if (window.companionSpeak) {
                 window.companionSpeak(`Trocando para o mundo: ${selectedWorld.name}!`);
             }
-            localStorage.setItem('selectedWorld', selectedWorld.id);
         }, 800);
     });
 });
