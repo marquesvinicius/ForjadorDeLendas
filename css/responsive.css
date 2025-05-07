@@ -43,8 +43,8 @@
     /* Largura fixa do container */
     height: 80px;
     /* Altura fixa do container */
-    z-index: 1000;
-    /* Garante que fique sobre outros elementos */
+    z-index: 9000;
+    /* Garante que fique sobre todos os outros elementos, incluindo o world-selector */
     touch-action: auto;
     /* Permite interações de toque normais (clique) */
     display: block;
@@ -67,8 +67,8 @@
     /* Remove highlight ao tocar */
     position: relative;
     /* Necessário para z-index */
-    z-index: 1001;
-    /* Avatar acima do balão base */
+    z-index: 9001;
+    /* Avatar acima do container para interação */
   }
 
   /* Efeito de clique no avatar mobile */
@@ -92,8 +92,8 @@
     border: 2px solid var(--accent-color);
     border-radius: 15px;
     padding: 15px;
-    z-index: 1000;
-    /* Abaixo do avatar para a seta parecer sair dele */
+    z-index: 9002;
+    /* Acima do avatar para sobreposição adequada */
     transform-origin: bottom right;
     /* Animação de escala a partir do canto */
     color: var(--text-color);
@@ -350,6 +350,7 @@
     /* Mantém padding inferior */
   }
 }
+
 
 /* Ajustes para telas MUITO PEQUENAS */
 @media screen and (max-width: 480px) {

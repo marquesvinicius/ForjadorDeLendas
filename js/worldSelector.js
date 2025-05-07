@@ -3,9 +3,9 @@
  */
 document.addEventListener('DOMContentLoaded', function () {
     const worlds = [
-        { id: 'tormenta', name: 'Tormenta 20', icon: 'assets/img/tormenta/icon.png' },
-        { id: 'dnd', name: 'D&D 5e', icon: 'assets/img/dnd/icon.png' },
-        { id: 'ordem-paranormal', name: 'Ordem Paranormal', icon: 'assets/img/ordem-paranormal/icon.png' }
+        { id: 'tormenta', name: 'Tormenta 20', icon: 'assets/img/tormenta/icon.png', loadingMessage: 'Viajando para Arton...' },
+        { id: 'dnd', name: 'D&D 5e', icon: 'assets/img/dnd/icon.png', loadingMessage: 'Voando para a Terra dos Dragões...' },
+        { id: 'ordem-paranormal', name: 'Ordem Paranormal', icon: 'assets/img/ordem-paranormal/icon.png', loadingMessage: 'Invocando a Ordem...' }
     ];
 
     const mainContainer = document.querySelector('.container.is-fluid.main-container');
@@ -14,7 +14,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const oldSelector = document.querySelector('.world-selector');
     if (oldSelector) oldSelector.remove();
 
-    let currentIndex = 0;
+    // Verificar o mundo atual no localStorage
+    const currentWorldId = localStorage.getItem('selectedWorld') || 'dnd';
+    
+    // Encontrar o índice do mundo atual
+    let currentIndex = worlds.findIndex(world => world.id === currentWorldId);
+    if (currentIndex === -1) currentIndex = 1; // Default para D&D (índice 1) se não encontrar
 
     const worldSelector = document.createElement('div');
     worldSelector.className = 'world-selector';
@@ -62,7 +67,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
     worldSelector.appendChild(selectorRow);
     worldSelector.appendChild(confirmButton);
-    mainContainer.appendChild(worldSelector);
+    
+    // Função para posicionar o seletor de mundos com base na largura da tela
+    function positionWorldSelector() {
+        const characterPanel = document.querySelector('.character-panel-container');
+        const savedCharactersSection = document.querySelector('.saved-characters-section');
+        
+        if (window.innerWidth <= 1300 && characterPanel && savedCharactersSection) {
+            // Para telas menores que 1300px, inserir entre character-panel e saved-characters-section
+            savedCharactersSection.parentNode.insertBefore(worldSelector, savedCharactersSection);
+            
+            // Telas entre 1024px e 1300px - posicionamento centralizado
+            if (window.innerWidth >= 1024) {
+                // O CSS se encarregará do posicionamento centralizado
+            }
+        } else {
+            // Para telas maiores, manter no mainContainer
+            mainContainer.appendChild(worldSelector);
+        }
+    }
+    
+    // Posicionar o seletor de mundos inicialmente
+    positionWorldSelector();
+    
+    // Adicionar listener para redimensionamento da janela
+    window.addEventListener('resize', positionWorldSelector);
+
+    // Criação do modal de carregamento
+    const loadingModal = document.createElement('div');
+    loadingModal.className = 'modal';
+    loadingModal.id = 'worldLoadingModal';
+    
+    loadingModal.innerHTML = `
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box has-text-centered">
+          <h3 class="title is-4 medieval-title mb-4" id="loadingMessage"></h3>
+          <progress class="progress is-primary" max="100"></progress>
+          <p class="mt-2">Preparando o universo...</p>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(loadingModal);
+
+    // Criar a notificação de "Já está neste mundo"
+    const worldNotification = document.createElement('div');
+    worldNotification.className = 'notification is-info world-notification';
+    worldNotification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 300px; display: none; opacity: 0; transition: opacity 0.3s ease;';
+    worldNotification.innerHTML = `
+      <button class="delete"></button>
+      <p><strong>Você já se encontra nessas terras!</strong></p>
+    `;
+    document.body.appendChild(worldNotification);
+
+    // Adicionar evento para fechar a notificação
+    worldNotification.querySelector('.delete').addEventListener('click', function() {
+        hideWorldNotification();
+    });
+
+    function showWorldNotification(message) {
+        if (message) {
+            worldNotification.querySelector('p').innerHTML = `<strong>${message}</strong>`;
+        }
+        worldNotification.style.display = 'block';
+        setTimeout(() => {
+            worldNotification.style.opacity = '1';
+        }, 50);
+        
+        // Auto-esconder após 3 segundos
+        setTimeout(() => {
+            hideWorldNotification();
+        }, 3000);
+    }
+
+    function hideWorldNotification() {
+        worldNotification.style.opacity = '0';
+        setTimeout(() => {
+            worldNotification.style.display = 'none';
+        }, 300);
+    }
 
     const styleEl = document.createElement('style');
     styleEl.textContent = `
@@ -165,23 +248,52 @@ document.addEventListener('DOMContentLoaded', function () {
     rightWorld.addEventListener('click', goToNextWorld);
 
     confirmButton.addEventListener('click', function () {
-        confirmButton.classList.add('is-loading');
-
         const selectedWorld = worlds[currentIndex];
         console.log(`Trocando para o mundo: ${selectedWorld.name} (${selectedWorld.id})`);
-
+        
+        // Verificar se o usuário já está no mundo selecionado
+        const currentWorldId = localStorage.getItem('selectedWorld') || 'dnd';
+        if (selectedWorld.id === currentWorldId) {
+            showWorldNotification(`Você já se encontra nessas terras!`);
+            return;
+        }
+        
+        // Mostrar modal de carregamento com mensagem personalizada
+        const loadingMessage = document.getElementById('loadingMessage');
+        loadingMessage.textContent = selectedWorld.loadingMessage;
+        
+        // Ativar o modal
+        const modal = document.getElementById('worldLoadingModal');
+        modal.classList.add('is-active');
+        
+        // Aplicar o tema com atraso para permitir animação
         setTimeout(() => {
-            confirmButton.classList.remove('is-loading');
-
+            // Aplicar o tema do mundo selecionado
             if (window.applyWorldTheme) {
                 window.applyWorldTheme(selectedWorld.id);
+            } else if (typeof applyWorldTheme === 'function') {
+                applyWorldTheme(selectedWorld.id);
+            } else {
+                // Tentar importar o módulo themeManager se não estiver disponível globalmente
+                import('./themeManager.js')
+                    .then(module => {
+                        module.applyWorldTheme(selectedWorld.id);
+                    })
+                    .catch(err => console.error('Erro ao carregar o gerenciador de temas:', err));
             }
-
+            
+            // Salvar a seleção no localStorage
             localStorage.setItem('selectedWorld', selectedWorld.id);
-
+            
+            // Notificar pelo companion
             if (window.companionSpeak) {
-                window.companionSpeak(`Trocando para o mundo: ${selectedWorld.name}!`);
+                window.companionSpeak(`Bem-vindo ao mundo de ${selectedWorld.name}!`);
             }
-        }, 800);
+            
+            // Fechar o modal após carregar o tema
+            setTimeout(() => {
+                modal.classList.remove('is-active');
+            }, 1200);
+        }, 2000); // Tempo suficiente para mostrar a animação de carregamento
     });
 });

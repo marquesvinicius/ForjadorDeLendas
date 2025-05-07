@@ -28,7 +28,7 @@
     height: 100%;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
     padding: 2vw;
     box-sizing: border-box;
 }
@@ -47,14 +47,14 @@
     text-align: center;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: scale(0.9);
+    transition: opacity 0.5s ease, transform 0.5s ease;
     margin: 0 auto;
 }
 
 #loadingModal.is-active .modal-content {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
 }
 
 #loadingModal .modal-content p {
@@ -64,10 +64,10 @@
 }
 
 #loadingModal .box {
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    background: transparent !important;
-    padding: 0 !important;
+    padding: 1.5rem !important;
 }
 
 /* Ajuste da animação do progress bar */
@@ -77,8 +77,35 @@
 }
 
 #loadingModal .progress {
-    background-image: linear-gradient(to right, var(--panel-bg) 30%, var(--accent-color) 30%);
-    animation: indeterminateProgress 1.5s infinite linear;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+#loadingModal .progress::-webkit-progress-bar {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#loadingModal .progress::-webkit-progress-value {
+    background-color: var(--accent-color);
+    background-image: linear-gradient(
+        45deg, 
+        rgba(255, 255, 255, .15) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(255, 255, 255, .15) 50%, 
+        rgba(255, 255, 255, .15) 75%, 
+        transparent 75%, 
+        transparent
+    );
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+#loadingModal .medieval-title {
+    color: var(--accent-color);
+    font-size: 1.5rem;
 }
 
 /* Estilos para o modal de personagem */
@@ -146,4 +173,116 @@
     background: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     border: 1px solid var(--panel-border);
+}
+
+/* Modal de troca de mundos */
+#worldLoadingModal {
+    z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 2vw;
+    box-sizing: border-box;
+}
+
+#worldLoadingModal.is-active {
+    display: flex;
+}
+
+#worldLoadingModal .modal-content {
+    background-color: var(--panel-bg);
+    border: 3px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 2rem;
+    width: auto;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    margin: 0 auto;
+}
+
+#worldLoadingModal.is-active .modal-content {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#worldLoadingModal .box {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 1.5rem !important;
+}
+
+#worldLoadingModal .medieval-title {
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+#worldLoadingModal .progress {
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+#worldLoadingModal .progress::-webkit-progress-bar {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#worldLoadingModal .progress::-webkit-progress-value {
+    background-color: var(--accent-color);
+    background-image: linear-gradient(
+        45deg, 
+        rgba(255, 255, 255, .15) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(255, 255, 255, .15) 50%, 
+        rgba(255, 255, 255, .15) 75%, 
+        transparent 75%, 
+        transparent
+    );
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
+}
+
+/* Notificação de mundo */
+.world-notification {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-left: 5px solid var(--accent-color);
+    animation: slide-in 0.3s ease forwards;
+}
+
+@keyframes slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slide-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+.world-notification.hiding {
+    animation: slide-out 0.3s ease forwards;
+}
+
+.world-notification button.delete {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.world-notification button.delete:hover {
+    background-color: rgba(255, 255, 255, 0.4);
 }

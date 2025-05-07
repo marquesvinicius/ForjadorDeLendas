@@ -108,7 +108,7 @@
       transform: none !important;
       width: 80px;
       height: 80px;
-      z-index: 1000;
+      z-index: 9000; /* Aumentado para ter precedência sobre elementos da interface */
       touch-action: auto;
       transition: opacity 0.4s ease;
       opacity: 1;
@@ -131,7 +131,7 @@
       cursor: pointer !important;
       -webkit-tap-highlight-color: transparent;
       position: relative;
-      z-index: 1;
+      z-index: 9001; /* Aumentado para ficar acima do container */
       transition: opacity 0.4s ease; /* Adicionado para transição suave */
   }
 
@@ -140,6 +140,17 @@
   }
 
   .companion-speech-bubble {
+      position: absolute;
+      bottom: 90px;
+      right: 0;
+      width: 250px;
+      max-width: calc(100vw - 40px - 20px);
+      background: var(--panel-bg);
+      border: 2px solid var(--accent-color);
+      border-radius: 15px;
+      padding: 15px;
+      z-index: 9002; /* Aumentado para ficar acima do avatar */
+      transform-origin: bottom right;
       transition: opacity 0.3s ease, transform 0.3s ease;
   }
 
@@ -147,6 +158,19 @@
       opacity: 0;
       transform: scale(0.8);
       pointer-events: none;
+  }
+  
+  /* Seta do balão no mobile */
+  .companion-speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      right: 30px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid var(--accent-color);
   }
 }
 

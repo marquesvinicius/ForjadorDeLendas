@@ -1,6 +1,6 @@
 /* Footer */
 .footer {
-    background-color: rgba(30, 20, 10, 1);
+    background-color: var(--panel-bg-footer);
     border-top: 1px solid var(--panel-border);
     padding: 1.5rem;
 }

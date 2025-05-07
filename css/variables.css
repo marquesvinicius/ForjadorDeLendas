@@ -6,5 +6,7 @@
     --bg-color: #2C1B0F;
     --text-color: #E8DBBE;
     --panel-bg: rgba(35, 25, 15, 0.85);
+    --panel-bg-opacity1: rgba(35, 25, 15, 1);
+    --panel-bg-footer: rgba(30, 20, 10, 1);
     --panel-border: #8B5A2B;
 }
