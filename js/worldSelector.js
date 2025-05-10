@@ -284,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // Salvar a seleção no localStorage
             localStorage.setItem('selectedWorld', selectedWorld.id);
+            document.dispatchEvent(new CustomEvent('worldChanged'));
             
             // Notificar pelo companion
             if (window.companionSpeak) {

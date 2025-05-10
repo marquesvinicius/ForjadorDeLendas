@@ -10,8 +10,8 @@ body {
     /* height: 100%; */ /* Removido para depender do min-height e conteúdo flex */
     display: flex; /* Permite que os filhos controlem melhor o fluxo e a altura */
     flex-direction: column; /* Empilha os filhos diretos do body verticalmente */
-    overflow-y: hidden; /* Adicionado para prevenir scroll vertical causado pelo companion-container alto */
-    overflow-x: hidden; /* Adicionado para prevenir scroll horizontal */
+    overflow-y: hidden !important; /* Adicionado !important para maior precedência */
+    overflow-x: hidden !important; /* Adicionado !important para maior precedência */
     /* Imagem de fundo e configurações */
     background-image: url('../assets/img/background-compressed.png');
     background-size: cover;

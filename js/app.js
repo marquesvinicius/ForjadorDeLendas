@@ -65,6 +65,7 @@ function setupEventListeners() {
     });
     deleteCharacterBtn.addEventListener('click', deleteCurrentCharacter);
     editCharacterBtn.addEventListener('click', editCurrentCharacter);
+    document.addEventListener('worldChanged', renderCharactersList);
 }
 
 // Carregar personagens do localStorage
@@ -91,6 +92,7 @@ function saveCharacter(e) {
         race: document.getElementById('charRace').value,
         class: document.getElementById('charClass').value,
         alignment: document.getElementById('charAlignment').value,
+        world: savedWorld,
         attributes: {
             strength: parseInt(document.getElementById('attrStr').value),
             dexterity: parseInt(document.getElementById('attrDex').value),
@@ -121,9 +123,21 @@ function saveCharacter(e) {
     } else {
         showMessage(`Personagem ${savedCharacter.name} salvo com sucesso!`, 'is-success');
         magoCompanion.speak(`${savedCharacter.name} foi adicionado ao seu grimório de heróis!`, 4000);
+
+        // Tenta destacar e rolar suavemente para o novo card
+        setTimeout(() => { // Pequeno delay para garantir que o DOM foi atualizado por renderCharactersList
+            const newCard = savedCharactersList.querySelector(`.character-card[data-id="${savedCharacter.id}"]`);
+            if (newCard) {
+                newCard.classList.add('new-character-highlight');
+                newCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                setTimeout(() => {
+                    newCard.classList.remove('new-character-highlight');
+                }, 2500); // Remove o destaque após 2.5 segundos
+            }
+        }, 100);
     }
 
-    document.querySelector('.saved-characters-section').scrollIntoView({ behavior: 'smooth' });
+    // document.querySelector('.saved-characters-section').scrollIntoView({ behavior: 'smooth' }); // Comentado anteriormente
 }
 
 function rollAttributes() {
@@ -143,14 +157,23 @@ function rollAttributes() {
 function renderCharactersList() {
     const characters = storage.getAllCharacters();
     console.log('Personagens carregados:', characters); // Debug
-    if (characters.length === 0) {
-        savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado ainda. Comece a forjar sua lenda!</p>';
+
+    const currentSelectedWorld = localStorage.getItem('selectedWorld') || 'dnd';
+    const filteredCharacters = characters.filter(character => {
+        if (!character.world && currentSelectedWorld === 'dnd') {
+            return true;
+        }
+        return character.world === currentSelectedWorld;
+    });
+
+    if (filteredCharacters.length === 0) {
+        savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado para este mundo ainda. Comece a forjar sua lenda!</p>';
         return;
     }
 
 
     savedCharactersList.innerHTML = '';
-    characters.forEach(character => {
+    filteredCharacters.forEach(character => {
         const characterCard = document.createElement('div');
         characterCard.className = 'character-card';
         characterCard.dataset.id = character.id;
@@ -185,11 +208,22 @@ function openCharacterModal(characterId) {
     }
 
     currentCharacterId = characterId;
+
+    const worldDisplayNames = {
+        'dnd': 'D&D 5e',
+        'tormenta': 'Tormenta 20',
+        'ordem-paranormal': 'Ordem Paranormal'
+    };
+
+    const characterWorldId = character.world || 'dnd'; // Assume 'dnd' se não houver mundo definido
+    const characterWorldName = worldDisplayNames[characterWorldId] || characterWorldId; // Usa o ID se não houver nome amigável
+
     characterDetails.innerHTML = `
         <div class="columns is-multiline">
             <div class="column is-8">
                 <h3 class="title is-3 medieval-title">${character.name}</h3>
                 <p class="subtitle is-5">${character.race} ${character.class} (${character.alignment})</p>
+                <p class="subtitle is-6 world-info"><i class="fas fa-globe-americas"></i> Mundo: ${characterWorldName}</p>
                 <div class="content mt-4">
                     <h4 class="title is-5 medieval-title">Atributos</h4>
                     <div class="columns is-multiline">
@@ -273,7 +307,7 @@ function editCurrentCharacter() {
 
     // Fechar o modal e rolar para o formulário
     closeModal(characterModal);
-    characterForm.scrollIntoView({ behavior: 'smooth' });
+    // characterForm.scrollIntoView({ behavior: 'smooth' }); // Comentado para prevenir scroll indesejado
 
     // Feedback visual
     showMessage('Editando personagem: ' + character.name, 'is-info');
