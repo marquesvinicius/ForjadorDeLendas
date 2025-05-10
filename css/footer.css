@@ -3,6 +3,8 @@
     background-color: var(--panel-bg-footer);
     border-top: 1px solid var(--panel-border);
     padding: 1.5rem;
+    position: relative;
+    z-index: 1;
 }
 
 #footer-text strong {

@@ -156,10 +156,10 @@
         padding: 1rem;
         right: auto;
         top: auto;
-        background-color: var(--panel-bg);
+        /*background-color: var(--panel-bg);
         border: 2px solid var(--panel-border);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);*/
         border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .world-selector-row {
@@ -209,7 +209,7 @@
         margin: 0.5rem auto;
         padding: 1rem;
         /* Reduz o z-index para ficar abaixo do companion em dispositivos móveis */
-        z-index: 5;
+        z-index: 0;
         /* Acrescenta padding inferior para evitar que o botão seja coberto pelo companion */
         padding-bottom: 1.5rem;
         /* Adiciona margem inferior para espaço entre o world-selector e a saved-characters-section */
@@ -247,7 +247,6 @@
     .world-confirm-button {
         padding: 0.6rem 1rem;
         font-size: 1rem;
-        width: 100%;
         max-width: 100%;
         margin-top: 1.5rem;
         height: 3rem;

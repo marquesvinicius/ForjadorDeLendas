@@ -34,28 +34,27 @@
 /* Estilos para DESKTOP (telas maiores que 1023px) - Layout original */
 @media screen and (min-width: 1024px) {
   .companion-container {
-      /* Layout original que divide a tela */
       width: 69%;
-      position: absolute; /* Mantém fixo em relação à viewport */
-      top: -1%;
+      min-height: 150vh; /* Força uma altura muito grande */
+      position: absolute; 
+      top: -1%; 
+      /* bottom: 0; */ /* Comentado pois estamos usando min-height grande */
       right: -12%;
-      bottom: auto; /* Garante que não seja afetado por 'bottom' */
-      left: auto;  /* Garante que não seja afetado por 'left' */
-      display: block;
-      padding: 1rem;
-      z-index: 1; /* Fica atrás de outros elementos */
-      transform: none !important; /* Remove qualquer transformação residual */
-      /* Remover propriedades de arrasto para desktop */
-      touch-action: auto; /* Comportamento de toque padrão */
-      opacity: 1 !important; /* Sempre visível em desktop */
+      left: auto;  
+      z-index: 0; 
+      transform: none !important; 
+      touch-action: auto; 
+      opacity: 1 !important; 
+      overflow: hidden; /* Essencial para cortar o conteúdo que excede o min-height */
   }
 
   .companion-avatar {
-      height: 100%;
       width: 100%;
-      object-fit: cover;
-      position: relative;
-      cursor: default; /* Não é arrastável em desktop */
+      height: 100%; /* Para preencher a altura do container (150vh) */
+      object-fit: cover; /* Reintroduzido */
+      object-position: center top; /* Reintroduzido */
+      display: block; 
+      cursor: default; 
       border-radius: 0; /* Restaurar forma original */
       border: none;
       box-shadow: none;
@@ -108,7 +107,7 @@
       transform: none !important;
       width: 80px;
       height: 80px;
-      z-index: 9000; /* Aumentado para ter precedência sobre elementos da interface */
+      z-index: 9990 !important; /* Aumentado drasticamente e com !important */
       touch-action: auto;
       transition: opacity 0.4s ease;
       opacity: 1;
@@ -131,7 +130,7 @@
       cursor: pointer !important;
       -webkit-tap-highlight-color: transparent;
       position: relative;
-      z-index: 9001; /* Aumentado para ficar acima do container */
+      z-index: 9991 !important; /* Aumentado drasticamente e com !important */
       transition: opacity 0.4s ease; /* Adicionado para transição suave */
   }
 
@@ -149,7 +148,7 @@
       border: 2px solid var(--accent-color);
       border-radius: 15px;
       padding: 15px;
-      z-index: 9002; /* Aumentado para ficar acima do avatar */
+      z-index: 9992 !important; /* Aumentado drasticamente e com !important */
       transform-origin: bottom right;
       transition: opacity 0.3s ease, transform 0.3s ease;
   }

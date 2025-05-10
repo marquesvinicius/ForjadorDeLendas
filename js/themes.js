@@ -12,7 +12,7 @@ export const worldThemes = {
   dnd: {
     // Sem estilos personalizados - usará as variáveis padrão do variables.css
     bgImage: 'assets/img/dnd/background.png',
-    companionImage: 'assets/img/dnd/companion.png',
+    companionImage: 'assets/img/dnd/2.png',
     subtitle: 'Aventuras nas Terras dos Dragões'
   },
   'ordem-paranormal': {
@@ -22,7 +22,7 @@ export const worldThemes = {
     panelBg: 'rgba(10, 20, 10, 0.9)',
     panelBorder: '#0a4a1c',
     bgImage: 'assets/img/ordem-paranormal/background.png',
-    companionImage: 'assets/img/ordem-paranormal/1.png',
+    companionImage: 'assets/img/ordem-paranormal/companion.png',
     subtitle: 'Investigue o Desconhecido'
   }
 };

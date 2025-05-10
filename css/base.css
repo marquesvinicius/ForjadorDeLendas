@@ -1,16 +1,26 @@
 /* css/base.css */
 
+html {
+    height: 100%;
+    /* background-color: red; */ /* TESTE REMOVIDO */
+}
+
 /* Estilos gerais da página */
 body {
+    /* height: 100%; */ /* Removido para depender do min-height e conteúdo flex */
+    display: flex; /* Permite que os filhos controlem melhor o fluxo e a altura */
+    flex-direction: column; /* Empilha os filhos diretos do body verticalmente */
+    overflow-y: hidden; /* Adicionado para prevenir scroll vertical causado pelo companion-container alto */
+    overflow-x: hidden; /* Adicionado para prevenir scroll horizontal */
     /* Imagem de fundo e configurações */
     background-image: url('../assets/img/background-compressed.png');
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
+    background-repeat: repeat-y;
     background-attachment: fixed; /* Mantém o fundo fixo durante o scroll */
     color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
+    min-height: 100vh; /* Garante que o body preencha pelo menos a viewport */
     position: relative; /* Necessário para alguns posicionamentos filhos */
 
     /* REMOVIDO: Estas propriedades quebram position: fixed relativo ao viewport */
@@ -40,11 +50,11 @@ body {
 /* Container principal (ajustado) */
 .main-container {
     display: flex;
-    flex-direction: column; /* Empilha seções verticalmente por padrão */
-    min-height: 100vh;
+    flex-direction: column;
+    flex-grow: 1; /* Faz o main-container crescer para preencher o espaço no body flexível */
     padding: 2rem; /* Padding geral */
     position: relative;
-    z-index: 1; /* Acima do body, abaixo da névoa/modais */
+    z-index: 1;
 }
 
 /* Layout inicial Desktop (usando flex para dividir) */

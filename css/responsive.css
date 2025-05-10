@@ -43,8 +43,6 @@
     /* Largura fixa do container */
     height: 80px;
     /* Altura fixa do container */
-    z-index: 9000;
-    /* Garante que fique sobre todos os outros elementos, incluindo o world-selector */
     touch-action: auto;
     /* Permite interações de toque normais (clique) */
     display: block;
@@ -59,6 +57,7 @@
     border: 2px solid var(--accent-color);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     object-fit: cover;
+    object-position: center top;
     background-color: var(--panel-bg);
     /* Fundo para melhor visibilidade */
     cursor: pointer !important;
@@ -67,8 +66,6 @@
     /* Remove highlight ao tocar */
     position: relative;
     /* Necessário para z-index */
-    z-index: 9001;
-    /* Avatar acima do container para interação */
   }
 
   /* Efeito de clique no avatar mobile */
@@ -92,8 +89,6 @@
     border: 2px solid var(--accent-color);
     border-radius: 15px;
     padding: 15px;
-    z-index: 9002;
-    /* Acima do avatar para sobreposição adequada */
     transform-origin: bottom right;
     /* Animação de escala a partir do canto */
     color: var(--text-color);
