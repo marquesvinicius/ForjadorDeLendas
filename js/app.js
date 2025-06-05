@@ -530,8 +530,18 @@ function getTormentaClassSummaries() {
 }
 
 // Função para chamar o servidor local Python
+// Função para chamar o servidor local Python - melhorada com logs e tratamento de erros
 async function fetchBackstoryFromLocal(prompt) {
+    const startTime = Date.now();
+    
     try {
+        // Log do início da requisição
+        if (typeof log !== 'undefined') {
+            log.info('Iniciando geração de backstory via servidor...', { promptLength: prompt.length });
+        } else {
+            console.log('🔮 Iniciando geração de backstory via servidor...');
+        }
+
         const response = await fetch('https://forjador-backend.onrender.com/generate', {
             method: 'POST',
             headers: {
@@ -540,20 +550,83 @@ async function fetchBackstoryFromLocal(prompt) {
             body: JSON.stringify({ prompt: prompt })
         });
 
+        // Verificação detalhada da resposta
         if (!response.ok) {
-            throw new Error('Erro na requisição ao servidor local: ' + response.statusText);
+            const errorMessage = `Servidor retornou status ${response.status}: ${response.statusText}`;
+            
+            if (typeof log !== 'undefined') {
+                log.error('Falha na requisição ao servidor', { 
+                    status: response.status, 
+                    statusText: response.statusText,
+                    url: response.url 
+                });
+            }
+            
+            // Mensagem amigável baseada no status
+            let friendlyMessage = '';
+            switch (response.status) {
+                case 429:
+                    friendlyMessage = 'Muitas requisições simultâneas. Tente novamente em alguns segundos.';
+                    break;
+                case 500:
+                    friendlyMessage = 'Erro interno do servidor. O serviço pode estar temporariamente indisponível.';
+                    break;
+                case 503:
+                    friendlyMessage = 'Serviço temporariamente indisponível. Tentando novamente...';
+                    break;
+                default:
+                    friendlyMessage = `Erro de conexão com o servidor (${response.status})`;
+            }
+            
+            throw new Error(friendlyMessage);
         }
 
         const data = await response.json();
-        console.log('Resposta do servidor local:', data);
+        const duration = Date.now() - startTime;
+        
+        // Log de sucesso com métricas
+        if (typeof log !== 'undefined') {
+            log.info('Backstory gerada com sucesso', { 
+                duration: `${duration}ms`,
+                backstoryLength: data.backstory?.length || 0
+            });
+        } else {
+            console.log(`✅ Backstory gerada em ${duration}ms`);
+        }
 
         if (data.error) {
-            throw new Error(data.error);
+            const errorMsg = `Erro do servidor: ${data.error}`;
+            if (typeof log !== 'undefined') {
+                log.error('Servidor retornou erro', { error: data.error });
+            }
+            throw new Error(errorMsg);
+        }
+
+        if (!data.backstory) {
+            const warningMsg = 'Servidor não retornou backstory válida';
+            if (typeof log !== 'undefined') {
+                log.warn(warningMsg, data);
+            }
+            console.warn('⚠️ ' + warningMsg);
         }
 
         return data.backstory || null;
+        
     } catch (error) {
-        console.error('Erro ao gerar história localmente:', error);
+        const duration = Date.now() - startTime;
+        
+        // Log detalhado do erro
+        if (typeof log !== 'undefined') {
+            log.error('Erro ao gerar história localmente', { 
+                error: error.message,
+                duration: `${duration}ms`,
+                promptPreview: prompt.substring(0, 100) + '...'
+            });
+        } else {
+            console.error('❌ Erro ao gerar história localmente:', error.message);
+        }
+
+        // Retorna null para fallback, mas preserva informação do erro
         return null;
     }
 }
