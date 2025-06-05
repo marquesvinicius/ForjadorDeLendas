@@ -1,3 +1,5 @@
+import { getCurrentWorldConfig } from './worldsConfig.js';
+
 class MagoCompanion {
     constructor() {
         this.companionContainer = document.querySelector('.companion-container');
@@ -134,9 +136,13 @@ class MagoCompanion {
     }
 
     greet() {
+        const config = getCurrentWorldConfig();
         const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
         let greetings;
-        if (currentWorld === 'dnd') {
+        if (config.companionSpeech && config.companionSpeech.greetings) {
+            greetings = config.companionSpeech.greetings;
+        } else if (currentWorld === 'dnd') {
             greetings = [
                 "Bem-vindo ao Forjador de Lendas! Sou seu guia pelos Reinos Esquecidos!",
                 "Um novo aventureiro para Faerûn! Que sua jornada seja épica.",
@@ -155,9 +161,15 @@ class MagoCompanion {
     onNameInput(e) {
         const name = e.target.value.trim();
         if (name.length > 2) {
+            const config = getCurrentWorldConfig();
             const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+            
             let responses;
-            if (currentWorld === 'dnd') {
+            if (config.companionSpeech && config.companionSpeech.nameResponses) {
+                responses = config.companionSpeech.nameResponses.map(response => 
+                    response.replace('{name}', name)
+                );
+            } else if (currentWorld === 'dnd') {
                 responses = [
                     `${name}? Um nome que ecoará por toda Faerûn!`,
                     `Ah, ${name}! Vejo um futuro de glória e perigo te esperando nos Reinos.`,
@@ -176,10 +188,13 @@ class MagoCompanion {
 
     onRaceChange(e) {
         const selectedRace = e.target.value;
+        const config = getCurrentWorldConfig();
         const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
         let raceResponses;
-
-        if (currentWorld === 'dnd') {
+        if (config.companionSpeech && config.companionSpeech.raceResponses) {
+            raceResponses = config.companionSpeech.raceResponses;
+        } else if (currentWorld === 'dnd') {
             raceResponses = {
                 'Anão': "Um anão! Seu martelo ecoa como trovões de Moradin.",
                 'Elfo': "Um elfo! Suas flechas dançam com a graça de Corellon.",
@@ -190,7 +205,6 @@ class MagoCompanion {
                 'Meio-Elfo': "Um meio-elfo! Um pé em dois mundos, que equilíbrio!",
                 'Meio-Orc': "Um meio-orc! Sua força é uma lenda em formação.",
                 'Tiefling': "Um tiefling! Seu fogo interno brilha forte."
-                // Adicionar outras raças de D&D e suas falas conforme necessário
             };
         } else { // Tormenta
             raceResponses = {
@@ -213,15 +227,20 @@ class MagoCompanion {
                 'Trong': "Um trong! *se afasta* Não me coma, eu sou só um mago velho!"
             };
         }
-        this.speak(raceResponses[selectedRace] || (currentWorld === 'dnd' ? "Uma raça intrigante para os Reinos!" : "Uma raça intrigante para Arton!"));
+        
+        const defaultMessage = currentWorld === 'dnd' ? "Uma raça intrigante para os Reinos!" : "Uma raça intrigante para Arton!";
+        this.speak(raceResponses[selectedRace] || defaultMessage);
     }
 
     onClassChange(e) {
         const selectedClass = e.target.value;
+        const config = getCurrentWorldConfig();
         const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
         let classResponses;
-
-        if (currentWorld === 'dnd') {
+        if (config.companionSpeech && config.companionSpeech.classResponses) {
+            classResponses = config.companionSpeech.classResponses;
+        } else if (currentWorld === 'dnd') {
             classResponses = {
                 'Bárbaro': "Um bárbaro! Sua fúria abala montanhas!",
                 'Bardo': "Um bardo! Sua canção encantará deuses!",
@@ -235,7 +254,6 @@ class MagoCompanion {
                 'Monge': "Um monge! Sua disciplina é inspiradora.",
                 'Paladino': "Um paladino! Sua luz enfrenta as trevas.",
                 'Patrulheiro': "Um patrulheiro! A selva é sua aliada."
-                // Adicionar outras classes de D&D e suas falas
             };
         } else { // Tormenta
             classResponses = {
@@ -255,42 +273,56 @@ class MagoCompanion {
                 'Paladino': "Um paladino! A luz de Khalmyr guia seus passos!"
             };
         }
-        this.speak(classResponses[selectedClass] || (currentWorld === 'dnd' ? "Uma classe formidável para os Reinos!" : "Uma classe fascinante para Arton!"));
+        
+        const defaultMessage = currentWorld === 'dnd' ? "Uma classe formidável para os Reinos!" : "Uma classe fascinante para Arton!";
+        this.speak(classResponses[selectedClass] || defaultMessage);
     }
 
     onAlignmentChange(e) {
         const alignment = e.target.value;
+        const config = getCurrentWorldConfig();
         const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
         let response;
-
-        if (currentWorld === 'dnd') {
-            if (alignment.includes('Bom') && alignment.includes('Leal')) {
-                response = "Um coração nobre! Faerûn precisa de sua luz.";
-            } else if (alignment.includes('Bom') && alignment.includes('Caótico')) {
-                response = "Liberdade e bondade? Cuidado com os tiranos!";
-            } else if (alignment.includes('Mau') && alignment.includes('Leal')) {
-                response = "Ordem sombria? Mystra observa seus passos.";
-            } else if (alignment.includes('Mau') && alignment.includes('Caótico')) {
-                response = "Caos e trevas? Não traga demônios à minha torre!";
-            } else { // Neutros
-                response = "Equilíbrio é sábio, mas escolha um lado eventualmente.";
-            }
-        } else { // Tormenta
-            if (alignment.includes('Mau')) {
-                response = "Hmmm... *suspeita* Não traga a Tormenta para minha torre!";
-            } else if (alignment.includes('Bom')) {
-                response = "Um coração nobre! Arton precisa de você contra o mal!";
-            } else {
-                response = "Neutro? Equilíbrio é sábio, mas não seja indeciso!";
+        if (config.companionSpeech && config.companionSpeech.alignmentResponses) {
+            response = config.companionSpeech.alignmentResponses[alignment];
+        }
+        
+        if (!response) {
+            if (currentWorld === 'dnd') {
+                if (alignment.includes('Bom') && alignment.includes('Leal')) {
+                    response = "Um coração nobre! Faerûn precisa de sua luz.";
+                } else if (alignment.includes('Bom') && alignment.includes('Caótico')) {
+                    response = "Liberdade e bondade? Cuidado com os tiranos!";
+                } else if (alignment.includes('Mau') && alignment.includes('Leal')) {
+                    response = "Ordem sombria? Mystra observa seus passos.";
+                } else if (alignment.includes('Mau') && alignment.includes('Caótico')) {
+                    response = "Caos e trevas? Não traga demônios à minha torre!";
+                } else { // Neutros
+                    response = "Equilíbrio é sábio, mas escolha um lado eventualmente.";
+                }
+            } else { // Tormenta
+                if (alignment.includes('Mau')) {
+                    response = "Hmmm... *suspeita* Não traga a Tormenta para minha torre!";
+                } else if (alignment.includes('Bom')) {
+                    response = "Um coração nobre! Arton precisa de você contra o mal!";
+                } else {
+                    response = "Neutro? Equilíbrio é sábio, mas não seja indeciso!";
+                }
             }
         }
+        
         this.speak(response);
     }
 
     onRollAttributes() {
+        const config = getCurrentWorldConfig();
         const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
         let responses;
-        if (currentWorld === 'dnd') {
+        if (config.companionSpeech && config.companionSpeech.rollAttributesResponses) {
+            responses = config.companionSpeech.rollAttributesResponses;
+        } else if (currentWorld === 'dnd') {
             responses = [
                 "Que os ventos do destino guiem seus dados!",
                 "*Murmura um encantamento* Que Tymora sorria para você!",
@@ -333,3 +365,5 @@ class MagoCompanion {
 document.addEventListener('DOMContentLoaded', () => {
     window.magoCompanion = new MagoCompanion();
 });
+
+export { MagoCompanion };

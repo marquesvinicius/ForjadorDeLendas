@@ -14,6 +14,8 @@ const characterDetails = document.getElementById('characterDetails');
 const loreText = document.getElementById('loreText');
 const backgroundTextArea = document.getElementById('charBackground');
 import { applyWorldTheme } from './themeManager.js';
+import { initWorldManager, getCurrentClassIcons } from './worldManager.js';
+import { getCurrentWorldConfig } from './worldsConfig.js';
 
 const savedWorld = localStorage.getItem('selectedWorld') || 'dnd';
 applyWorldTheme(savedWorld);
@@ -22,29 +24,17 @@ applyWorldTheme(savedWorld);
 let characters = [];
 let currentCharacterId = null;
 
-// Classe para ícones de cada classe de personagem
-const classIcons = {
-    'Arcanista': 'fa-hat-wizard',
-    'Bárbaro': 'fa-gavel',
-    'Bardo': 'fa-guitar',
-    'Bucaneiro': 'fa-sailboat',
-    'Caçador': 'fa-shoe-prints',
-    'Cavaleiro': 'fa-horse-head',
-    'Clérigo': 'fa-pray',
-    'Druida': 'fa-leaf',
-    'Guerreiro': 'fa-jedi',
-    'Inventor': 'fa-tools',
-    'Ladino': 'fa-mask',
-    'Lutador': 'fa-fist-raised',
-    'Nobre': 'fa-crown',
-    'Paladino': 'fa-shield-alt'
-};
+// Função para obter ícones de classe baseados no mundo atual
+function getClassIcons() {
+    return getCurrentClassIcons();
+}
 
 // Referência ao storage
 const storage = characterStorage;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function () {
+    initWorldManager(); // Inicializar gerenciador de mundos
     setupEventListeners();
     renderCharactersList();
     if (typeof magoCompanion !== 'undefined') {
@@ -177,6 +167,7 @@ function renderCharactersList() {
         const characterCard = document.createElement('div');
         characterCard.className = 'character-card';
         characterCard.dataset.id = character.id;
+        const classIcons = getClassIcons();
         const classIcon = classIcons[character.class] || 'fa-user';
         characterCard.innerHTML = `
             <div class="has-text-centered mb-3">
@@ -242,7 +233,7 @@ function openCharacterModal(characterId) {
             </div>
             <div class="column is-4 has-text-centered">
                 <div class="character-avatar" style="width: 120px; height: 120px; margin: 0 auto;">
-                    <i class="fas ${classIcons[character.class] || 'fa-user'}" style="font-size: 4rem;"></i>
+                    <i class="fas ${getClassIcons()[character.class] || 'fa-user'}" style="font-size: 4rem;"></i>
                 </div>
                 <p class="is-size-7 mt-3">Criado em ${formatDate(character.createdAt)}</p>
             </div>
@@ -388,52 +379,35 @@ function closeLoadingModal() {
 
 // Função para gerar o prompt com contexto de raças e classes
 function generatePrompt(characterData) {
-    const raceSummaries = {
-        'Humano': 'Versáteis, ambiciosos e adaptáveis, os humanos representam a maioria em Arton. Capazes de trilhar qualquer caminho, moldam o mundo com sua vontade e perseverança. Seguem Valkaria, a Deusa da Evolução e da Jornada. Presentes em todas as cidades, dominam centros como Valkaria, Deheon e Portsmouth. Sua diversidade é sua maior força.',
-        'Anão': 'Oriundos das montanhas de Doherimm, anões são robustos, honrados e resilientes. Artesãos lendários, mestres das forjas e da mineração, reverenciam Khalmyr, deus da justiça. Vivem em sociedades rigidamente hierárquicas, prezando pela tradição, pela palavra dada e pela vingança contra inimigos antigos.',
-        'Dahllan': 'Criaturas féericas criadas pela Deusa Allihanna para proteger a natureza. Sua aparência mistura traços humanos e vegetais, com seiva em vez de sangue e flores adornando seus corpos. Dahllan têm forte ligação com as florestas de Arton, como as matas de Lenórienn, e carregam o peso da missão de equilibrar o mundo natural contra a devastação.',
-        'Elfo': 'Antigos senhores de Lenórienn, os elfos são graciosos, longevos e dotados de afinidade natural com a magia. A destruição de sua cidade pela Tormenta marcou-os para sempre, gerando facções: uns buscam reconstrução, outros, vingança. São orgulhosos, refinados e fortemente ligados às artes arcanas e ao culto de Glórienn.',
-        'Goblin': 'Pequenos sobreviventes de Tollon, goblins são engenhosos, caóticos e extremamente adaptáveis. Embora vistos como trapaceiros e canalhas pela maioria das raças civilizadas, suas sociedades florescem no subterrâneo e nas ruínas, onde criam engenhocas improvisadas e técnicas peculiares de sobrevivência.',
-        'Lefou': 'Marcados pela corrupção da Tormenta, Lefou são seres deformados, mas ainda dotados de alma. Lutar contra sua natureza é um desafio constante: alguns buscam redenção; outros aceitam sua monstruosidade. Sua mera presença desperta medo e preconceito em Arton, mesmo entre aventureiros.',
-        'Minotauro': 'Guerreiros orgulhosos oriundos de Tapista, minotauros veneravam Tauron, o deus da força, agora morto. Em busca de um novo propósito, muitos abandonaram o militarismo cego e hoje lutam para provar seu valor, com força bruta e disciplina férrea. Sua cultura valoriza honra e conquista.',
-        'Qareen': 'Descendentes dos gênios, os qareen são belos, carismáticos e profundamente ligados à magia elemental. Têm uma aura sobrenatural e são considerados afortunados ou amaldiçoados. Vivem principalmente em Wynlla, a nação da magia, e são conhecidos por sua facilidade em manipular energias místicas.',
-        'Golem': 'Seres artificiais criados por magos há séculos, golems desenvolveram consciência própria. Sem fome, sede ou necessidade de descanso, buscam compreender o significado da vida. Alguns servem seus criadores, outros viajam em busca de identidade própria. Carregam resistência sobrenatural e emoções adormecidas.',
-        'Hynne': 'Pequenos seres similares a halflings, vindos de comunidades alegres e viajantes como Tapista. Hynne são amantes da boa vida, da sorte e da liberdade. Preferem evitar confrontos, usando sua agilidade e astúcia para escapar de perigos, mas podem surpreender com coragem inesperada.',
-        'Kliren': 'Descendentes de gnomos vindos de outros planos, kliren são inovadores, excêntricos e altamente inteligentes. Obcecados por tecnologia, experimentam incessantemente com alquimia, invenções e magia científica. Muitos vivem em Vectora, a cidade voadora, buscando desafios intelectuais.',
-        'Medusa': 'Seres amaldiçoados por aparências monstruosas e olhos capazes de petrificar. Medusas vivem isoladas por medo ou são caçadas como aberrações. Algumas buscam integrar-se à sociedade de Arton, ocultando sua natureza; outras abraçam sua solidão ou formam enclaves secretos.',
-        'Osteon': 'Mortos-vivos conscientes originados por alterações no ciclo natural da morte. Mantêm sua inteligência e personalidade após a morte, mas enfrentam o preconceito dos vivos. Muitos osteon são movidos por deveres inacabados ou propósitos maiores, rejeitando o destino de simples cadáveres ambulantes.',
-        'Sereia/Tritão': 'Seres anfíbios, habitantes dos oceanos que cercam Arton, como o Grande Oceano. Dotados de voz encantadora e adaptabilidade aquática, sereias e tritões exploram tanto os recifes secretos quanto as cidades costeiras, equilibrando curiosidade e desconfiança dos terrestres.',
-        'Sílfide': 'Espíritos alados ligados ao vento, as sílfides são leves, esvoaçantes e brincalhonas. Vivem entre nuvens e montanhas, muitas vezes servindo Marah, deusa da bondade e da liberdade. Possuem habilidades mágicas relacionadas ao ar e à fuga.',
-        'Suraggel': 'Descendentes de extraplanares — anjos, demônios, ou ambos. Suraggel vivem divididos entre luz e trevas, carregando características de seus ancestrais. São admirados e temidos em igual medida, tanto entre nobres quanto entre camponeses supersticiosos.',
-        'Trong': 'Seres reptilianos de força colossal, oriundos de regiões pantanosas e cavernosas. Apesar da aparência bruta e da fala limitada, possuem inteligência pragmática e uma ferocidade incomparável em batalha. Valorizam clãs e sobrevivência acima de tudo.'
-    };
-
-    const classSummaries = {
-        'Arcanista': 'Mestre das artes arcanas, os arcanistas canalizam o poder mágico puro através de anos de estudo ou talento inato. Podem ser magos eruditos da Academia Arcana em Wynlla ou feiticeiros cuja magia pulsa no sangue. Moldam a realidade com feitiços devastadores, ilusões complexas e proteções místicas.',
-        'Bárbaro': 'Guerreiros selvagens que lutam impulsionados por uma fúria primal, os bárbaros dominam as regiões mais indomadas de Arton, como as estepes de Tapista ou os ermos de Lamnor. Preferem a força bruta e o instinto ao invés da estratégia refinada, canalizando raiva em resistência sobrenatural.',
-        'Bardo': 'Artistas inspirados, os bardos tecem magia através da música, poesia e oratória. Viajantes incansáveis, eles são historiadores, espiões e líderes carismáticos. Utilizando canções arcanas, podem curar ferimentos, lançar encantamentos e motivar aliados em combates épicos ou intrigas cortesãs.',
-        'Bucaneiro': 'Corsários e aventureiros marítimos, os bucaneiros são exímios em navegação, combate ágil e vida pirata. Dominam cidades portuárias como Portsmouth e navegam os mares de Arton em busca de glória, ouro e liberdade. Mestres do acrobático e do improviso em batalha.',
-        'Caçador': 'Especialistas em sobrevivência e rastreamento, caçadores dominam as fronteiras do Reinado, protegendo civilizações contra feras e horrores da Tormenta. Arqueiros letais e mestres dos terrenos difíceis, sua ligação com a natureza é tanto pragmática quanto reverente.',
-        'Cavaleiro': 'Defensores da honra e da justiça, cavaleiros seguem códigos rígidos de conduta e lealdade. Lutam montados em corcéis treinados, vestindo armaduras reluzentes. São figuras de prestígio em reinos como Deheon e Valkaria, sendo tanto campeões de guerras quanto ícones de esperança.',
-        'Clérigo': 'Canalizadores da vontade divina, clérigos servem deuses do Panteão como Khalmyr, Lena ou Azgher. Capazes de curar aliados, banir mortos-vivos e invocar milagres, são tanto pregadores fervorosos quanto guerreiros sagrados. Seu poder varia conforme a fé e a divindade servida.',
-        'Druida': 'Protetores do ciclo natural, druidas reverenciam Allihanna e os espíritos da terra, transformando-se em animais ou controlando as forças da natureza. Guardiões secretos de florestas como Lenórienn ou protetores de regiões intocadas, eles lutam para manter o equilíbrio vital de Arton.',
-        'Guerreiro': 'Combatentes versáteis, treinados em todas as armas e estilos, guerreiros formam o núcleo de exércitos, milícias e companhias mercenárias. De soldados de Yuden a gladiadores em arenas de Valkaria, são mestres em aproveitar a vantagem física no campo de batalha.',
-        'Inventor': 'Mentes brilhantes em um mundo mágico, inventores criam engenhocas e dispositivos fantásticos. Unem ciência e magia, combinando alquimia, mecânica e engenhosidade em armas, armaduras e armadilhas inovadoras. Muitos se destacam em centros como Vectora, onde tecnologia e magia se entrelaçam.',
-        'Ladino': 'Mestres das sombras, furtividade e trapaças, ladinos são especialistas em infiltração, espionagem e combate sorrateiro. Agem nas vielas de Malpetrim, nos becos de Portsmouth ou infiltram-se nas cortes do Reinado, usando astúcia, destreza e inteligência para sobreviver e prosperar.',
-        'Lutador': 'Especialistas no combate corpo a corpo, lutadores aprimoram seu corpo como uma arma mortal. Treinados em academias de combate como as de Tapista ou autodidatas endurecidos pelas ruas, são capazes de subjugar oponentes com técnica pura, sem depender de armas ou armaduras pesadas.',
-        'Nobre': 'Membros da aristocracia, nobres combinam refinamento, estratégia política e habilidade marcial. Treinados desde jovens em etiqueta, diplomacia e guerra, exercem influência sobre reinos e guildas. Alguns empunham espadas com tanta destreza quanto lidam com intrigas de salão.',
-        'Paladino': 'Campeões sagrados, paladinos juram lealdade inquebrantável a deuses da justiça, como Khalmyr, ou da guerra justa, como Valkaria. Portadores de bênçãos divinas, curam aliados, banem criaturas malignas e erguem suas espadas pela ordem e pela honra, servindo como exemplo de virtude em tempos sombrios.'
-    };
-
-    const raceSummary = raceSummaries[characterData.race] || raceSummaries['Humano'];
-    const classSummary = classSummaries[characterData.class] || classSummaries['Guerreiro'];
+    const config = getCurrentWorldConfig();
+    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+    
+    // Usar summaries do mundo atual se disponíveis, senão usar fallback
+    const raceSummaries = config.raceSummaries || getTormentaRaceSummaries();
+    const classSummaries = config.classSummaries || getTormentaClassSummaries();
+    
+    const raceSummary = raceSummaries[characterData.race] || raceSummaries['Humano'] || 'Uma raça versátil e adaptável.';
+    const classSummary = classSummaries[characterData.class] || classSummaries['Guerreiro'] || 'Um combatente habilidoso e versátil.';
 
     const backgroundNote = characterData.background && characterData.background.trim() !== ""
         ? `Considere também esta informação adicional fornecida pelo jogador para enriquecer a história: "${characterData.background.trim()}".`
         : '';
 
+    // Gerar prompt baseado no mundo
+    if (currentWorld === 'dnd') {
+        return generateDnDPrompt(characterData, raceSummary, classSummary, backgroundNote);
+    } else if (currentWorld === 'ordem-paranormal') {
+        return generateOrdemParanormalPrompt(characterData, raceSummary, classSummary, backgroundNote);
+    } else {
+        return generateTormentaPrompt(characterData, raceSummary, classSummary, backgroundNote);
+    }
+}
+
+function generateDnDPrompt(characterData, raceSummary, classSummary, backgroundNote) {
     return `
-Gere uma história curta (100-200 palavras) para um personagem de RPG no mundo de Arton, do sistema Tormenta 20. Aqui estão os detalhes do personagem:
+Crie uma história de origem que defina a ESSÊNCIA e PERSONALIDADE de um personagem de D&D 5e nos Reinos Esquecidos. Esta é uma história de FORMAÇÃO DE IDENTIDADE, não de aventuras.
+
+DADOS DO PERSONAGEM:
 - Nome: ${characterData.name}
 - Raça: ${characterData.race} (${raceSummary})
 - Classe: ${characterData.class} (${classSummary})
@@ -441,11 +415,118 @@ Gere uma história curta (100-200 palavras) para um personagem de RPG no mundo d
 - Atributos: Força ${characterData.attributes.strength}, Destreza ${characterData.attributes.dexterity}, Constituição ${characterData.attributes.constitution}, Inteligência ${characterData.attributes.intelligence}, Sabedoria ${characterData.attributes.wisdom}, Carisma ${characterData.attributes.charisma}
 ${backgroundNote}
 
-Instruções adicionais:
-- A história deve ser escrita em português com linguagem acessível e envolvente, em um estilo de fantasia épica, refletindo fielmente o lore de Arton e as características da raça e classe do personagem.
-- Tente integrar elementos relevantes do cenário de Arton, como locais (Valkaria, Lenórienn, Vectora), eventos (Tormenta), e a influência dos deuses, se apropriado.
-- A história deve ser coesa, fluida e envolvente, com um tom compatível com um mundo fantástico heróico.
+FOQUE EM DEFINIR:
+1. PERSONALIDADE: Como ${characterData.name} pensa, age e reage
+2. MOTIVAÇÕES: O que o/a move, seus objetivos de vida
+3. MEDOS/TRAUMAS: Experiências que o/a moldaram
+4. RELACIONAMENTOS: Família, mentores, rivais importantes
+5. VALORES: No que acredita, seus princípios morais
+6. ORIGEM SOCIAL: De onde vem, como foi criado/a
+
+INSTRUÇÕES:
+- Escreva em português, tom introspectivo e psicológico
+- Use locais de Faerûn (Waterdeep, Baldur's Gate, etc.) e divindades relevantes
+- Conecte os atributos à personalidade (alta INT = curioso, baixa CHA = tímido, etc.)
+- Explique COMO e POR QUE escolheu sua classe
+- Termine com o que o/a motiva a aventurar-se
+- FINALIZE com uma frase de efeito marcante que reflita a motivação central do personagem
+- NÃO descreva aventuras específicas, foque na FORMAÇÃO do caráter
 `;
+}
+
+function generateTormentaPrompt(characterData, raceSummary, classSummary, backgroundNote) {
+    return `
+Crie uma história de origem que defina a ESSÊNCIA e PERSONALIDADE de um personagem de Tormenta 20 em Arton. Esta é uma história de FORMAÇÃO DE IDENTIDADE, não de aventuras.
+
+DADOS DO PERSONAGEM:
+- Nome: ${characterData.name}
+- Raça: ${characterData.race} (${raceSummary})
+- Classe: ${characterData.class} (${classSummary})
+- Alinhamento: ${characterData.alignment}
+- Atributos: Força ${characterData.attributes.strength}, Destreza ${characterData.attributes.dexterity}, Constituição ${characterData.attributes.constitution}, Inteligência ${characterData.attributes.intelligence}, Sabedoria ${characterData.attributes.wisdom}, Carisma ${characterData.attributes.charisma}
+${backgroundNote}
+
+FOQUE EM DEFINIR:
+1. PERSONALIDADE: Como ${characterData.name} pensa, age e reage
+2. MOTIVAÇÕES: O que o/a move, seus objetivos de vida
+3. MEDOS/TRAUMAS: Experiências que o/a moldaram (talvez relacionadas à Tormenta)
+4. RELACIONAMENTOS: Família, mentores, rivais importantes
+5. VALORES: No que acredita, sua relação com os deuses do Panteão
+6. ORIGEM SOCIAL: De onde vem em Arton, como foi criado/a
+
+INSTRUÇÕES:
+- Escreva em português, tom introspectivo e psicológico
+- Use locais de Arton (Valkaria, Lenórienn, Vectora, etc.) e deuses do Panteão
+- Conecte os atributos à personalidade (alta INT = estudioso, baixa CHA = reservado, etc.)
+- Explique COMO e POR QUE escolheu sua classe
+- Considere a influência da Tormenta na formação do caráter
+- Termine com o que o/a motiva a aventurar-se
+- FINALIZE com uma frase de efeito marcante que reflita a motivação central do personagem
+- NÃO descreva aventuras específicas, foque na FORMAÇÃO do caráter
+`;
+}
+
+function generateOrdemParanormalPrompt(characterData, raceSummary, classSummary, backgroundNote) {
+    return `
+Crie uma história de origem que defina a ESSÊNCIA e PERSONALIDADE de um agente da Ordo Realitas no Brasil contemporâneo. Esta é uma história de FORMAÇÃO DE IDENTIDADE, não de missões.
+
+DADOS DO PERSONAGEM:
+- Nome: ${characterData.name}
+- Origem: ${characterData.race} (${raceSummary})
+- Classe: ${characterData.class} (${classSummary})
+- Alinhamento: ${characterData.alignment}
+- Atributos: Força ${characterData.attributes.strength}, Agilidade ${characterData.attributes.dexterity}, Intelecto ${characterData.attributes.constitution}, Presença ${characterData.attributes.intelligence}, Vigor ${characterData.attributes.wisdom}
+${backgroundNote}
+
+CONTEXTO DO UNIVERSO:
+- Ordo Realitas: Organização secreta brasileira que protege a realidade das ameaças do Outro Lado
+- Outro Lado: Dimensão paranormal com 5 elementos (Sangue, Morte, Conhecimento, Energia, Medo)
+- Membrana: Barreira que separa nossa realidade do Outro Lado, enfraquecida pelo medo humano
+- C.R.I.S.: Sistema de IA que detecta anomalias paranormais na internet
+- Ameaças: Seita das Máscaras, Produção do Anfitrião, Transtornados, Luzídios, Kian e os Escriptas
+
+FOQUE EM DEFINIR:
+1. PERSONALIDADE: Como ${characterData.name} pensa, age e lida com o paranormal
+2. TRAUMA INICIAL: O primeiro contato terrível com o Outro Lado que mudou sua vida
+3. RECRUTAMENTO: Como e por que a Ordo Realitas o/a encontrou e recrutou
+4. VIDA DUPLA: Como equilibra identidade civil com missões secretas
+5. CONEXÃO PARANORMAL: Possível ligação com um elemento do Outro Lado
+6. MOTIVAÇÃO PSICOLÓGICA: O que o/a impele a continuar enfrentando horrores
+
+INSTRUÇÕES:
+- Escreva em português brasileiro coloquial, tom psicológico realista
+- Use cidades brasileiras (São Paulo, Rio, Brasília, etc.) e cultura nacional
+- Conecte atributos à personalidade (alto Intelecto = analítico, baixa Presença = introvertido)
+- Mencione como descobriu o paranormal e seu impacto mental
+- Inclua referências sutis a elementos do Outro Lado ou organizações inimigas
+- Aborde sanidade mental e como lida com conhecer "a verdade"
+- FINALIZE com uma frase de efeito que reflita sua determinação como agente
+- NÃO descreva missões específicas, foque na FORMAÇÃO psicológica e trauma
+
+ELEMENTOS PARANORMAIS PARA INSPIRAÇÃO:
+- Sangue: Emoções extremas, criaturas bestiais, rituais com automutilação
+- Morte: Distorção temporal, lodo preto, envelhecimento, apathia
+- Conhecimento: Sussurros malignos, símbolos místicos, obsessão por segredos
+- Energia: Caos eletrônico, transformação, imprevisibilidade, tecnologia distorcida
+- Medo: Pesadelos, instabilidade emocional, conexão com a Calamidade
+`;
+}
+
+// Funções auxiliares para fallback
+function getTormentaRaceSummaries() {
+    return {
+        'Humano': 'Versáteis, ambiciosos e adaptáveis, os humanos representam a maioria em Arton. Capazes de trilhar qualquer caminho, moldam o mundo com sua vontade e perseverança.',
+        'Anão': 'Oriundos das montanhas de Doherimm, anões são robustos, honrados e resilientes. Artesãos lendários, mestres das forjas e da mineração.',
+        // ... outras raças de Tormenta
+    };
+}
+
+function getTormentaClassSummaries() {
+    return {
+        'Guerreiro': 'Combatentes versáteis, treinados em todas as armas e estilos, guerreiros formam o núcleo de exércitos, milícias e companhias mercenárias.',
+        'Arcanista': 'Mestre das artes arcanas, os arcanistas canalizam o poder mágico puro através de anos de estudo ou talento inato.',
+        // ... outras classes de Tormenta
+    };
 }
 
 // Função para chamar o servidor local Python
@@ -477,23 +558,138 @@ async function fetchBackstoryFromLocal(prompt) {
     }
 }
 
-// Função antiga como fallback
+// Função de fallback específica para Ordem Paranormal
+function generateOrdemParanormalFallback(character) {
+    const originTraits = {
+        'Acadêmico': [
+            `${character.name} descobriu o paranormal através de pesquisas universitárias em São Paulo, quando um livro antigo provocou manifestações estranhas.`,
+            `Professor em Brasília, ${character.name} viu sua vida acadêmica desmoronar após presenciar rituais impossíveis durante suas pesquisas.`,
+            `${character.name} era um pesquisador respeitado no Rio de Janeiro até encontrar documentos que revelaram a existência do Outro Lado.`
+        ],
+        'Agente de Saúde': [
+            `${character.name} trabalhava em um pronto-socorro de Belo Horizonte quando começou a tratar feridas que desafiavam a medicina.`,
+            `Paramédico em Salvador, ${character.name} foi o primeiro a responder chamadas envolvendo criaturas que não deveriam existir.`,
+            `${character.name} era enfermeiro em Recife até presenciar um paciente se transformar em algo monstruoso durante seu plantão.`
+        ],
+        'Amnésico': [
+            `${character.name} acordou em um hospital de Curitiba sem memórias, apenas cicatrizes estranhas e pesadelos sobre símbolos místicos.`,
+            `Encontrado desmaiado nas ruas de Fortaleza, ${character.name} não consegue lembrar do passado, apenas de sussurros malignos.`,
+            `${character.name} perdeu a memória após um evento traumático em Porto Alegre, restando apenas fragmentos de rituais sombrios.`
+        ],
+        'Investigador': [
+            `${character.name} era detetive em São Paulo quando começou a investigar desaparecimentos ligados a cultos paranormais.`,
+            `Jornalista investigativo no Rio, ${character.name} seguiu uma pista que o levou direto para os segredos da Ordo Realitas.`,
+            `${character.name} trabalhava como investigador particular em Brasília até descobrir conspirações envolvendo o Outro Lado.`
+        ],
+        'Militar': [
+            `${character.name} era soldado em Manaus quando sua unidade foi atacada por criaturas que não constavam nos manuais militares.`,
+            `Ex-fuzileiro naval do Rio, ${character.name} sobreviveu a um incidente paranormal que dizimou sua equipe.`,
+            `${character.name} servia no Exército em Brasília até testemunhar experimentos secretos envolvendo entidades do Outro Lado.`
+        ],
+        'Policial': [
+            `${character.name} era delegado em São Paulo quando começou a investigar crimes impossíveis envolvendo rituais satânicos.`,
+            `Investigador da Polícia Civil no Rio, ${character.name} descobriu que alguns casos nunca poderiam ser resolvidos pela justiça comum.`,
+            `${character.name} patrulhava as ruas de Belo Horizonte até presenciar um crime que desafiava todas as leis da física.`
+        ],
+        'Magnata': [
+            `${character.name} era CEO de uma multinacional em São Paulo quando descobriu que seus negócios estavam conectados a cultos paranormais.`,
+            `Empresário bilionário do Rio, ${character.name} usou sua fortuna para investigar eventos estranhos após perder um familiar para o Outro Lado.`,
+            `${character.name} controlava um império financeiro em Brasília até descobrir que alguns investidores serviam entidades sombrias.`
+        ],
+        'Mercenário': [
+            `${character.name} era soldado de fortuna em zonas de conflito até ser contratado para uma missão que envolvia criaturas do Outro Lado.`,
+            `Ex-militar de elite, ${character.name} oferecia seus serviços no Brasil até enfrentar ameaças que balas convencionais não podiam parar.`,
+            `${character.name} trabalhava como segurança privado em São Paulo quando foi atacado por entidades paranormais durante um serviço de proteção.`
+        ],
+        'T.I.': [
+            `${character.name} trabalhava como programador em São Paulo quando detectou anomalias digitais impossíveis em seus sistemas.`,
+            `Especialista em segurança digital, ${character.name} descobriu que algumas invasões vinham de dimensões paralelas.`,
+            `${character.name} era analista de dados no Rio quando o C.R.I.S. começou a se comunicar diretamente com seus computadores.`
+        ],
+        'Teórico da Conspiração': [
+            `${character.name} sempre soube que algo estava errado com o mundo, até descobrir que suas teorias mais paranóicas eram reais.`,
+            `Blogger conspiratório de São Paulo, ${character.name} foi contactado pela Ordem após expor verdades perigosas sobre o paranormal.`,
+            `${character.name} dedicava sua vida a desmascarar supostas conspirações até perceber que estava sendo observado por entidades do Outro Lado.`
+        ]
+    };
+
+    const classTraits = {
+        'Combatente': [
+            `${character.name} desenvolveu uma resistência mental impressionante, canalizando traumas em pura determinação física.`,
+            `Após presenciar horrores indescritíveis, ${character.name} encontrou na luta direta sua forma de lidar com o medo.`,
+            `${character.name} treina obsessivamente, sabendo que sua força pode ser a única coisa entre a humanidade e o caos.`
+        ],
+        'Especialista': [
+            `${character.name} usa sua inteligência analítica para decifrar padrões nos eventos paranormais, mantendo a sanidade através da lógica.`,
+            `Obcecado por entender o Outro Lado, ${character.name} coleta evidências e dados, transformando o medo em conhecimento útil.`,
+            `${character.name} desenvolveu métodos científicos para estudar o paranormal, mesmo sabendo dos riscos à sua sanidade.`
+        ],
+        'Ocultista': [
+            `${character.name} sacrificou parte de sua sanidade para compreender rituais proibidos, sempre na linha tênue entre razão e loucura.`,
+            `Obcecado por desvendar os segredos do Outro Lado, ${character.name} sussurra encantamentos que ecoam em dimensões sombrias.`,
+            `${character.name} carrega o peso do conhecimento proibido, sabendo que cada ritual o aproxima mais da insanidade total.`
+        ]
+    };
+
+    const traumaTemplates = [
+        `Após sobreviver a um encontro com criaturas de Sangue, ${character.name} nunca mais foi o mesmo, carregando cicatrizes físicas e mentais.`,
+        `A exposição ao elemento Morte envelheceu prematuramente parte de seu corpo, um lembrete constante da fragilidade da realidade.`,
+        `${character.name} ouviu os sussurros do Conhecimento e agora luta diariamente contra vozes que tentam revelar segredos terríveis.`,
+        `Uma explosão de Energia paranormal modificou irreversivelmente sua percepção, fazendo-o ver padrões caóticos em tudo.`,
+        `${character.name} foi marcado pelo Medo primordial, tendo pesadelos vívidos que sangram na realidade quando desperta.`
+    ];
+
+    const motivationTemplates = [
+        `Agora ${character.name} luta para proteger outros de passarem pelo mesmo trauma que o/a marcou para sempre.`,
+        `${character.name} busca respostas sobre sua transformação, temendo e desejando ao mesmo tempo descobrir a verdade completa.`,
+        `Movido por vingança, ${character.name} caça as entidades responsáveis por destruir sua vida anterior.`,
+        `${character.name} serve à Ordo Realitas por senso de dever, sabendo que é uma das poucas pessoas capazes de enfrentar o horror.`,
+        `Obcecado pela possibilidade de reverter sua condição, ${character.name} estuda obsessivamente os mistérios do Outro Lado.`
+    ];
+
+    const catchphrases = [
+        `"A realidade é mais frágil do que imaginamos, mas ainda vale a pena protegê-la."`,
+        `"Cada pesadelo me torna mais forte para enfrentar o próximo horror."`,
+        `"Vi o Outro Lado... e agora é minha responsabilidade impedir que outros vejam."`,
+        `"A sanidade é um preço pequeno a pagar pela proteção da humanidade."`,
+        `"Conhecer a verdade é uma maldição, mas ignorá-la seria uma traição."`
+    ];
+
+    const originOptions = originTraits[character.race] || originTraits['Investigador'];
+    const classOptions = classTraits[character.class] || classTraits['Especialista'];
+    const traumaText = traumaTemplates[Math.floor(Math.random() * traumaTemplates.length)];
+    const motivationText = motivationTemplates[Math.floor(Math.random() * motivationTemplates.length)];
+    const finalQuote = catchphrases[Math.floor(Math.random() * catchphrases.length)];
+
+    const originText = originOptions[Math.floor(Math.random() * originOptions.length)];
+    const classText = classOptions[Math.floor(Math.random() * classOptions.length)];
+
+    return `${originText} ${classText} ${traumaText} ${motivationText} ${finalQuote}`;
+}
+
+// Função de fallback focada em essência do personagem
 function generateSimpleLore(character) {
-    const raceTemplates = {
+    // Verificar se estamos em Ordem Paranormal e usar templates específicos
+    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+    if (currentWorld === 'ordem-paranormal') {
+        return generateOrdemParanormalFallback(character);
+    }
+    
+    const personalityTraits = {
         'Humano': [
-            `Nascido na cidade de Valkaria, ${character.name} cresceu sob a proteção da Deusa da Humanidade.`,
-            `Originário de Nova Malpetrim, ${character.name} enfrentou os perigos da Tormenta desde jovem.`,
-            `Vindo de Tamu-ra, ${character.name} deixou sua vila para buscar um destino maior em Arton.`
+            `${character.name} sempre foi determinado e adaptável, moldado pelas tradições de Valkaria.`,
+            `Crescendo em Nova Malpetrim, ${character.name} desenvolveu uma personalidade resiliente e desconfiada.`,
+            `Vindo de Tamu-ra, ${character.name} carrega a simplicidade rural e uma curiosidade insaciável sobre o mundo.`
         ],
         'Anão': [
-            `${character.name} foi forjado nas minas de Doherimm, o reino anão sob as montanhas.`,
-            `Nascido em Khalifor, ${character.name} carrega o orgulho de sua linhagem de ferreiros.`,
-            `Criado entre martelos e bigornas, ${character.name} saiu de uma fortaleza anã para explorar Arton.`
+            `${character.name} possui a teimosia e honra típicas de Doherimm, valoriza tradições acima de tudo.`,
+            `Forjado em Khalifor, ${character.name} é orgulhoso, leal e tem dificuldade em confiar em estranhos.`,
+            `${character.name} carrega o peso das expectativas familiares e busca provar seu valor além das montanhas.`
         ],
         'Dahllan': [
-            `${character.name} nasceu em um bosque sagrado de Lenórienn, conectada às forças da natureza.`,
-            `Criada entre flores e espíritos selvagens, ${character.name} protege os segredos de Allihanna.`,
-            `Vinda de florestas intocadas, ${character.name} dança com as plantas em sua jornada por Arton.`
+            `${character.name} possui uma conexão profunda com a natureza, sendo empática mas ingênua sobre o mundo civilizado.`,
+            `Criada entre espíritos de Lenórienn, ${character.name} é pacífica por natureza mas feroz quando ameaçada.`,
+            `${character.name} luta para equilibrar sua natureza selvagem com a necessidade de conviver em sociedade.`
         ],
         'Elfo': [
             `${character.name} nasceu nas florestas de Lenórienn, lar ancestral dos elfos de Arton.`,
@@ -567,16 +763,16 @@ function generateSimpleLore(character) {
         ]
     };
 
-    const classTemplates = {
+    const motivationTemplates = {
         'Arcanista': [
-            `Estudante da Academia Arcana de Yuden, ${character.name} domina os segredos da magia.`,
-            `Após um tomo proibido em Vectora, ${character.name} busca poder arcano perdido.`,
-            `${character.name} explora Arton, lançando feitiços contra a Tormenta.`
+            `${character.name} é movido por uma sede insaciável de conhecimento, às vezes ignorando consequências morais.`,
+            `Obcecado por desvendar mistérios arcanos, ${character.name} teme que seu poder seja insuficiente quando mais precisar.`,
+            `${character.name} busca provar que a magia pode resolver qualquer problema, mesmo quando a força bruta seria mais eficaz.`
         ],
         'Bárbaro': [
-            `Criado nas estepes de Lamnor, ${character.name} entra em fúria contra seus inimigos.`,
-            `Vindo de Galrasia, ${character.name} luta com a força de um titã selvagem.`,
-            `${character.name} protege sua tribo em Trebuck com gritos de guerra.`
+            `${character.name} luta contra uma raiva interior constante, canalizando-a para proteger os que ama.`,
+            `Desconfiado da civilização, ${character.name} prefere soluções diretas e tem dificuldade com sutilezas sociais.`,
+            `${character.name} carrega o peso de ter perdido o controle no passado e teme machucar inocentes novamente.`
         ],
         'Bardo': [
             `${character.name} canta lendas em tavernas de Norm, encantando multidões.`,
@@ -642,16 +838,16 @@ function generateSimpleLore(character) {
 
     const alignmentTemplates = {
         'Leal e Bom': [
-            `Guiado por honra, ${character.name} protege os inocentes de Arton.`,
-            `Com justiça no coração, ${character.name} enfrenta o mal sem hesitar.`
+            `${character.name} possui um código moral rígido e se culpa profundamente quando falha em proteger outros.`,
+            `Acredita que a ordem e a justiça são fundamentais, mas às vezes é inflexível demais com si mesmo e outros.`
         ],
         'Neutro e Bom': [
-            `${character.name} ajuda quem precisa, sem se prender a regras rígidas.`,
-            `Seguindo seu coração, ${character.name} faz o bem em Arton.`
+            `${character.name} é compassivo por natureza, mas luta para encontrar equilíbrio entre ajudar e se preservar.`,
+            `Prefere julgar cada situação individualmente, o que às vezes o deixa indeciso em momentos críticos.`
         ],
         'Caótico e Bom': [
-            `${character.name} age por bondade, desafiando leis injustas.`,
-            `Livre e generoso, ${character.name} busca o bem à sua maneira.`
+            `${character.name} segue seu coração acima de tudo, mas sua impulsividade às vezes causa problemas não intencionais.`,
+            `Detesta autoridade injusta e pode ser teimoso quando acredita estar certo, mesmo contra evidências.`
         ],
         'Leal e Neutro': [
             `A ordem é essencial para ${character.name}, mesmo em escolhas difíceis.`,
@@ -679,12 +875,12 @@ function generateSimpleLore(character) {
         ]
     };
 
-    const raceOptions = raceTemplates[character.race] || raceTemplates['Humano'];
-    const classOptions = classTemplates[character.class] || classTemplates['Guerreiro'];
+    const raceOptions = personalityTraits[character.race] || personalityTraits['Humano'];
+    const classOptions = motivationTemplates[character.class] || motivationTemplates['Guerreiro'];
     const alignmentOptions = alignmentTemplates[character.alignment] || alignmentTemplates['Neutro'];
 
-    const raceText = raceOptions[Math.floor(Math.random() * raceOptions.length)];
-    const classText = classOptions[Math.floor(Math.random() * classOptions.length)];
+    const personalityText = raceOptions[Math.floor(Math.random() * raceOptions.length)];
+    const motivationText = classOptions[Math.floor(Math.random() * classOptions.length)];
     const alignmentText = alignmentOptions[Math.floor(Math.random() * alignmentOptions.length)];
 
     let attributeTexts = [];
@@ -715,7 +911,39 @@ function generateSimpleLore(character) {
     ];
     const adventureText = adventureHooks[Math.floor(Math.random() * adventureHooks.length)];
 
-    return `${raceText} ${classText} ${alignmentText} ${attributeText} ${adventureText}`;
+    // Frases de efeito baseadas na classe
+    const catchphrases = {
+        'Arcanista': [
+            `"O conhecimento é poder, e eu serei imparável."`,
+            `"Cada segredo desvendado me torna mais forte."`,
+            `"A magia não tem limites, apenas mentes limitadas."`
+        ],
+        'Bárbaro': [
+            `"Minha fúria protege aqueles que não podem se proteger."`,
+            `"A civilização pode me julgar, mas minha força fala por si."`,
+            `"Quando a diplomacia falha, meus punhos respondem."`
+        ],
+        'Guerreiro': [
+            `"Minha lâmina é minha palavra, minha honra é meu escudo."`,
+            `"Cada cicatriz conta uma história de vitória."`,
+            `"Não recuo, não me rendo, não falho."`
+        ],
+        'Clérigo': [
+            `"Minha fé é minha força, minha compaixão é minha arma."`,
+            `"Os deuses me guiam, mas minhas escolhas definem meu destino."`,
+            `"Onde há trevas, eu levo a luz."`
+        ],
+        'Ladino': [
+            `"As sombras são meu lar, mas meu coração ainda brilha."`,
+            `"Confie em mim... ou pelo menos em minhas habilidades."`,
+            `"Sobrevivência não é covardia, é inteligência."`
+        ]
+    };
+
+    const classQuotes = catchphrases[character.class] || catchphrases['Guerreiro'];
+    const finalQuote = classQuotes[Math.floor(Math.random() * classQuotes.length)];
+
+    return `${personalityText} ${motivationText} ${alignmentText} ${attributeText} Agora, ${character.name} busca seu lugar no mundo, carregando tanto suas virtudes quanto seus medos internos. ${finalQuote}`;
 }
 
 // Função atualizada para gerar a história com o servidor local e corrigir o textArea
