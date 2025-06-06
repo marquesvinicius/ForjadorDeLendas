@@ -434,7 +434,6 @@ INSTRUÇÕES:
 `;
 }
 
-<<<<<<< HEAD
 function generateTormentaPrompt(characterData, raceSummary, classSummary, backgroundNote) {
     return `
 Crie uma história de origem que defina a ESSÊNCIA e PERSONALIDADE de um personagem de Tormenta 20 em Arton. Esta é uma história de FORMAÇÃO DE IDENTIDADE, não de aventuras.
@@ -531,8 +530,6 @@ function getTormentaClassSummaries() {
 }
 
 // Função para chamar o servidor local Python
-=======
->>>>>>> refactor/plano-de-acao
 // Função para chamar o servidor local Python - melhorada com logs e tratamento de erros
 async function fetchBackstoryFromLocal(prompt) {
     const startTime = Date.now();
