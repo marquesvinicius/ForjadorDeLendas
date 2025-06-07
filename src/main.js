@@ -21,11 +21,14 @@ import {
   setupModalCloseListeners 
 } from './ui/modals.js';
 
-// Importações dos módulos existentes (mantendo compatibilidade)
-import '../js/companion.js';
-import '../js/themeManager.js';
-import '../js/worldSelector.js';
-import '../js/worldManager.js';
+// Importação do sistema de autenticação
+import { authSystem } from './ui/auth.js';
+
+// Scripts legados serão carregados pelo HTML, não como modules
+// import '../js/companion.js';
+// import '../js/themeManager.js';
+// import '../js/worldSelector.js';
+// import '../js/worldManager.js';
 
 /**
  * Classe principal da aplicação
@@ -33,6 +36,7 @@ import '../js/worldManager.js';
 class ForjadorApp {
   constructor() {
     this.storage = characterStorage;
+    this.authSystem = authSystem;
     this.currentCharacterId = null;
     this.init();
   }
@@ -42,6 +46,7 @@ class ForjadorApp {
    */
   init() {
     this.setupEventListeners();
+    this.setupAuthUI();
     this.loadCharacters();
     this.setupModals();
     
@@ -270,9 +275,172 @@ class ForjadorApp {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
   }
+
+  /**
+   * Configura a UI de autenticação
+   */
+  setupAuthUI() {
+    // Criar botão de autenticação se não existir
+    this.createAuthButton();
+    
+    // Configurar listeners de eventos de autenticação
+    document.addEventListener('userLoggedIn', (e) => {
+      console.log('🎉 Usuário logado:', e.detail.user.username);
+      this.onUserLogin(e.detail.user);
+    });
+
+    document.addEventListener('userLoggedOut', () => {
+      console.log('👋 Usuário deslogado');
+      this.onUserLogout();
+    });
+  }
+
+  /**
+   * Cria o botão de autenticação
+   */
+  createAuthButton() {
+    // Verificar se já existe
+    if (document.querySelector('.auth-button')) return;
+
+    // Encontrar local para inserir o botão
+    const worldSelector = document.querySelector('.world-selector');
+    const container = document.querySelector('.container.is-fluid.main-container');
+    
+    if (!container) return;
+
+    // Criar botão de autenticação
+    const authButtonContainer = document.createElement('div');
+    authButtonContainer.className = 'auth-button-container';
+    authButtonContainer.innerHTML = `
+      <button class="button is-primary auth-button medieval-button">
+        <span class="icon">
+          <i class="fas fa-sign-in-alt"></i>
+        </span>
+        <span>Entrar</span>
+      </button>
+    `;
+
+    // Posicionar antes do seletor de mundos ou no início do container
+    if (worldSelector) {
+      worldSelector.parentNode.insertBefore(authButtonContainer, worldSelector);
+    } else {
+      container.insertBefore(authButtonContainer, container.firstChild);
+    }
+
+    // Configurar evento de clique
+    const authButton = authButtonContainer.querySelector('.auth-button');
+    authButton.onclick = () => {
+      if (this.authSystem.isUserAuthenticated()) {
+        this.authSystem.showUserMenu();
+      } else {
+        window.location.href = 'login.html';
+      }
+    };
+
+    // Adicionar estilos para o botão
+    this.addAuthButtonStyles();
+  }
+
+  /**
+   * Adiciona estilos para o botão de autenticação
+   */
+  addAuthButtonStyles() {
+    const styleId = 'auth-button-styles';
+    if (document.getElementById(styleId)) return;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .auth-button-container {
+        text-align: center;
+        margin: 1rem 0;
+        padding: 1rem;
+      }
+
+      .auth-button {
+        background: linear-gradient(135deg, var(--primary-color, #d4af37), var(--accent-color, #b8941f)) !important;
+        border: none !important;
+        color: #1a1a1a !important;
+        font-weight: bold;
+        border-radius: 8px !important;
+        padding: 0.75rem 1.5rem !important;
+        transition: all 0.3s ease;
+        min-width: 140px;
+      }
+
+      .auth-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+      }
+
+      .auth-button.user-logged {
+        background: linear-gradient(135deg, #4caf50, #45a049) !important;
+      }
+
+      @media (max-width: 768px) {
+        .auth-button-container {
+          margin: 0.5rem 0;
+          padding: 0.5rem;
+        }
+        
+        .auth-button {
+          width: 100%;
+          max-width: 200px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  /**
+   * Executado quando usuário faz login
+   */
+  onUserLogin(user) {
+    // Atualizar visual do botão
+    const authButton = document.querySelector('.auth-button');
+    if (authButton) {
+      authButton.classList.add('user-logged');
+      authButton.innerHTML = `
+        <span class="icon">
+          <i class="fas fa-user-circle"></i>
+        </span>
+        <span>${user.username}</span>
+      `;
+    }
+
+    // Recarregar personagens com dados do usuário autenticado
+    this.loadCharacters();
+
+    // Mostrar mensagem de boas-vindas
+    showMessage(`🏰 Bem-vindo ao Reino, ${user.username}!`, 'is-success');
+  }
+
+  /**
+   * Executado quando usuário faz logout
+   */
+  onUserLogout() {
+    // Atualizar visual do botão
+    const authButton = document.querySelector('.auth-button');
+    if (authButton) {
+      authButton.classList.remove('user-logged');
+      authButton.innerHTML = `
+        <span class="icon">
+          <i class="fas fa-sign-in-alt"></i>
+        </span>
+        <span>Entrar</span>
+      `;
+    }
+
+    // Limpar dados locais se necessário
+    // (o authSystem já limpa o localStorage)
+    
+    // Mostrar mensagem de despedida
+    showMessage('👋 Até logo, aventureiro!', 'is-info');
+  }
 }
 
 // Inicializar aplicação quando DOM estiver carregado
-document.addEventListener('DOMContentLoaded', () => {
-  window.forjadorApp = new ForjadorApp();
-}); 
+// Comentado temporariamente para evitar conflito com app.js
+// document.addEventListener('DOMContentLoaded', () => {
+//   window.forjadorApp = new ForjadorApp();
+// }); 

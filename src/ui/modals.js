@@ -127,6 +127,58 @@ export function removeLoadingModal(modal) {
 }
 
 /**
+ * Cria um modal genérico
+ * @param {string} id - ID do modal
+ * @param {string} content - Conteúdo HTML do modal
+ * @param {string} className - Classe adicional para o modal
+ * @returns {HTMLElement} Elemento do modal criado
+ */
+export function createModal(id, content, className = '') {
+  // Remover modal existente se houver
+  const existingModal = document.getElementById(id);
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modal = document.createElement('div');
+  modal.id = id;
+  modal.className = `modal ${className}`;
+  modal.innerHTML = `
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      ${content}
+    </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+  `;
+  
+  document.body.appendChild(modal);
+  setupModalCloseListeners(modal);
+  return modal;
+}
+
+/**
+ * Mostra um modal pelo ID
+ * @param {string} modalId - ID do modal
+ */
+export function showModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    openModal(modal);
+  }
+}
+
+/**
+ * Esconde um modal pelo ID
+ * @param {string} modalId - ID do modal
+ */
+export function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    closeModal(modal);
+  }
+}
+
+/**
  * Configura event listeners para fechar modais
  * @param {HTMLElement} modal - Modal para configurar
  */
@@ -144,6 +196,12 @@ export function setupModalCloseListeners(modal) {
   deleteButtons.forEach(btn => {
     btn.addEventListener('click', () => closeModal(modal));
   });
+
+  // Fechar ao clicar no botão modal-close
+  const closeButton = modal.querySelector('.modal-close');
+  if (closeButton) {
+    closeButton.addEventListener('click', () => closeModal(modal));
+  }
 
   // Fechar com ESC
   document.addEventListener('keydown', (e) => {

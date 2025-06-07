@@ -34,6 +34,10 @@ const storage = characterStorage;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function () {
+    // Aplicar tema do mundo atual
+    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+    applyWorldTheme(currentWorld);
+    
     initWorldManager(); // Inicializar gerenciador de mundos
     setupEventListeners();
     renderCharactersList();

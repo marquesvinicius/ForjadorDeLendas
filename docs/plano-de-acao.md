@@ -47,9 +47,9 @@ Organizado por prioridade e complexidade para facilitar a execução incremental
 - [x] Separar arquivos por `core/`, `ui/`, `logic/`.
 
 ### 🔹 Autenticação e Login
-- [ ] Criar página ou modal de login com tema medieval.
-- [ ] Armazenar token no `localStorage` ou `cookie`.
-- [ ] Redirecionar para a aplicação após login.
+- [x] Criar página ou modal de login com tema medieval.
+- [x] Armazenar token no `localStorage` ou `cookie`.
+- [x] Redirecionar para a aplicação após login.
 
 ### 🔹 Migração para API
 - [ ] Refatorar `CharacterStorage` para usar API (`fetch` ou `axios`).
