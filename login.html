@@ -351,6 +351,78 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Sistema de alternância entre login e registro */
+        .auth-card {
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 0.5s ease;
+        }
+
+        .auth-card.hidden {
+            opacity: 0;
+            transform: translateX(-20px);
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .auth-card.slide-out-left {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        .auth-card.slide-in-right {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .guard-castle {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ajustes específicos para mobile */
+        @media (max-width: 1023px) {
+            .login-container {
+                /* Mantém centralização por padrão (modo login) */
+                align-items: center;
+                padding: 1rem;
+            }
+            
+            .guard-castle {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            
+            /* Quando formulário de registro está ativo, permite scroll */
+            .login-container:has(#registerCard:not(.hidden)) {
+                align-items: flex-start; /* Só alinha ao topo no registro */
+                min-height: auto; /* Remove altura fixa */
+                padding-top: 2rem;
+                padding-bottom: 4rem;
+            }
+        }
+
+        /* Fallback para navegadores que não suportam :has() */
+        @media (max-width: 1023px) {
+            .login-container.register-mode {
+                min-height: auto !important;
+                align-items: flex-start !important;
+                padding-top: 2rem !important;
+                padding-bottom: 4rem !important;
+            }
+            
+            /* Modo login explícito (quando não está em register-mode) */
+            .login-container:not(.register-mode) {
+                align-items: center !important;
+                padding: 1rem !important;
+                min-height: 100vh !important;
+            }
+        }
+
 
     </style>
 </head>
@@ -376,22 +448,24 @@
 
     <div class="login-container">
         <div class="guard-castle">
-            <div class="castle-header">
-                <h1 class="castle-title">
-                    <i class="fas fa-shield-alt"></i>
-                    Reconhecimento
-                </h1>
-            </div>
+            <!-- Login Card -->
+            <div id="loginCard" class="auth-card">
+                <div class="castle-header">
+                    <h1 class="castle-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Reconhecimento
+                    </h1>
+                </div>
 
-            <div class="guard-message">
-                <p>
-                    <strong>Alto lá, viajante!</strong><br>
-                    Nossos guardas precisam verificar sua identidade antes de permitir 
-                    o acesso aos segredos do Forjador de Lendas. Identifique-se!
-                </p>
-            </div>
+                <div class="guard-message">
+                    <p>
+                        <strong>Alto lá, viajante!</strong><br>
+                        Nossos guardas precisam verificar sua identidade antes de permitir 
+                        o acesso aos segredos do Forjador de Lendas. Identifique-se!
+                    </p>
+                </div>
 
-            <form id="recognitionForm" class="recognition-form">
+                <form id="recognitionForm" class="recognition-form">
                 <div class="field-group">
                     <label class="field-label" for="username">
                         <i class="fas fa-user"></i>
@@ -443,16 +517,132 @@
                     Passar pelos Guardas
                 </button>
 
-                <div id="statusMessage" class="status-message"></div>
-            </form>
+                    <div id="statusMessage" class="status-message"></div>
+                </form>
 
-            <div class="castle-footer">
-                <p class="footer-text">
-                    Primeiro acesso? <a href="#" class="footer-link" id="registerLink">Solicite passagem aos guardas</a>
-                </p>
-                <p class="footer-text" style="margin-top: 0.3rem;">
-                    <a href="#" class="footer-link" id="forgotPasswordLink">Esqueceu sua palavra de reconhecimento?</a>
-                </p>
+                <div class="castle-footer">
+                    <p class="footer-text">
+                        Primeiro acesso? <a href="#" class="footer-link" id="registerLink">Solicite passagem aos guardas</a>
+                    </p>
+                    <p class="footer-text" style="margin-top: 0.3rem;">
+                        <a href="#" class="footer-link" id="forgotPasswordLink">Esqueceu sua palavra de reconhecimento?</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Register Card -->
+            <div id="registerCard" class="auth-card hidden">
+                <div class="castle-header">
+                    <h1 class="castle-title">
+                        <i class="fas fa-scroll"></i>
+                        Registro de Aventureiro
+                    </h1>
+                </div>
+
+                <div class="guard-message">
+                    <p>
+                        <strong>Bem-vindo, futuro aventureiro!</strong><br>
+                        Para se tornar um membro do reino, nossos guardas precisam 
+                        registrar suas informações nos pergaminhos oficiais.
+                    </p>
+                </div>
+
+                <form id="registrationForm" class="recognition-form">
+                    <div class="field-group">
+                        <label class="field-label" for="regUsername">
+                            <i class="fas fa-user"></i>
+                            Nome do Aventureiro
+                        </label>
+                        <div class="input-container">
+                            <input 
+                                type="text" 
+                                id="regUsername" 
+                                class="field-input"
+                                placeholder="Escolha seu nome de aventureiro"
+                                required
+                                autocomplete="username"
+                            >
+                            <i class="fas fa-user field-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="regEmail">
+                            <i class="fas fa-envelope"></i>
+                            Correio do Reino
+                        </label>
+                        <div class="input-container">
+                            <input 
+                                type="email" 
+                                id="regEmail" 
+                                class="field-input"
+                                placeholder="seu.email@reino.com"
+                                required
+                                autocomplete="email"
+                            >
+                            <i class="fas fa-envelope field-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="regPassword">
+                            <i class="fas fa-key"></i>
+                            Palavra de Reconhecimento
+                        </label>
+                        <div class="input-container">
+                            <input 
+                                type="password" 
+                                id="regPassword" 
+                                class="field-input"
+                                placeholder="Crie uma palavra secreta forte"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <i class="fas fa-lock field-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="regConfirmPassword">
+                            <i class="fas fa-key"></i>
+                            Confirmar Palavra
+                        </label>
+                        <div class="input-container">
+                            <input 
+                                type="password" 
+                                id="regConfirmPassword" 
+                                class="field-input"
+                                placeholder="Digite novamente sua palavra secreta"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <i class="fas fa-lock field-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="remember-guards">
+                        <div class="custom-checkbox">
+                            <input type="checkbox" id="acceptTerms" required>
+                            <span class="checkmark"></span>
+                        </div>
+                        <label for="acceptTerms" class="remember-text">
+                            Aceito os termos do reino e o código de honra dos aventureiros
+                        </label>
+                    </div>
+
+                    <button type="submit" class="guard-button" id="registerButton">
+                        <i class="fas fa-scroll"></i>
+                        Registrar no Reino
+                    </button>
+
+                    <div id="registerStatusMessage" class="status-message"></div>
+                </form>
+
+                <div class="castle-footer">
+                    <p class="footer-text">
+                        Já possui registro? <a href="#" class="footer-link" id="loginLink">Retornar ao reconhecimento</a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -460,15 +650,31 @@
     <!-- Scripts -->
     <script src="js/config.js"></script>
     <script type="module">
-        // Sistema de autenticação para página de login
+        // Sistema de autenticação para página de login e registro
         class LoginPageAuth {
             constructor() {
+                // Elementos do login
+                this.loginCard = document.getElementById('loginCard');
+                this.registerCard = document.getElementById('registerCard');
                 this.form = document.getElementById('recognitionForm');
                 this.usernameInput = document.getElementById('username');
                 this.passwordInput = document.getElementById('password');
                 this.rememberInput = document.getElementById('rememberMe');
                 this.submitButton = document.getElementById('submitButton');
                 this.statusMessage = document.getElementById('statusMessage');
+                
+                // Elementos do registro
+                this.registerForm = document.getElementById('registrationForm');
+                this.regUsernameInput = document.getElementById('regUsername');
+                this.regEmailInput = document.getElementById('regEmail');
+                this.regPasswordInput = document.getElementById('regPassword');
+                this.regConfirmPasswordInput = document.getElementById('regConfirmPassword');
+                this.acceptTermsInput = document.getElementById('acceptTerms');
+                this.registerButton = document.getElementById('registerButton');
+                this.registerStatusMessage = document.getElementById('registerStatusMessage');
+                
+                // Estado atual
+                this.currentMode = 'login'; // 'login' ou 'register'
                 
                 this.init();
             }
@@ -477,13 +683,21 @@
                 // Verificar se já está logado
                 this.checkExistingAuth();
                 
-                // Configurar event listeners
+                // Configurar event listeners para login
                 this.form.addEventListener('submit', (e) => this.handleLogin(e));
                 
-                // Links de registro e recuperação (placeholder)
+                // Configurar event listeners para registro
+                this.registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+                
+                // Links de alternância entre login e registro
                 document.getElementById('registerLink').addEventListener('click', (e) => {
                     e.preventDefault();
-                    this.showMessage('🏗️ Funcionalidade em desenvolvimento!\n\nPor enquanto, use as credenciais de teste:\n• admin / admin123\n• forjador / lendas123\n• mestre / rpg2024', 'error');
+                    this.switchToRegister();
+                });
+                
+                document.getElementById('loginLink').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.switchToLogin();
                 });
                 
                 document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
@@ -617,17 +831,185 @@
                 }
             }
 
-            showMessage(message, type) {
-                this.statusMessage.textContent = message;
-                this.statusMessage.className = `status-message ${type}`;
-                this.statusMessage.style.display = 'block';
+            showMessage(message, type, target = 'login') {
+                const messageElement = target === 'login' ? this.statusMessage : this.registerStatusMessage;
+                messageElement.textContent = message;
+                messageElement.className = `status-message ${type}`;
+                messageElement.style.display = 'block';
                 
                 if (type === 'success' || type === 'error') {
                     setTimeout(() => {
                         if (type === 'error') {
-                            this.statusMessage.style.display = 'none';
+                            messageElement.style.display = 'none';
                         }
                     }, 5000);
+                }
+            }
+
+            switchToRegister() {
+                this.currentMode = 'register';
+                this.loginCard.classList.add('hidden');
+                this.registerCard.classList.remove('hidden');
+                
+                // Adiciona classe para ajustar layout mobile
+                const container = document.querySelector('.login-container');
+                if (container && window.innerWidth < 1023) {
+                    container.classList.add('register-mode');
+                    
+                    // Garante que começa do topo no mobile
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Informar guardas sobre mudança para registro
+                if (window.loginGuards) {
+                    window.loginGuards.onSwitchToRegister();
+                }
+                
+                // Auto-focus no campo de usuário do registro (delay maior para aguardar scroll)
+                setTimeout(() => {
+                    this.regUsernameInput.focus();
+                }, 500);
+            }
+
+            switchToLogin() {
+                this.currentMode = 'login';
+                this.registerCard.classList.add('hidden');
+                this.loginCard.classList.remove('hidden');
+                
+                // Remove classe do modo registro
+                const container = document.querySelector('.login-container');
+                if (container) {
+                    container.classList.remove('register-mode');
+                }
+                
+                // No mobile, retorna scroll para o topo suavemente
+                if (window.innerWidth < 1023) {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Informar guardas sobre mudança para login
+                if (window.loginGuards) {
+                    window.loginGuards.onSwitchToLogin();
+                }
+                
+                // Auto-focus no campo de usuário do login (delay maior para aguardar scroll)
+                setTimeout(() => {
+                    this.usernameInput.focus();
+                }, 500);
+            }
+
+            async handleRegister(event) {
+                event.preventDefault();
+                
+                const username = this.regUsernameInput.value.trim();
+                const email = this.regEmailInput.value.trim();
+                const password = this.regPasswordInput.value;
+                const confirmPassword = this.regConfirmPasswordInput.value;
+                const acceptTerms = this.acceptTermsInput.checked;
+
+                // Validações
+                if (!username || !email || !password || !confirmPassword) {
+                    this.showMessage('Por favor, preencha todos os campos!', 'error', 'register');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showMessage('As palavras de reconhecimento não coincidem!', 'error', 'register');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    this.showMessage('A palavra de reconhecimento deve ter pelo menos 6 caracteres!', 'error', 'register');
+                    return;
+                }
+
+                if (!acceptTerms) {
+                    this.showMessage('Você deve aceitar os termos do reino para prosseguir!', 'error', 'register');
+                    return;
+                }
+
+                this.setRegisterLoading(true);
+                this.showMessage('Os guardas estão processando seu registro...', 'loading', 'register');
+                
+                try {
+                    const result = await this.registerUser(username, email, password);
+                    
+                    if (result.success) {
+                        this.showMessage(`Registro aprovado! Bem-vindo ao reino, ${username}!`, 'success', 'register');
+                        
+                        // Chamar reação dos guardas ao sucesso
+                        if (window.loginGuards) {
+                            window.loginGuards.onRegisterSuccess(username);
+                        }
+                        
+                        // Após 2 segundos, trocar para login
+                        setTimeout(() => {
+                            this.switchToLogin();
+                            this.usernameInput.value = username;
+                            this.showMessage('Agora faça login com suas credenciais!', 'success');
+                        }, 2500);
+                    } else {
+                        this.showMessage(result.message || 'Erro ao processar registro. Tente novamente.', 'error', 'register');
+                        
+                        // Chamar reação dos guardas ao erro
+                        if (window.loginGuards) {
+                            window.loginGuards.onRegisterError();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro no registro:', error);
+                    this.showMessage('Erro de conexão com os guardas. Tente novamente.', 'error', 'register');
+                } finally {
+                    this.setRegisterLoading(false);
+                }
+            }
+
+            async registerUser(username, email, password) {
+                // Simulação - substituir por chamada real da API
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        // Simular verificação de usuário existente
+                        const existingUsers = ['admin', 'forjador', 'mestre'];
+                        
+                        if (existingUsers.includes(username.toLowerCase())) {
+                            resolve({
+                                success: false,
+                                message: 'Este nome de aventureiro já está registrado no reino!'
+                            });
+                        } else if (username.length < 3) {
+                            resolve({
+                                success: false,
+                                message: 'O nome do aventureiro deve ter pelo menos 3 caracteres!'
+                            });
+                        } else {
+                            resolve({
+                                success: true,
+                                message: 'Registro realizado com sucesso!'
+                            });
+                        }
+                    }, 2000); // Simula delay de rede
+                });
+            }
+
+            setRegisterLoading(isLoading) {
+                this.registerButton.disabled = isLoading;
+                
+                if (isLoading) {
+                    this.registerButton.innerHTML = `
+                        <span class="loading-spinner"></span>
+                        Processando...
+                    `;
+                } else {
+                    this.registerButton.innerHTML = `
+                        <i class="fas fa-scroll"></i>
+                        Registrar no Reino
+                    `;
                 }
             }
         }
@@ -714,6 +1096,30 @@
                     "Entrada concedida! Que sua jornada seja próspera!",
                     "Bem-vindo de volta ao Forjador de Lendas!"
                 ];
+
+                this.registerMessages = [
+                    "Interessado em se juntar ao reino? Excelente escolha!",
+                    "Novos aventureiros são sempre bem-vindos aqui!",
+                    "Vamos registrar suas informações nos pergaminhos oficiais.",
+                    "Prepare-se para se tornar um membro oficial do reino!",
+                    "O reino sempre precisa de novos heróis corajosos!"
+                ];
+
+                this.registerSuccessMessages = [
+                    "Registro aprovado! Bem-vindo ao reino, aventureiro!",
+                    "Pergaminhos assinados! Você agora é um de nós!",
+                    "Parabéns! Seu nome foi inscrito no livro de honra!",
+                    "Registro concluído! Que sua jornada seja lendária!",
+                    "Bem-vindo à nossa irmandade de aventureiros!"
+                ];
+
+                this.registerErrorMessages = [
+                    "Algo deu errado com o registro. Verifique os dados!",
+                    "Este nome já consta em nossos pergaminhos!",
+                    "Os documentos não foram preenchidos corretamente!",
+                    "Registro negado! Verifique as informações fornecidas.",
+                    "Erro nos pergaminhos! Tente preencher novamente."
+                ];
                 
                 this.setupEventListeners();
                 this.setupMobileEvents();
@@ -732,6 +1138,23 @@
                 
                 if (passwordInput) {
                     passwordInput.addEventListener('input', () => this.onPasswordInput());
+                }
+
+                // Eventos do formulário de registro
+                const regUsernameInput = document.getElementById('regUsername');
+                const regEmailInput = document.getElementById('regEmail');
+                const regPasswordInput = document.getElementById('regPassword');
+                
+                if (regUsernameInput) {
+                    regUsernameInput.addEventListener('input', () => this.onRegUsernameInput());
+                }
+                
+                if (regEmailInput) {
+                    regEmailInput.addEventListener('input', () => this.onRegEmailInput());
+                }
+                
+                if (regPasswordInput) {
+                    regPasswordInput.addEventListener('input', () => this.onRegPasswordInput());
                 }
             }
 
@@ -779,7 +1202,7 @@
 
             setupScrollListener() {
                 let isNearBottom = false;
-                const threshold = 100;
+                const threshold = 150; // Aumentado para dar mais espaço
 
                 const checkFooterPosition = () => {
                     if (window.innerWidth >= 1023) return;
@@ -788,6 +1211,16 @@
                     const windowHeight = window.innerHeight;
                     const documentHeight = document.documentElement.scrollHeight;
                     const distanceFromBottom = documentHeight - (scrollPosition + windowHeight);
+
+                    // Se o documento é menor que a viewport, não precisa esconder
+                    if (documentHeight <= windowHeight + 50) {
+                        if (isNearBottom) {
+                            if (this.leftGuard) this.leftGuard.classList.remove('guard-fade-out');
+                            if (this.rightGuard) this.rightGuard.classList.remove('guard-fade-out');
+                            isNearBottom = false;
+                        }
+                        return;
+                    }
 
                     if (distanceFromBottom <= threshold) {
                         if (!isNearBottom) {
@@ -1019,6 +1452,49 @@
                 this.speak('right', messages[Math.floor(Math.random() * messages.length)], duration);
             }
 
+            // Métodos de reação para campos de registro
+            onRegUsernameInput() {
+                const username = document.getElementById('regUsername')?.value.trim();
+                if (username && username.length > 2) {
+                    const responses = [
+                        `${username}? Um nome digno de um aventureiro!`,
+                        `Anotando "${username}" nos pergaminhos...`,
+                        `${username}... *escreve cuidadosamente* Nome registrado!`,
+                        `Bom nome de aventureiro! Prossiga com o cadastro.`
+                    ];
+                    const duration = window.innerWidth < 1023 ? 3500 : null;
+                    this.speak('left', responses[Math.floor(Math.random() * responses.length)], duration);
+                }
+            }
+
+            onRegEmailInput() {
+                const email = document.getElementById('regEmail')?.value.trim();
+                if (email && email.includes('@')) {
+                    const messages = [
+                        "Correio do reino anotado nos registros!",
+                        "Endereço válido! Prossiga com o cadastro.",
+                        "*Anota o endereço no pergaminho oficial*",
+                        "Correio registrado para comunicações futuras!"
+                    ];
+                    const duration = window.innerWidth < 1023 ? 3500 : null;
+                    this.speak('right', messages[Math.floor(Math.random() * messages.length)], duration);
+                }
+            }
+
+            onRegPasswordInput() {
+                const password = document.getElementById('regPassword')?.value;
+                if (password && password.length >= 4) {
+                    const messages = [
+                        "Palavra secreta sendo cifrada...",
+                        "*Codifica a palavra nos pergaminhos secretos*",
+                        "Força da palavra: " + (password.length >= 8 ? "Excelente!" : "Adequada."),
+                        "Palavra de reconhecimento em processamento..."
+                    ];
+                    const duration = window.innerWidth < 1023 ? 3500 : null;
+                    this.speak('left', messages[Math.floor(Math.random() * messages.length)], duration);
+                }
+            }
+
             // Função para mostrar última mensagem (mobile)
             showLastMessage(guard) {
                 const lastMessage = guard === 'left' ? this.leftLastMessage : this.rightLastMessage;
@@ -1056,6 +1532,50 @@
                 setTimeout(() => {
                     const duration2 = window.innerWidth < 1023 ? 4000 : null;
                     this.speak('right', "Tente novamente, mas com as credenciais corretas!", duration2);
+                }, 1500);
+            }
+
+            // Métodos para registro
+            onSwitchToRegister() {
+                const registerMessage = this.registerMessages[Math.floor(Math.random() * this.registerMessages.length)];
+                const duration = window.innerWidth < 1023 ? 4000 : null;
+                this.speak('left', registerMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 4000 : null;
+                    this.speak('right', "Preencha o formulário com suas informações!", duration2);
+                }, 1000);
+            }
+
+            onSwitchToLogin() {
+                const duration = window.innerWidth < 1023 ? 3000 : null;
+                this.speak('left', "De volta ao reconhecimento! Informe suas credenciais.", duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 3000 : null;
+                    this.speak('right', "Apresente sua identificação para entrar!", duration2);
+                }, 1000);
+            }
+
+            onRegisterSuccess(username) {
+                const successMessage = this.registerSuccessMessages[Math.floor(Math.random() * this.registerSuccessMessages.length)];
+                const duration = window.innerWidth < 1023 ? 5000 : null;
+                this.speak('left', successMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 5000 : null;
+                    this.speak('right', `${username}, agora faça login para acessar o reino!`, duration2);
+                }, 1500);
+            }
+
+            onRegisterError() {
+                const errorMessage = this.registerErrorMessages[Math.floor(Math.random() * this.registerErrorMessages.length)];
+                const duration = window.innerWidth < 1023 ? 4000 : null;
+                this.speak('left', errorMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 4000 : null;
+                    this.speak('right', "Corrija os dados e tente registrar novamente!", duration2);
                 }, 1500);
             }
         }
