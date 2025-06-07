@@ -16,6 +16,73 @@
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     <!-- CSS personalizado -->
     <link rel="stylesheet" href="css/main.css">
+    
+    <style>
+        /* Botão de logout sutil */
+        .logout-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(35, 25, 15, 0.8);
+            border: 1px solid var(--panel-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            opacity: 0.7;
+        }
+
+        .logout-btn:hover {
+            background: rgba(35, 25, 15, 0.95);
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .logout-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal de logout customizado */
+        #logoutModal .modal-card {
+            border: 2px solid var(--panel-border);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        #logoutModal .modal-card-body strong {
+            color: var(--accent-color) !important;
+            font-weight: 700;
+        }
+
+        #logoutModal .modal-card-body em {
+            color: var(--text-color) !important;
+            font-style: italic;
+        }
+
+        #logoutModal .modal-card-body .fas.fa-scroll {
+            color: var(--accent-color) !important;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .logout-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+        }
+    </style>
 </head>
 
 <body class="no-js">
@@ -31,6 +98,11 @@
             <div class="left-section">
                 <!-- Header -->
                 <header class="hero">
+                    <!-- Botão de logout sutil -->
+                    <button id="logoutButton" class="logout-btn" title="Sair">
+                        <i class="fas fa-door-open"></i>
+                    </button>
+                    
                     <div class="hero-body">
                         <h1 class="title is-1 has-text-centered medieval-title">Forjador de Lendas</h1>
                         <h2 class="subtitle has-text-centered medieval-title">Crie heróis épicos para Arton</h2>
@@ -307,6 +379,50 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação de Logout -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title medieval-title">
+                    <i class="fas fa-door-open"></i>
+                    Partir do Reino
+                </p>
+                <button class="delete" aria-label="close" id="closeLogoutModal"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="has-text-centered">
+                    <div class="mb-4">
+                        <i class="fas fa-castle" style="font-size: 3rem; color: var(--accent-color);"></i>
+                    </div>
+                    <p class="title is-5 medieval-title">Aventureiro, tens certeza?</p>
+                    <p class="content">
+                        Estás prestes a partir do <strong>Forjador de Lendas</strong> e retornar às terras além dos portões. 
+                        Tuas criações permanecerão guardadas pelos nossos escribas, aguardando teu retorno.
+                    </p>
+                    <p class="has-text-grey">
+                        <i class="fas fa-scroll"></i>
+                        <em>Que a sorte te acompanhe em tuas jornadas...</em>
+                    </p>
+                </div>
+            </section>
+            <footer class="modal-card-foot is-justify-content-center">
+                <button class="button is-danger" id="confirmLogout">
+                    <span class="icon">
+                        <i class="fas fa-door-open"></i>
+                    </span>
+                    <span>Partir do Reino</span>
+                </button>
+                <button class="button" id="cancelLogout">
+                    <span class="icon">
+                        <i class="fas fa-shield"></i>
+                    </span>
+                    <span>Permanecer</span>
+                </button>
+            </footer>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="content has-text-centered">
@@ -330,6 +446,54 @@
     <script src="js/worldManager.js"></script>
     <script type="module" src="src/main.js"></script>
     <script type="module" src="js/worldsConfig.js"></script>
+
+    <!-- Script para logout -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutButton = document.getElementById('logoutButton');
+            const logoutModal = document.getElementById('logoutModal');
+            const confirmLogout = document.getElementById('confirmLogout');
+            const cancelLogout = document.getElementById('cancelLogout');
+            const closeLogoutModal = document.getElementById('closeLogoutModal');
+            
+            // Função para mostrar modal
+            function showLogoutModal() {
+                logoutModal.classList.add('is-active');
+            }
+            
+            // Função para esconder modal
+            function hideLogoutModal() {
+                logoutModal.classList.remove('is-active');
+            }
+            
+            // Função para fazer logout
+            function performLogout() {
+                // Limpar dados de autenticação
+                localStorage.removeItem('forjador_auth_token');
+                localStorage.removeItem('forjador_user_data');
+                localStorage.removeItem('forjador_remember_me');
+                
+                // Redirecionar para página de login
+                window.location.href = 'login.html';
+            }
+            
+            // Event listeners
+            logoutButton.addEventListener('click', showLogoutModal);
+            confirmLogout.addEventListener('click', performLogout);
+            cancelLogout.addEventListener('click', hideLogoutModal);
+            closeLogoutModal.addEventListener('click', hideLogoutModal);
+            
+            // Fechar modal ao clicar no background
+            logoutModal.querySelector('.modal-background').addEventListener('click', hideLogoutModal);
+            
+            // Fechar modal com ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && logoutModal.classList.contains('is-active')) {
+                    hideLogoutModal();
+                }
+            });
+        });
+    </script>
 
 </body>
 

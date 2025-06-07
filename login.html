@@ -2,132 +2,76 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Reconhecimento dos Guardas - Forjador de Lendas</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     
+    <!-- Reset CSS -->
+    <link rel="stylesheet" href="css/reset.css">
     <!-- Bulma CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <!-- Login Page CSS -->
-    <link rel="stylesheet" href="css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <!-- CSS do projeto -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/login-guards.css">
     
     <style>
-        :root {
-            --primary-color: #d4af37;
-            --secondary-color: #8b0000;
-            --bg-dark: #1a1a1a;
-            --text-gold: #f4e4bc;
-            --text-silver: #c0c0c0;
-            --guard-blue: #1e3a8a;
-            --guard-steel: #4a5568;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Estilos específicos para página de login */
         body {
-            font-family: 'Cormorant Garamond', serif;
-            background: linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Partículas de fundo */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(2px 2px at 20px 30px, var(--primary-color), transparent),
-                radial-gradient(2px 2px at 40px 70px, var(--text-silver), transparent),
-                radial-gradient(1px 1px at 90px 40px, var(--primary-color), transparent);
-            background-repeat: repeat;
-            background-size: 100px 100px;
-            animation: sparkle 20s linear infinite;
-            opacity: 0.1;
-            z-index: 1;
-        }
-
-        @keyframes sparkle {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100px); }
+            height: 100vh;
+            overflow: hidden;
+            /* Background medieval específico para login */
+            background-image: url('assets/img/bg-login.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         .login-container {
-            position: relative;
-            z-index: 2;
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            min-height: 100vh;
+            padding: 1rem;
+            position: relative;
+            z-index: 10; /* Bem acima dos guardas */
         }
 
         .guard-castle {
-            background: linear-gradient(145deg, rgba(20, 20, 30, 0.95), rgba(10, 10, 20, 0.98));
-            border: 3px solid var(--primary-color);
-            border-radius: 20px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.8),
-                inset 0 1px 0 rgba(212, 175, 55, 0.3);
-            max-width: 500px;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--panel-border);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            max-width: 450px;
             width: 100%;
-            padding: 3rem;
+            padding: 2rem;
             position: relative;
-            overflow: hidden;
-        }
-
-        .guard-castle::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                from 0deg,
-                transparent 0deg,
-                rgba(212, 175, 55, 0.1) 60deg,
-                transparent 120deg
-            );
-            animation: rotate 10s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes rotate {
-            100% { transform: rotate(360deg); }
+            color: var(--text-color);
+            backdrop-filter: blur(2px); /* Adiciona leve desfoque no fundo */
         }
 
         .castle-header {
             text-align: center;
-            margin-bottom: 2.5rem;
-            position: relative;
+            margin-bottom: 2rem;
         }
 
         .castle-title {
-            font-family: 'Cinzel', serif;
+            font-family: 'MedievalSharp', cursive;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
             margin-bottom: 0.5rem;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
         .castle-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-silver);
-            font-style: italic;
+            color: var(--text-color);
+            font-size: 1rem;
             opacity: 0.9;
             margin-bottom: 1rem;
         }
@@ -136,21 +80,20 @@
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin: 1.5rem 0;
+            margin: 1rem 0;
         }
 
         .guard-avatar {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(145deg, var(--guard-blue), var(--guard-steel));
-            border: 2px solid var(--primary-color);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+            border: 2px solid var(--accent-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-gold);
-            font-size: 1.5rem;
-            position: relative;
+            color: var(--accent-color);
+            font-size: 1.2rem;
             animation: guardWatch 4s ease-in-out infinite;
         }
 
@@ -164,79 +107,71 @@
 
         @keyframes guardWatch {
             0%, 100% { transform: scale(1) rotate(0deg); }
-            25% { transform: scale(1.1) rotate(-5deg); }
-            75% { transform: scale(1.1) rotate(5deg); }
+            25% { transform: scale(1.05) rotate(-3deg); }
+            75% { transform: scale(1.05) rotate(3deg); }
         }
 
         .guard-message {
-            background: rgba(30, 58, 138, 0.2);
-            border: 1px solid var(--guard-blue);
-            border-radius: 10px;
+            background-color: rgba(35, 25, 15, 0.6);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
             padding: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             text-align: center;
             position: relative;
         }
 
-        .guard-message::before {
-            content: '"';
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            font-size: 3rem;
-            color: var(--primary-color);
-            font-family: 'Cinzel', serif;
-        }
-
         .guard-message p {
-            color: var(--text-gold);
-            font-size: 1rem;
-            line-height: 1.6;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
             margin: 0;
         }
 
-        .recognition-form {
-            space-y: 1.5rem;
+        .guard-message p strong {
+            color: var(--accent-color);
+            font-weight: 700;
         }
 
         .field-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .field-label {
             display: block;
-            color: var(--primary-color);
-            font-family: 'Cinzel', serif;
+            color: var(--accent-color);
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             margin-bottom: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            text-align: left; /* Centraliza as labels */
         }
 
         .field-input {
             width: 100%;
-            padding: 1rem 1.2rem;
-            background: rgba(15, 15, 25, 0.8);
-            border: 2px solid var(--guard-steel);
-            border-radius: 10px;
-            color: var(--text-gold);
+            padding: 0.75rem 1rem;
+            background-color: rgba(35, 25, 15, 0.8);
+            border: 2px solid var(--panel-border);
+            border-radius: 6px;
+            color: var(--text-color);
             font-size: 1rem;
-            font-family: 'Cormorant Garamond', serif;
             transition: all 0.3s ease;
-            position: relative;
         }
 
         .field-input:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-            background: rgba(15, 15, 25, 0.95);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            background-color: var(--panel-bg);
         }
 
         .field-input::placeholder {
-            color: rgba(192, 192, 192, 0.6);
-            font-style: italic;
+            color: rgba(232, 219, 190, 0.6);
+        }
+
+        .input-container {
+            position: relative;
         }
 
         .field-icon {
@@ -244,30 +179,23 @@
             right: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--primary-color);
-            font-size: 1.2rem;
-        }
-
-        .input-container {
-            position: relative;
+            color: var(--accent-color);
+            font-size: 1rem;
         }
 
         .remember-guards {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            margin: 1.5rem 0;
+            gap: 0.5rem;
+            margin: 1rem 0;
         }
 
         .custom-checkbox {
-            width: 20px;
-            height: 20px;
-            background: rgba(15, 15, 25, 0.8);
-            border: 2px solid var(--guard-steel);
-            border-radius: 4px;
+            width: 18px;
+            height: 18px;
             position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            display: inline-block;
         }
 
         .custom-checkbox input {
@@ -276,11 +204,12 @@
             width: 100%;
             height: 100%;
             cursor: pointer;
+            z-index: 2; /* Garante que o input está acima do checkmark */
         }
 
         .custom-checkbox input:checked + .checkmark {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
         }
 
         .custom-checkbox input:checked + .checkmark::after {
@@ -289,9 +218,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: var(--bg-dark);
+            color: var(--secondary-color);
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .checkmark {
@@ -300,40 +229,43 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 15, 25, 0.8);
-            border: 2px solid var(--guard-steel);
-            border-radius: 4px;
+            background-color: rgba(35, 25, 15, 0.8);
+            border: 2px solid var(--panel-border);
+            border-radius: 3px;
             transition: all 0.3s ease;
+            z-index: 1; /* Atrás do input */
+        }
+
+        .custom-checkbox:hover .checkmark {
+            border-color: var(--accent-color);
+            background-color: rgba(212, 175, 55, 0.1);
         }
 
         .remember-text {
-            color: var(--text-silver);
-            font-size: 0.95rem;
+            color: var(--text-color);
+            font-size: 0.85rem;
             cursor: pointer;
         }
 
         .guard-button {
             width: 100%;
-            padding: 1.2rem;
-            background: linear-gradient(145deg, var(--primary-color), #b8941f);
+            padding: 0.75rem;
+            background: linear-gradient(145deg, var(--accent-color), #b8941f);
             border: none;
-            border-radius: 12px;
-            color: var(--bg-dark);
-            font-family: 'Cinzel', serif;
-            font-size: 1.1rem;
+            border-radius: 6px;
+            color: var(--secondary-color);
             font-weight: 700;
+            font-size: 1rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            margin: 1.5rem 0;
+            margin: 1rem 0;
         }
 
         .guard-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
         }
 
         .guard-button:active {
@@ -346,47 +278,33 @@
             transform: none;
         }
 
-        .guard-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .guard-button:hover::before {
-            left: 100%;
-        }
-
         .status-message {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 6px;
             text-align: center;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             display: none;
         }
 
         .status-message.success {
-            background: rgba(76, 175, 80, 0.2);
+            background-color: rgba(76, 175, 80, 0.2);
             border: 1px solid #4caf50;
             color: #4caf50;
             display: block;
         }
 
         .status-message.error {
-            background: rgba(244, 67, 54, 0.2);
+            background-color: rgba(244, 67, 54, 0.2);
             border: 1px solid #f44336;
             color: #f44336;
             display: block;
         }
 
         .status-message.loading {
-            background: rgba(33, 150, 243, 0.2);
+            background-color: rgba(33, 150, 243, 0.2);
             border: 1px solid #2196f3;
             color: #2196f3;
             display: block;
@@ -394,19 +312,19 @@
 
         .castle-footer {
             text-align: center;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
             border-top: 1px solid rgba(212, 175, 55, 0.3);
         }
 
         .footer-text {
-            color: var(--text-silver);
-            font-size: 0.9rem;
+            color: var(--text-color);
+            font-size: 0.8rem;
             opacity: 0.8;
         }
 
         .footer-link {
-            color: var(--primary-color);
+            color: var(--accent-color);
             text-decoration: none;
             transition: color 0.3s ease;
         }
@@ -415,55 +333,16 @@
             color: #ffd700;
         }
 
-        /* Animações de entrada */
-        .guard-castle {
-            animation: castleRise 1s ease-out;
-        }
 
-        @keyframes castleRise {
-            from {
-                opacity: 0;
-                transform: translateY(50px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .login-container {
-                padding: 1rem;
-            }
-            
-            .guard-castle {
-                padding: 2rem;
-            }
-            
-            .castle-title {
-                font-size: 1.8rem;
-            }
-            
-            .guard-avatars {
-                gap: 0.5rem;
-            }
-            
-            .guard-avatar {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-        }
 
         /* Loading spinner */
         .loading-spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top-color: var(--bg-dark);
+            border-top-color: var(--secondary-color);
             animation: spin 1s ease-in-out infinite;
             margin-right: 0.5rem;
         }
@@ -471,9 +350,30 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+
     </style>
 </head>
-<body>
+<body class="no-js">
+    <script>document.body.classList.remove('no-js');</script>
+
+    <!-- Overlay de névoa mais sutil para login -->
+    <div class="fog-overlay" style="opacity: 0.05;"></div>
+
+    <!-- Guardas laterais -->
+    <div class="left-guard">
+        <div class="guard-speech-bubble hidden">
+            <p id="leftGuardText">Alto, viajante! Identificação necessária para prosseguir.</p>
+        </div>
+        <img src="assets/img/guarda-1.png" alt="Guarda Esquerdo" class="guard-image" id="leftGuardAvatar">
+    </div>
+    <div class="right-guard">
+        <div class="guard-speech-bubble hidden">
+            <p id="rightGuardText">Os portões do Reino aguardam sua passagem autorizada.</p>
+        </div>
+        <img src="assets/img/guarda-2.png" alt="Guarda Direito" class="guard-image" id="rightGuardAvatar">
+    </div>
+
     <div class="login-container">
         <div class="guard-castle">
             <div class="castle-header">
@@ -481,21 +381,6 @@
                     <i class="fas fa-shield-alt"></i>
                     Reconhecimento
                 </h1>
-                <p class="castle-subtitle">
-                    Os Guardas do Forjador de Lendas
-                </p>
-                
-                <div class="guard-avatars">
-                    <div class="guard-avatar">
-                        <i class="fas fa-helmet-battle"></i>
-                    </div>
-                    <div class="guard-avatar">
-                        <i class="fas fa-shield"></i>
-                    </div>
-                    <div class="guard-avatar">
-                        <i class="fas fa-sword"></i>
-                    </div>
-                </div>
             </div>
 
             <div class="guard-message">
@@ -509,7 +394,7 @@
             <form id="recognitionForm" class="recognition-form">
                 <div class="field-group">
                     <label class="field-label" for="username">
-                        <i class="fas fa-user-crown"></i>
+                        <i class="fas fa-user"></i>
                         Nome do Aventureiro
                     </label>
                     <div class="input-container">
@@ -565,7 +450,7 @@
                 <p class="footer-text">
                     Primeiro acesso? <a href="#" class="footer-link" id="registerLink">Solicite passagem aos guardas</a>
                 </p>
-                <p class="footer-text" style="margin-top: 0.5rem;">
+                <p class="footer-text" style="margin-top: 0.3rem;">
                     <a href="#" class="footer-link" id="forgotPasswordLink">Esqueceu sua palavra de reconhecimento?</a>
                 </p>
             </div>
@@ -651,11 +536,21 @@
                         this.setAuthData(result.token, result.user, remember);
                         this.showMessage(`Acesso liberado! Bem-vindo, ${result.user.username}!`, 'success');
                         
+                        // Chamar reação dos guardas ao sucesso
+                        if (window.loginGuards) {
+                            window.loginGuards.onLoginSuccess();
+                        }
+                        
                         setTimeout(() => {
                             window.location.href = 'index.html';
                         }, 2000);
                     } else {
                         this.showMessage(result.message || 'Credenciais inválidas! Os guardas não reconhecem esta identidade.', 'error');
+                        
+                        // Chamar reação dos guardas ao erro
+                        if (window.loginGuards) {
+                            window.loginGuards.onLoginError();
+                        }
                     }
                 } catch (error) {
                     console.error('Erro no login:', error);
@@ -740,6 +635,434 @@
         // Inicializar quando DOM carregar
         document.addEventListener('DOMContentLoaded', () => {
             new LoginPageAuth();
+        });
+    </script>
+
+    <!-- Sistema de guardas interativos - Baseado no companion -->
+    <script>
+        class LoginGuards {
+            constructor() {
+                this.leftGuard = document.querySelector('.left-guard');
+                this.rightGuard = document.querySelector('.right-guard');
+                this.leftGuardAvatar = document.getElementById('leftGuardAvatar');
+                this.rightGuardAvatar = document.getElementById('rightGuardAvatar');
+                this.leftSpeechBubble = this.leftGuard?.querySelector('.guard-speech-bubble');
+                this.rightSpeechBubble = this.rightGuard?.querySelector('.guard-speech-bubble');
+                this.leftGuardText = document.getElementById('leftGuardText');
+                this.rightGuardText = document.getElementById('rightGuardText');
+                
+                this.leftLastMessage = '';
+                this.rightLastMessage = '';
+                this.leftHideTimeout = null;
+                this.rightHideTimeout = null;
+                this.leftAvatarTimeout = null;
+                this.rightAvatarTimeout = null;
+
+                // Garantir que os guardas comecem visíveis
+                if (this.leftGuard) {
+                    this.leftGuard.style.opacity = '1';
+                }
+                if (this.rightGuard) {
+                    this.rightGuard.style.opacity = '1';
+                }
+
+                // No mobile, começar com speech bubbles e avatares no estado inicial
+                if (window.innerWidth < 1023) {
+                    if (this.leftSpeechBubble) {
+                        this.leftSpeechBubble.classList.add('hidden');
+                    }
+                    if (this.rightSpeechBubble) {
+                        this.rightSpeechBubble.classList.add('hidden');
+                    }
+                    // Avatares começam visíveis, mas serão escondidos após inatividade
+                    if (this.leftGuardAvatar) {
+                        this.leftGuardAvatar.classList.add('avatar-show');
+                    }
+                    if (this.rightGuardAvatar) {
+                        this.rightGuardAvatar.classList.add('avatar-show');
+                    }
+                }
+                
+                this.leftMessages = [
+                    "Alto, viajante! Identificação necessária para prosseguir.",
+                    "Estado seu nome e propósito neste reino!",
+                    "Por ordem real, todos devem se identificar.",
+                    "Suas credenciais, aventureiro!",
+                    "O reino deve conhecer quem cruza nossos portões."
+                ];
+                
+                this.rightMessages = [
+                    "Os portões do Reino aguardam sua passagem autorizada.",
+                    "Apresente seus documentos de viagem!",
+                    "Nenhum estranho passa sem identificação.",
+                    "Prove sua identidade, forasteiro!",
+                    "A segurança do reino é nossa prioridade."
+                ];
+                
+                this.errorMessages = [
+                    "Credenciais inválidas! Tente novamente, impostor!",
+                    "Esse não é um nome reconhecido em nossos pergaminhos!",
+                    "Palavra de reconhecimento incorreta, intruso!",
+                    "Por Khalmyr! Essas não são as credenciais certas!",
+                    "Alto aí! Esses dados não conferem com nossos registros!"
+                ];
+                
+                this.successMessages = [
+                    "Bem-vindo ao reino, nobre aventureiro!",
+                    "Passagem autorizada! Que a fortuna te acompanhe!",
+                    "Credenciais aprovadas. Os portões se abrem para você!",
+                    "Entrada concedida! Que sua jornada seja próspera!",
+                    "Bem-vindo de volta ao Forjador de Lendas!"
+                ];
+                
+                this.setupEventListeners();
+                this.setupMobileEvents();
+                this.setupScrollListener();
+                this.greet();
+            }
+
+            setupEventListeners() {
+                // Eventos do formulário de login
+                const usernameInput = document.getElementById('username');
+                const passwordInput = document.getElementById('password');
+                
+                if (usernameInput) {
+                    usernameInput.addEventListener('input', () => this.onUsernameInput());
+                }
+                
+                if (passwordInput) {
+                    passwordInput.addEventListener('input', () => this.onPasswordInput());
+                }
+            }
+
+            setupMobileEvents() {
+                if (this.leftGuardAvatar) {
+                    this.leftGuardAvatar.addEventListener('click', () => {
+                        if (window.innerWidth < 1023) {
+                            if (this.leftSpeechBubble && this.leftSpeechBubble.classList.contains('hidden')) {
+                                this.showLastMessage('left');
+                            } else {
+                                this.hideSpeechBubble('left');
+                            }
+                        }
+                    });
+                }
+
+                if (this.rightGuardAvatar) {
+                    this.rightGuardAvatar.addEventListener('click', () => {
+                        if (window.innerWidth < 1023) {
+                            if (this.rightSpeechBubble && this.rightSpeechBubble.classList.contains('hidden')) {
+                                this.showLastMessage('right');
+                            } else {
+                                this.hideSpeechBubble('right');
+                            }
+                        }
+                    });
+                }
+
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth < 1023) {
+                        if (!this.leftGuardAvatar?.contains(e.target) &&
+                            this.leftSpeechBubble && !this.leftSpeechBubble.contains(e.target) &&
+                            !this.leftSpeechBubble.classList.contains('hidden')) {
+                            this.hideSpeechBubble('left');
+                        }
+
+                        if (!this.rightGuardAvatar?.contains(e.target) &&
+                            this.rightSpeechBubble && !this.rightSpeechBubble.contains(e.target) &&
+                            !this.rightSpeechBubble.classList.contains('hidden')) {
+                            this.hideSpeechBubble('right');
+                        }
+                    }
+                });
+            }
+
+            setupScrollListener() {
+                let isNearBottom = false;
+                const threshold = 100;
+
+                const checkFooterPosition = () => {
+                    if (window.innerWidth >= 1023) return;
+
+                    const scrollPosition = window.scrollY;
+                    const windowHeight = window.innerHeight;
+                    const documentHeight = document.documentElement.scrollHeight;
+                    const distanceFromBottom = documentHeight - (scrollPosition + windowHeight);
+
+                    if (distanceFromBottom <= threshold) {
+                        if (!isNearBottom) {
+                            if (this.leftGuard) this.leftGuard.classList.add('guard-fade-out');
+                            if (this.rightGuard) this.rightGuard.classList.add('guard-fade-out');
+                            isNearBottom = true;
+                        }
+                    } else {
+                        if (isNearBottom) {
+                            if (this.leftGuard) this.leftGuard.classList.remove('guard-fade-out');
+                            if (this.rightGuard) this.rightGuard.classList.remove('guard-fade-out');
+                            isNearBottom = false;
+                        }
+                    }
+                };
+
+                // Verifica no scroll
+                window.addEventListener('scroll', checkFooterPosition, { passive: true });
+
+                // Verifica no carregamento
+                checkFooterPosition();
+
+                // Verifica também no redimensionamento
+                window.addEventListener('resize', checkFooterPosition);
+            }
+
+            speak(guard, text, duration = null) {
+                const guardContainer = guard === 'left' ? this.leftGuard : this.rightGuard;
+                const speechBubble = guard === 'left' ? this.leftSpeechBubble : this.rightSpeechBubble;
+                const textElement = guard === 'left' ? this.leftGuardText : this.rightGuardText;
+                const avatar = guard === 'left' ? this.leftGuardAvatar : this.rightGuardAvatar;
+
+                if (!speechBubble || !textElement) return;
+
+                // Remove fade out
+                if (guardContainer) {
+                    guardContainer.classList.remove('guard-fade-out');
+                }
+
+                // Salva última mensagem
+                if (guard === 'left') {
+                    this.leftLastMessage = text;
+                } else {
+                    this.rightLastMessage = text;
+                }
+
+                // Limpa qualquer timeout anterior (speech bubble e avatar)
+                if (guard === 'left' && this.leftHideTimeout) {
+                    clearTimeout(this.leftHideTimeout);
+                    this.leftHideTimeout = null;
+                }
+                if (guard === 'right' && this.rightHideTimeout) {
+                    clearTimeout(this.rightHideTimeout);
+                    this.rightHideTimeout = null;
+                }
+
+                // No mobile, mostra o avatar quando há nova interação
+                if (window.innerWidth < 1023) {
+                    this.showAvatar(guard);
+                }
+
+                // Mostra o speech bubble
+                speechBubble.classList.remove('hidden', 'auto-hide');
+                speechBubble.classList.add('show', 'fade-in');
+                textElement.textContent = text;
+
+                if (window.innerWidth <= 768) {
+                    // Em mobile, pisca o avatar quando fala
+                    if (avatar) {
+                        avatar.style.boxShadow = '0 0 15px var(--accent-color)';
+                        setTimeout(() => {
+                            avatar.style.boxShadow = '';
+                        }, 1000);
+                    }
+                }
+
+                // No mobile, esconde automaticamente após um tempo
+                if (window.innerWidth < 1023) {
+                    const autoHideDuration = duration || 4000; // 4 segundos padrão
+                    const timeoutId = setTimeout(() => {
+                        this.autoHideSpeechBubble(guard);
+                    }, autoHideDuration);
+
+                    if (guard === 'left') {
+                        this.leftHideTimeout = timeoutId;
+                    } else {
+                        this.rightHideTimeout = timeoutId;
+                    }
+                } else if (duration) {
+                    setTimeout(() => this.hideSpeechBubble(guard), duration);
+                }
+            }
+
+            hideSpeechBubble(guard) {
+                const speechBubble = guard === 'left' ? this.leftSpeechBubble : this.rightSpeechBubble;
+                if (speechBubble) {
+                    speechBubble.classList.remove('show', 'fade-in');
+                    speechBubble.classList.add('hidden');
+                }
+            }
+
+            autoHideSpeechBubble(guard) {
+                const speechBubble = guard === 'left' ? this.leftSpeechBubble : this.rightSpeechBubble;
+                if (speechBubble && window.innerWidth < 1023) {
+                    speechBubble.classList.remove('show', 'fade-in');
+                    speechBubble.classList.add('auto-hide');
+                    
+                    // Após a transição, adiciona hidden
+                    setTimeout(() => {
+                        if (speechBubble.classList.contains('auto-hide')) {
+                            speechBubble.classList.remove('auto-hide');
+                            speechBubble.classList.add('hidden');
+                        }
+                    }, 800); // Tempo da transição + delay
+
+                    // Inicia timeout para esconder avatar após mais tempo
+                    this.startAvatarHideTimeout(guard);
+                }
+            }
+
+            showAvatar(guard) {
+                const avatar = guard === 'left' ? this.leftGuardAvatar : this.rightGuardAvatar;
+                if (avatar && window.innerWidth < 1023) {
+                    // Cancela timeout de esconder avatar se existir
+                    if (guard === 'left' && this.leftAvatarTimeout) {
+                        clearTimeout(this.leftAvatarTimeout);
+                        this.leftAvatarTimeout = null;
+                    }
+                    if (guard === 'right' && this.rightAvatarTimeout) {
+                        clearTimeout(this.rightAvatarTimeout);
+                        this.rightAvatarTimeout = null;
+                    }
+
+                    avatar.classList.remove('avatar-hidden', 'avatar-auto-hide');
+                    avatar.classList.add('avatar-show');
+                }
+            }
+
+            hideAvatar(guard) {
+                const avatar = guard === 'left' ? this.leftGuardAvatar : this.rightGuardAvatar;
+                if (avatar && window.innerWidth < 1023) {
+                    avatar.classList.remove('avatar-show');
+                    avatar.classList.add('avatar-hidden');
+                }
+            }
+
+            autoHideAvatar(guard) {
+                const avatar = guard === 'left' ? this.leftGuardAvatar : this.rightGuardAvatar;
+                if (avatar && window.innerWidth < 1023) {
+                    avatar.classList.remove('avatar-show');
+                    avatar.classList.add('avatar-auto-hide');
+                    
+                    // Após a transição, adiciona hidden
+                    setTimeout(() => {
+                        if (avatar.classList.contains('avatar-auto-hide')) {
+                            avatar.classList.remove('avatar-auto-hide');
+                            avatar.classList.add('avatar-hidden');
+                        }
+                    }, 1100); // Tempo da transição + delay
+                }
+            }
+
+            startAvatarHideTimeout(guard) {
+                const inactivityDuration = 8000; // 8 segundos após speech bubble desaparecer
+                const timeoutId = setTimeout(() => {
+                    this.autoHideAvatar(guard);
+                }, inactivityDuration);
+
+                if (guard === 'left') {
+                    this.leftAvatarTimeout = timeoutId;
+                } else {
+                    this.rightAvatarTimeout = timeoutId;
+                }
+            }
+
+            greet() {
+                // Saudação inicial alternada
+                setTimeout(() => {
+                    const duration = window.innerWidth < 1023 ? 3000 : null; // 3 segundos no mobile
+                    this.speak('left', this.leftMessages[0], duration);
+                }, 500);
+                
+                setTimeout(() => {
+                    const duration = window.innerWidth < 1023 ? 3000 : null; // 3 segundos no mobile
+                    this.speak('right', this.rightMessages[0], duration);
+                }, 2000);
+
+                // No mobile, inicia timeout de inatividade total após as saudações
+                if (window.innerWidth < 1023) {
+                    setTimeout(() => {
+                        this.startInitialInactivityTimeout();
+                    }, 8000); // 8 segundos após as saudações iniciais
+                }
+            }
+
+            startInitialInactivityTimeout() {
+                // Timeout para esconder avatares se não houver interação
+                const totalInactivityDuration = 15000; // 15 segundos de inatividade total
+                
+                this.leftAvatarTimeout = setTimeout(() => {
+                    this.autoHideAvatar('left');
+                }, totalInactivityDuration);
+                
+                this.rightAvatarTimeout = setTimeout(() => {
+                    this.autoHideAvatar('right');
+                }, totalInactivityDuration);
+            }
+
+            onUsernameInput() {
+                const username = document.getElementById('username')?.value.trim();
+                if (username && username.length > 2) {
+                    const responses = [
+                        `${username}? Verificando nos registros...`,
+                        `Nome anotado: ${username}. Aguardo a palavra de reconhecimento.`,
+                        `${username}... *consulta pergaminho* Prossiga com a identificação.`
+                    ];
+                    const duration = window.innerWidth < 1023 ? 3500 : null;
+                    this.speak('left', responses[Math.floor(Math.random() * responses.length)], duration);
+                }
+            }
+
+            onPasswordInput() {
+                const messages = [
+                    "Palavra de reconhecimento em análise...",
+                    "Verificando autorização...",
+                    "*Examina cuidadosamente os códigos*"
+                ];
+                const duration = window.innerWidth < 1023 ? 3500 : null;
+                this.speak('right', messages[Math.floor(Math.random() * messages.length)], duration);
+            }
+
+            // Função para mostrar última mensagem (mobile)
+            showLastMessage(guard) {
+                const lastMessage = guard === 'left' ? this.leftLastMessage : this.rightLastMessage;
+                const guardContainer = guard === 'left' ? this.leftGuard : this.rightGuard;
+                
+                if (lastMessage) {
+                    if (guardContainer) {
+                        guardContainer.classList.remove('guard-fade-out');
+                    }
+                    // Mostra avatar também quando clica para ver última mensagem
+                    if (window.innerWidth < 1023) {
+                        this.showAvatar(guard);
+                    }
+                    this.speak(guard, lastMessage);
+                }
+            }
+
+            // Método para ser chamado pelo sistema de login
+            onLoginSuccess() {
+                const successMessage = this.successMessages[Math.floor(Math.random() * this.successMessages.length)];
+                const duration = window.innerWidth < 1023 ? 4000 : null;
+                this.speak('left', successMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 4000 : null;
+                    this.speak('right', "Portões abertos! Bem-vindo ao reino!", duration2);
+                }, 1000);
+            }
+
+            onLoginError() {
+                const errorMessage = this.errorMessages[Math.floor(Math.random() * this.errorMessages.length)];
+                const duration = window.innerWidth < 1023 ? 4000 : null;
+                this.speak('left', errorMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 4000 : null;
+                    this.speak('right', "Tente novamente, mas com as credenciais corretas!", duration2);
+                }, 1500);
+            }
+        }
+        
+        // Inicializar guardas quando DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', () => {
+            window.loginGuards = new LoginGuards();
         });
     </script>
 </body>

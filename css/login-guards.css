@@ -1,0 +1,398 @@
+/* Guardas da página de login - Sistema responsivo baseado no companion */
+
+/* Guardas laterais - Sistema igual ao companion */
+.left-guard, .right-guard {
+    /* Transições suaves para mudanças de posição/transformação */
+    transition: transform 0.1s ease, top 0.3s ease, bottom 0.3s ease, right 0.3s ease, left 0.3s ease, opacity 0.5s ease;
+    will-change: transform, opacity; /* Melhora o desempenho de animações */
+    opacity: 1; /* Garante que os guardas comecem visíveis por padrão */
+}
+
+.guard-image {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Classe adicionada via JS durante interação */
+.guard-image.pulse {
+    animation: guardPulse 1s infinite;
+}
+
+.guard-speech-bubble {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.guard-speech-bubble.hidden {
+    opacity: 0;
+    transform: scale(0.8);
+    pointer-events: none;
+}
+
+.guard-speech-bubble p {
+    word-wrap: break-word; /* Garante que o texto quebre corretamente */
+}
+
+/* Estilos para DESKTOP (telas maiores que 1023px) - Layout original */
+@media screen and (min-width: 1024px) {
+    .left-guard, .right-guard {
+        width: 45%;
+        min-height: 150vh; /* Força uma altura muito grande */
+        position: absolute; 
+        top: -1%; 
+        z-index: 0; 
+        transform: none !important; 
+        touch-action: auto; 
+        opacity: 1 !important; 
+        overflow: hidden; /* Essencial para cortar o conteúdo que excede */
+    }
+
+    .left-guard {
+        left: 2%; /* Meio do caminho entre borda esquerda e card de login */
+    }
+
+    .right-guard {
+        right: 2%; /* Meio do caminho entre borda direita e card de login */
+    }
+
+    .guard-image {
+        width: 100%;
+        height: 100%; /* Para preencher a altura do container (150vh) */
+        object-fit: contain; /* Mostra a imagem completa sem cortes */
+        object-position: center center; /* Centraliza completamente a imagem */
+        filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.7));
+        display: block; 
+        cursor: default; 
+        border-radius: 0; /* Restaurar forma original */
+        border: none;
+        box-shadow: none;
+        background-color: transparent; 
+        z-index: -1; /* Fundo transparente no desktop */
+    }
+
+    /* Posicionamento específico para cada guarda */
+    .left-guard .guard-image {
+        object-position: center right; /* Guarda esquerdo voltado para o centro */
+    }
+
+    .right-guard .guard-image {
+        object-position: center left; /* Guarda direito voltado para o centro */
+    }
+
+    .guard-image:hover {
+        transform: scale(1.02);
+        filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));
+    }
+
+    .guard-speech-bubble {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid var(--panel-border);
+        border-radius: 15px;
+        padding: 15px;
+        width: 280px;
+        position: absolute;
+        color: var(--secondary-color);
+        font-family: "MedievalSharp", cursive;
+        z-index: 5;
+        transform-origin: center center; /* Ajusta a origem da transformação */
+    }
+
+    .left-guard .guard-speech-bubble {
+        top: 8%; /* Reposicionado mais para cima */
+        left: 5%; /* Reposicionado mais para a esquerda */
+    }
+
+    .right-guard .guard-speech-bubble {
+        top: 8%; /* Reposicionado mais para cima */
+        right: 5%; /* Reposicionado mais para a direita */
+    }
+
+    /* Estilo das setas dos balões no desktop */
+    .left-guard .guard-speech-bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        right: 30px; /* Seta apontando para o guarda à direita do balão */
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid var(--panel-border);
+    }
+
+    .right-guard .guard-speech-bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 30px; /* Seta apontando para o guarda à esquerda do balão */
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid var(--panel-border);
+    }
+}
+
+/* Estilos para MOBILE (telas de até 1023px) - Layout superior e inferior */
+@media screen and (max-width: 1023px) {
+    /* Guarda esquerdo - EXTREMIDADE SUPERIOR */
+    .left-guard {
+        position: fixed !important;
+        top: 1vh !important; /* Muito próximo do topo da tela */
+        left: 1vh !important; /* Consistente com o right do guarda 2 */
+        bottom: auto !important;
+        right: auto !important;
+        transform: none !important;
+        width: 60px;
+        height: 60px;
+        z-index: 9990 !important;
+        touch-action: auto;
+        transition: opacity 0.4s ease;
+        opacity: 1;
+        will-change: opacity;
+        min-height: auto !important;
+        overflow: visible; /* Permite que o speech bubble apareça */
+    }
+
+    /* Guarda direito - EXTREMIDADE INFERIOR */
+    .right-guard {
+        position: fixed !important;
+        bottom: 1vh !important; /* Muito próximo do fundo da tela */
+        right: 1vh !important; /* Simétrico ao left do guarda 1 */
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        width: 60px;
+        height: 60px;
+        z-index: 9990 !important;
+        touch-action: auto;
+        transition: opacity 0.4s ease;
+        opacity: 1;
+        will-change: opacity;
+        min-height: auto !important;
+        overflow: visible; /* Permite que o speech bubble apareça */
+    }
+
+    .left-guard.guard-fade-out, .right-guard.guard-fade-out {
+        opacity: 0 !important;
+        pointer-events: none;
+    }
+
+    .guard-image {
+        width: 60px; /* Ajustado para o novo tamanho */
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        object-fit: cover;
+        object-position: center 20%; /* Ajusta posição para mostrar melhor o rosto */
+        background-color: var(--panel-bg);
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+        z-index: 9991 !important;
+        transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s ease;
+        /* Melhora o posicionamento da imagem */
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+
+    /* Estados dos avatares no mobile */
+    .guard-image.avatar-hidden {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: scale(0.7) !important;
+        pointer-events: none;
+    }
+
+    .guard-image.avatar-show {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: scale(1) !important;
+        pointer-events: auto;
+    }
+
+    .guard-image.avatar-auto-hide {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: scale(0.7) !important;
+        pointer-events: none;
+        transition-delay: 0.5s;
+    }
+
+    .left-guard.guard-fade-out .guard-image, .right-guard.guard-fade-out .guard-image {
+        opacity: 0;
+    }
+
+    /* Speech bubble do guarda superior (esquerdo) - ícone -> mensagem */
+    .left-guard .guard-speech-bubble {
+        position: absolute;
+        top: 0; /* Alinhado com o ícone */
+        left: 70px; /* Ajustado para o novo tamanho do ícone */
+        bottom: auto;
+        width: 280px; /* Aumentado para melhor espaçamento mobile */
+        max-width: calc(100vw - 90px); /* Mais extenso horizontalmente */
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 12px; /* Reduzido */
+        padding: 14px; /* Ligeiramente aumentado para acomodar texto maior */
+        z-index: 9992 !important;
+        transform-origin: left center;
+        transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+        color: var(--text-color);
+        font-size: 0.85rem; /* Reduzido */
+        line-height: 1.3;
+        /* Começar invisível no mobile */
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(0.8);
+    }
+
+    /* Speech bubble do guarda inferior (direito) - mensagem -> ícone */
+    .right-guard .guard-speech-bubble {
+        position: absolute;
+        bottom: 0; /* Alinhado com o ícone */
+        right: 70px; /* À esquerda do ícone, mas usando right para controle preciso */
+        top: auto;
+        width: 280px; /* Aumentado para melhor espaçamento mobile */
+        max-width: calc(100vw - 90px); /* Mais extenso horizontalmente */
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 12px; /* Reduzido */
+        padding: 14px; /* Ligeiramente aumentado para acomodar texto maior */
+        z-index: 9992 !important;
+        transform-origin: right center;
+        transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+        color: var(--text-color);
+        font-size: 0.85rem; /* Reduzido */
+        line-height: 1.3;
+        /* Começar invisível no mobile */
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(0.8);
+    }
+
+    /* Estado oculto (padrão no mobile) */
+    .guard-speech-bubble.hidden {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: scale(0.8) !important;
+        pointer-events: none;
+    }
+
+    /* Estado visível quando há mensagem */
+    .guard-speech-bubble.show {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: scale(1) !important;
+        pointer-events: auto;
+    }
+
+    /* Auto-hide após timeout */
+    .guard-speech-bubble.auto-hide {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: scale(0.8) !important;
+        pointer-events: none;
+        transition-delay: 0.3s;
+    }
+    
+    /* Seta do balão para o guarda superior - aponta para a esquerda (ícone) */
+    .left-guard .guard-speech-bubble::after {
+        content: "";
+        position: absolute;
+        left: -10px; /* À esquerda do balão */
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-right: 10px solid var(--accent-color); /* Seta apontando para a esquerda */
+    }
+
+    /* Seta do balão para o guarda inferior - aponta para a direita (ícone) */
+    .right-guard .guard-speech-bubble::after {
+        content: "";
+        position: absolute;
+        right: -10px; /* À direita do balão, apontando para o ícone */
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 10px solid var(--accent-color); /* Seta apontando para a direita (ícone) */
+    }
+
+    .login-container {
+        padding: 0.5rem;
+        margin-top: 0; /* Remove margem fixa */
+        margin-bottom: 0; /* Remove margem fixa */
+        min-height: 100vh; /* Garante altura total da tela */
+        display: flex;
+        align-items: center; /* Centraliza verticalmente */
+        justify-content: center; /* Centraliza horizontalmente */
+    }
+    
+    .guard-castle {
+        padding: 1.5rem;
+    }
+    
+    .castle-title {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-guard, .right-guard {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    .guard-image {
+        width: 50px !important;
+        height: 50px !important;
+        object-position: center 20%; /* Mantém foco no rosto mesmo em tamanho menor */
+    }
+
+    .guard-speech-bubble {
+        width: 260px; /* Ajustado para telas muito pequenas */
+        max-width: calc(100vw - 80px); /* Responsivo para telas muito pequenas */
+        font-size: 0.85rem;
+        bottom: 60px;
+    }
+}
+
+/* Removidas as regras conflitantes de media query que estavam interferindo no posicionamento mobile */
+
+/* Animações para os guardas (igual ao companion) */
+@keyframes guardPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.guard-speech-bubble.fade-in {
+    animation: fadeInUp 0.3s forwards;
+}
+
+.guard-image.pulse {
+    animation: guardPulse 1s infinite;
+} 

@@ -473,10 +473,7 @@ export class AuthSystem {
                 authButton.onclick = () => this.showUserMenu();
             }
 
-            // Criar info do usuário se não existir
-            if (!userInfo && this.currentUser) {
-                this.createUserInfo();
-            }
+            // Info do usuário removida - sem exibição de mensagem
         } else {
             // Usuário não logado
             if (authButton) {
@@ -592,28 +589,10 @@ export class AuthSystem {
     }
 
     /**
-     * Cria informações do usuário na UI
+     * Cria informações do usuário na UI (removido - sem exibição de mensagem)
      */
     createUserInfo() {
-        const container = document.querySelector('.container.is-fluid.main-container');
-        if (!container || document.querySelector('.user-info')) return;
-
-        const userInfo = document.createElement('div');
-        userInfo.className = 'user-info notification is-info';
-        userInfo.innerHTML = `
-            <button class="delete" onclick="this.parentElement.style.display='none'"></button>
-            <p>
-                <strong>🏰 Bem-vindo, ${this.currentUser.username}!</strong><br>
-                <small>Seus personagens serão salvos automaticamente.</small>
-            </p>
-        `;
-        
-        container.insertBefore(userInfo, container.firstChild);
-
-        // Auto-esconder após 5 segundos
-        setTimeout(() => {
-            userInfo.style.display = 'none';
-        }, 5000);
+        // Método vazio - não exibe mais mensagem de boas-vindas
     }
 
     /**
