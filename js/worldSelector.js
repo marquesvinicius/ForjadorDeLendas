@@ -3,9 +3,9 @@
  */
 document.addEventListener('DOMContentLoaded', function () {
     const worlds = [
-        { id: 'tormenta', name: 'Tormenta 20', icon: 'assets/img/tormenta/icon.png', loadingMessage: 'Viajando para Arton...' },
-        { id: 'dnd', name: 'D&D 5e', icon: 'assets/img/dnd/icon.png', loadingMessage: 'Voando para a Terra dos Dragões...' },
-        { id: 'ordem-paranormal', name: 'Ordem Paranormal', icon: 'assets/img/ordem-paranormal/icon.png', loadingMessage: 'Invocando a Ordem...' }
+        { id: 'tormenta', name: 'Tormenta 20', icon: 'assets/img/tormenta/icon.webp', loadingMessage: 'Viajando para Arton...' },
+        { id: 'dnd', name: 'D&D 5e', icon: 'assets/img/dnd/icon.webp', loadingMessage: 'Voando para a Terra dos Dragões...' },
+        { id: 'ordem-paranormal', name: 'Ordem Paranormal', icon: 'assets/img/ordem-paranormal/icon.webp', loadingMessage: 'Invocando a Ordem...' }
     ];
 
     const mainContainer = document.querySelector('.container.is-fluid.main-container');

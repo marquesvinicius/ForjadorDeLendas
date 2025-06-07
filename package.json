@@ -4,9 +4,32 @@
   "description": "Bem-vindo ao **Forjador de Lendas**, um gerador de personagens para o sistema de RPG **Tormenta 20**, ambientado no rico mundo de **Arton**. Este projeto permite criar heróis épicos com raças, classes, atributos e histórias de fundo geradas automaticamente, tudo envolto em uma interface com temática medieval e um mago companion interativo que guia o usuário.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint js/ --ext .js",
+    "lint:fix": "eslint js/ --ext .js --fix",
+    "format": "prettier --write js/ css/ *.html *.json *.md",
+    "format:check": "prettier --check js/ css/ *.html *.json *.md",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "python -m http.server 3000",
+    "style": "npm run lint && npm run format"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "babel-jest": "^30.0.0-beta.3",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.0.0-beta.3",
+    "prettier": "^3.5.3",
+    "vite": "^6.3.5"
+  }
 }

@@ -7,43 +7,44 @@ Organizado por prioridade e complexidade para facilitar a execução incremental
 ## ✅ 1. Alta Prioridade / Baixa Complexidade
 
 ### 🔹 Limpeza do Repositório
-- [ ] Remover diretórios `__pycache__`, arquivos `.DS_Store`, `.log`, e arquivos JS compilados.
-- [ ] Deletar arquivos não utilizados da pasta `assets/`.
+- [x] Remover diretórios `__pycache__`, arquivos `.DS_Store`, `.log`, e arquivos JS compilados.
+- [x] Deletar arquivos não utilizados da pasta `assets/`.
+- [x] Atualizar `.gitignore` com regras abrangentes.
 
 ### 🔹 Documentação
-- [ ] Atualizar `README.md` com:
+- [x] Atualizar `README.md` com:
   - Instruções de execução local
   - Dependências do `package.json`
   - Orientações para uso do novo **Seletor de Mundos**
   - Como alterar o tema e aplicar o `themeManager`
 
 ### 🔹 Otimização de Imagens
-- [ ] Converter imagens de `assets/img/` para formato `.webp` sempre que possível.
-- [ ] Atualizar caminhos no HTML/CSS após conversão.
+- [x] Converter imagens de `assets/img/` para formato `.webp` sempre que possível.
+- [x] Atualizar caminhos no HTML/CSS após conversão.
 
 ### 🔹 Pequenos Ajustes no Código
-- [ ] Criar arquivo `config.js` para armazenar URLs e chaves (ex: `BASE_API_URL`).
-- [ ] Melhorar `fetchBackstoryFromLocal()` com mensagens de erro amigáveis e logs mais claros.
+- [x] Criar arquivo `config.js` para armazenar URLs e chaves (ex: `BASE_API_URL`).
+- [x] Melhorar `fetchBackstoryFromLocal()` com mensagens de erro amigáveis e logs mais claros.
 
 ---
 
 ## ⚙️ 2. Prioridade Média / Complexidade Moderada
 
 ### 🔹 Padronização de Estilo
-- [ ] Configurar ESLint com regras básicas para JS moderno.
-- [ ] Adicionar Prettier para formatação automática.
-- [ ] Incluir scripts no `package.json` (lint, format).
+- [x] Configurar ESLint com regras básicas para JS moderno.
+- [x] Adicionar Prettier para formatação automática.
+- [x] Incluir scripts no `package.json` (lint, format).
 
 ### 🔹 Testes Automatizados
-- [ ] Instalar Jest.
-- [ ] Criar testes unitários para:
-  - Rolagem de atributos (`rollAttributes`)
+- [x] Instalar Jest.
+- [x] Criar testes unitários para:
+  - Rolagem de atributos (`rollStat`)
   - Armazenamento com `CharacterStorage`
 
 ### 🔹 Modularização e Bundler
-- [ ] Refatorar JS para `import/export` usando ES6.
-- [ ] Avaliar e integrar Vite ou Webpack como bundler.
-- [ ] Separar arquivos por `core/`, `ui/`, `logic/`.
+- [x] Refatorar JS para `import/export` usando ES6.
+- [x] Avaliar e integrar Vite como bundler.
+- [x] Separar arquivos por `core/`, `ui/`, `logic/`.
 
 ### 🔹 Autenticação e Login
 - [ ] Criar página ou modal de login com tema medieval.
