@@ -649,6 +649,8 @@
 
     <!-- Scripts -->
     <script src="js/config.js"></script>
+    <script type="module" src="src/core/supabase.js"></script>
+    <script type="module" src="js/login-manager.js"></script>
     <script type="module">
         // Sistema de autenticação para página de login e registro
         class LoginPageAuth {
@@ -749,6 +751,11 @@
                     if (result.success) {
                         this.setAuthData(result.token, result.user, remember);
                         this.showMessage(`Acesso liberado! Bem-vindo, ${result.user.username}!`, 'success');
+                        
+                        // Definir mundo padrão se não existir
+                        if (!localStorage.getItem('selectedWorld')) {
+                            localStorage.setItem('selectedWorld', 'tormenta'); // Tormenta como padrão
+                        }
                         
                         // Chamar reação dos guardas ao sucesso
                         if (window.loginGuards) {

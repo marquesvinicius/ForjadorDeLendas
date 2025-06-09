@@ -1,3 +1,9 @@
+// Imports
+import { characterStorage } from '../src/core/storage.js';
+import { applyWorldTheme } from '../src/ui/themeManager.js';
+import { initWorldManager, getCurrentClassIcons } from '../src/logic/worldManager.js';
+import { getCurrentWorldConfig } from './worldsConfig.js';
+
 // Elementos DOM
 const characterForm = document.getElementById('characterForm');
 const rollAttributesBtn = document.getElementById('rollAttributes');
@@ -13,9 +19,11 @@ const editCharacterBtn = document.getElementById('editCharacter');
 const characterDetails = document.getElementById('characterDetails');
 const loreText = document.getElementById('loreText');
 const backgroundTextArea = document.getElementById('charBackground');
-import { applyWorldTheme } from './themeManager.js';
-import { initWorldManager, getCurrentClassIcons } from './worldManager.js';
-import { getCurrentWorldConfig } from './worldsConfig.js';
+
+// Função auxiliar para acessar o companion de forma segura
+function getCompanion() {
+    return window.magoCompanion || null;
+}
 
 const savedWorld = localStorage.getItem('selectedWorld') || 'dnd';
 applyWorldTheme(savedWorld);
@@ -41,11 +49,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initWorldManager(); // Inicializar gerenciador de mundos
     setupEventListeners();
     renderCharactersList();
-    if (typeof magoCompanion !== 'undefined') {
-        magoCompanion.init();
-    } else {
-        console.error('magoCompanion não está definido. Verifique companion.js');
-    }
 });
 
 // Configuração de listeners de eventos
@@ -113,10 +116,12 @@ function saveCharacter(e) {
 
     if (isUpdate) {
         showMessage(`Personagem ${savedCharacter.name} atualizado com sucesso!`, 'is-success');
-        magoCompanion.speak(`${savedCharacter.name} foi atualizado em seu grimório!`, 4000);
+        const companion = getCompanion();
+        if (companion) companion.reactToCharacterUpdate(savedCharacter.name);
     } else {
         showMessage(`Personagem ${savedCharacter.name} salvo com sucesso!`, 'is-success');
-        magoCompanion.speak(`${savedCharacter.name} foi adicionado ao seu grimório de heróis!`, 4000);
+        const companion = getCompanion();
+        if (companion) companion.reactToCharacterSave(savedCharacter.name);
 
         // Tenta destacar e rolar suavemente para o novo card
         setTimeout(() => { // Pequeno delay para garantir que o DOM foi atualizado por renderCharactersList
@@ -306,9 +311,8 @@ function editCurrentCharacter() {
 
     // Feedback visual
     showMessage('Editando personagem: ' + character.name, 'is-info');
-    if (typeof magoCompanion !== 'undefined') {
-        magoCompanion.speak(`Editando ${character.name}. Faça suas alterações!`, 3000);
-    }
+    const companion = getCompanion();
+    if (companion) companion.reactToCharacterEdit(character.name);
 }
 
 function deleteCurrentCharacter() {
@@ -334,9 +338,8 @@ function deleteCurrentCharacter() {
 
             // Feedback visual
             showMessage(`Personagem ${character.name} excluído com sucesso!`, 'is-warning');
-            if (typeof magoCompanion !== 'undefined') {
-                magoCompanion.speak(`${character.name} foi removido do seu grimório de heróis!`, 3000);
-            }
+            const companion = getCompanion();
+            if (companion) companion.reactToCharacterDelete(character.name);
 
             // Resetar o ID atual
             currentCharacterId = null;
@@ -540,97 +543,24 @@ async function fetchBackstoryFromLocal(prompt) {
     
     try {
         // Log do início da requisição
-        if (typeof log !== 'undefined') {
-            log.info('Iniciando geração de backstory via servidor...', { promptLength: prompt.length });
-        } else {
-            console.log('🔮 Iniciando geração de backstory via servidor...');
-        }
+        console.log('🔮 Iniciando geração de backstory via API...');
 
-        const response = await fetch('https://forjador-backend.onrender.com/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt: prompt })
-        });
-
-        // Verificação detalhada da resposta
-        if (!response.ok) {
-            const errorMessage = `Servidor retornou status ${response.status}: ${response.statusText}`;
-            
-            if (typeof log !== 'undefined') {
-                log.error('Falha na requisição ao servidor', { 
-                    status: response.status, 
-                    statusText: response.statusText,
-                    url: response.url 
-                });
-            }
-            
-            // Mensagem amigável baseada no status
-            let friendlyMessage = '';
-            switch (response.status) {
-                case 429:
-                    friendlyMessage = 'Muitas requisições simultâneas. Tente novamente em alguns segundos.';
-                    break;
-                case 500:
-                    friendlyMessage = 'Erro interno do servidor. O serviço pode estar temporariamente indisponível.';
-                    break;
-                case 503:
-                    friendlyMessage = 'Serviço temporariamente indisponível. Tentando novamente...';
-                    break;
-                default:
-                    friendlyMessage = `Erro de conexão com o servidor (${response.status})`;
-            }
-            
-            throw new Error(friendlyMessage);
-        }
-
-        const data = await response.json();
+        // Usar a nova configuração centralizada da API
+        const backstory = await window.API_CONFIG.generateStory(prompt);
         const duration = Date.now() - startTime;
         
         // Log de sucesso com métricas
-        if (typeof log !== 'undefined') {
-            log.info('Backstory gerada com sucesso', { 
-                duration: `${duration}ms`,
-                backstoryLength: data.backstory?.length || 0
-            });
-        } else {
-            console.log(`✅ Backstory gerada em ${duration}ms`);
-        }
-
-        if (data.error) {
-            const errorMsg = `Erro do servidor: ${data.error}`;
-            if (typeof log !== 'undefined') {
-                log.error('Servidor retornou erro', { error: data.error });
-            }
-            throw new Error(errorMsg);
-        }
-
-        if (!data.backstory) {
-            const warningMsg = 'Servidor não retornou backstory válida';
-            if (typeof log !== 'undefined') {
-                log.warn(warningMsg, data);
-            }
-            console.warn('⚠️ ' + warningMsg);
-        }
-
-        return data.backstory || null;
+        console.log(`✅ Backstory gerada em ${duration}ms`);
+        return backstory;
         
     } catch (error) {
         const duration = Date.now() - startTime;
         
         // Log detalhado do erro
-        if (typeof log !== 'undefined') {
-            log.error('Erro ao gerar história localmente', { 
-                error: error.message,
-                duration: `${duration}ms`,
-                promptPreview: prompt.substring(0, 100) + '...'
-            });
-        } else {
-            console.error('❌ Erro ao gerar história localmente:', error.message);
-        }
-
-        // Retorna null para fallback, mas preserva informação do erro
+        console.error('❌ Erro ao gerar história via API:', error.message);
+        console.log(`Tempo decorrido: ${duration}ms`);
+        
+        // Retorna null para fallback
         return null;
     }
 }
@@ -1052,9 +982,8 @@ async function generateCharacterLore() {
     }
 
     openLoadingModal();
-    if (typeof magoCompanion !== 'undefined') {
-        magoCompanion.speak("Deixe-me consultar os pergaminhos antigos...", 3000);
-    }
+    const companion = getCompanion();
+    if (companion) companion.reactToStoryGeneration();
 
     const prompt = generatePrompt(characterData);
     console.log('Prompt enviado:', prompt);
@@ -1063,15 +992,13 @@ async function generateCharacterLore() {
     let finalBackstory;
     if (backstoryFromLocal) {
         finalBackstory = backstoryFromLocal;
-        if (typeof magoCompanion !== 'undefined') {
-            magoCompanion.speak("Uma história digna das tavernas de Arton!", 3000);
-        }
+        const companion = getCompanion();
+        if (companion) companion.reactToStorySuccess();
     } else {
         console.log('Servidor local falhou, usando fallback...');
         finalBackstory = generateSimpleLore(characterData);
-        if (typeof magoCompanion !== 'undefined') {
-            magoCompanion.speak("Minha magia falhou, mas os velhos contos ainda servem!", 3000);
-        }
+        const companion = getCompanion();
+        if (companion) companion.reactToStoryFallback();
         showMessage('O servidor local falhou, mas geramos uma história alternativa!', 'is-warning');
     }
 

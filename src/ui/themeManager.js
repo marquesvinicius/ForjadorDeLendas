@@ -1,4 +1,4 @@
-import { worldThemes } from './themes.js';
+import { worldThemes } from '../../js/themes.js';
 
 export function applyWorldTheme(worldId) {
   const theme = worldThemes[worldId];
@@ -63,4 +63,7 @@ export function applyWorldTheme(worldId) {
   
   // Atualizar elementos específicos de cada mundo (se necessário)
   // Por exemplo, se precisarmos mostrar/ocultar campos específicos de cada sistema
-} 
+}
+
+// Tornar a função disponível globalmente para compatibilidade com scripts não-module
+window.applyWorldTheme = applyWorldTheme; 

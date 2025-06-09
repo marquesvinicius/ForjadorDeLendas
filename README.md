@@ -14,14 +14,40 @@ Bem-vindo ao **Forjador de Lendas**, um gerador de personagens para múltiplos s
 - **🔍 Modal Dinâmico:** Visualize detalhes dos personagens e edite ou exclua com facilidade.
 
 ## 🛠️ Tecnologias Utilizadas
+
+### Frontend
 - **HTML5:** Estrutura da página.
 - **CSS3:** Estilização com Bulma CSS, Font Awesome e animações personalizadas.
 - **JavaScript:** Lógica interativa, incluindo geração de histórias e manipulação do DOM.
 - **LocalStorage:** Persistência de dados no navegador.
 
+### Backend (⭐ Novo!)
+- **Python 3.8+:** Linguagem principal do backend.
+- **Flask:** Framework web minimalista para APIs REST.
+- **Google Gemini AI:** IA generativa para criação de backstories avançadas.
+- **Flask-CORS:** Middleware para permitir requisições cross-origin.
+
+### Autenticação (🔐 Novo!)
+- **Supabase Auth:** Sistema de autenticação robusto e escalável.
+- **PostgreSQL:** Banco de dados gerenciado pelo Supabase.
+- **Row Level Security:** Segurança automática de dados por usuário.
+- **OAuth Providers:** Google, GitHub e outros provedores sociais.
+
 ## 📋 Pré-requisitos
+
+### Frontend
 - Um navegador moderno (Chrome, Firefox, Edge, etc.).
-- Nenhum servidor é necessário; o projeto roda localmente no cliente.
+- Nenhum servidor é necessário para o frontend; o projeto roda localmente no cliente.
+
+### Backend (Opcional)
+- **Python 3.8+** para executar o servidor Flask localmente.
+- **Chave da API do Google Gemini** para geração de histórias com IA.
+- **Acesso à internet** para comunicação com a API do Gemini.
+
+### Autenticação (🔐 Opcional)
+- **Conta Supabase** (gratuita) para funcionalidades de login/registro.
+- **Internet** para comunicação com o Supabase.
+- **Configuração das credenciais** no arquivo `src/core/supabase.js`.
 
 ## 🚀 Como Executar Localmente
 
@@ -50,6 +76,49 @@ php -S localhost:8000
 ```
 
 Depois acesse: `http://localhost:8000`
+
+### Opção 3: Backend + Frontend (Desenvolvimento completo)
+Para usar o backend com geração de histórias por IA:
+
+1. **Setup automático (recomendado):**
+   ```bash
+   # Windows
+   scripts/setup_backend.bat
+   
+   # Linux/Mac
+   ./scripts/setup_backend.sh
+   ```
+
+2. **Ou configuração manual:**
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   cp .env.example .env
+   # Edite o .env e adicione sua GEMINI_API_KEY
+   python run_dev.py
+   ```
+
+3. **Execute ambos juntos:**
+   ```bash
+   npm run fullstack
+   ```
+
+4. **Acesse:** `http://localhost:3000`
+   - O frontend se conectará automaticamente ao backend em `http://localhost:5000`
+   - Histórias serão geradas usando a IA do Google Gemini
+   - Se o backend não estiver disponível, o sistema usa fallback local automaticamente
+
+### Opção 4: Com Autenticação Supabase (🔐 Novo!)
+Para habilitar sistema completo de login/registro:
+
+1. **Configure o Supabase:** Siga o guia rápido em `SETUP-SUPABASE.md`
+2. **Edite credenciais:** Configure `src/core/supabase.js` com suas chaves
+3. **Execute normalmente:** O sistema funcionará com ou sem autenticação
+4. **Funcionalidades extras:**
+   - 👤 Sistema de usuários
+   - 🔐 Login/registro seguros
+   - 📱 OAuth com Google/GitHub
+   - 💾 Sincronização de personagens na nuvem
 
 ## 📦 Dependências
 
@@ -145,6 +214,14 @@ forjador-de-lendas/
 │       ├── ordem-paranormal/ # Assets específicos da Ordem Paranormal
 │       └── logo-forjador-de-lendas.png
 │
+├── backend/              # ⭐ Backend Flask para geração de histórias
+│   ├── generate_story.py # Aplicação Flask principal
+│   ├── requirements.txt  # Dependências Python
+│   ├── render.yaml      # Configuração de deploy
+│   ├── .env.example     # Exemplo de variáveis de ambiente
+│   ├── .gitignore       # Git ignore específico do backend
+│   └── README.md        # Documentação do backend
+│
 ├── css/                  # Estilos modularizados
 │   ├── reset.css         # Reset de estilos
 │   ├── variables.css     # Variáveis CSS para temas
@@ -157,22 +234,37 @@ forjador-de-lendas/
 │   ├── character-*.css   # Estilos específicos dos componentes
 │   └── ...
 │
-├── js/                   # Scripts modularizados
-│   ├── config.js         # ⭐ Configurações centralizadas
+├── src/                  # ⭐ Código fonte modularizado
+│   ├── core/            # Módulos principais
+│   │   └── storage.js   # Gerenciamento de localStorage
+│   ├── logic/           # Lógica de negócio
+│   │   ├── attributes.js # Geração de atributos
+│   │   └── worldManager.js # Gerenciamento de mundos
+│   ├── ui/              # Interface do usuário
+│   │   ├── auth.js      # Autenticação
+│   │   ├── companion.js # Mago companion
+│   │   ├── modals.js    # Modais dinâmicos
+│   │   └── themeManager.js # Gerenciamento de temas
+│   └── main.js          # Ponto de entrada modular
+│
+├── js/                   # Scripts principais
+│   ├── config.js         # Configurações centralizadas
 │   ├── app.js            # Lógica principal do gerador
-│   ├── companion.js      # Lógica do mago companion
-│   ├── storage.js        # Gerenciamento de localStorage
-│   ├── worldManager.js   # Gerenciamento de mundos
 │   ├── worldSelector.js  # Interface do seletor
 │   ├── worldsConfig.js   # Configurações dos mundos
-│   ├── themeManager.js   # ⭐ Gerenciamento de temas
 │   └── themes.js         # Definições dos temas
 │
 ├── docs/                 # Documentação
 │   └── plano-de-acao.md  # Este plano que estamos seguindo
 │
+├── tests/                # Testes automatizados
+│   └── *.test.js        # Suíte de testes Jest
+│
 ├── index.html            # Página principal
+├── login.html           # Página de login
 ├── package.json          # Dependências do projeto
+├── jest.config.js       # Configuração do Jest
+├── eslint.config.js     # Configuração do ESLint
 ├── .gitignore           # Arquivos ignorados pelo Git
 └── README.md            # Este arquivo
 ```

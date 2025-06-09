@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: forjador-backend
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: python generate_story.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false 

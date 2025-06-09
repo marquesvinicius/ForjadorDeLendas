@@ -47,3 +47,15 @@ temp/
 tmp/
 .temp/
 .tmp/
+
+# Backend Python
+backend/.env
+backend/__pycache__/
+backend/*.pyc
+backend/venv/
+backend/env/
+
+# Arquivos de teste temporários
+test-*.html
+debug-*.html
+*-test.html

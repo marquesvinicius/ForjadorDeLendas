@@ -2,7 +2,7 @@
  * Gerenciador de mundos - atualiza formulário baseado no mundo selecionado
  */
 
-import { getCurrentWorldConfig, getWorldConfig } from './worldsConfig.js';
+import { getCurrentWorldConfig, getWorldConfig } from '../../js/worldsConfig.js';
 
 /**
  * Atualiza as opções de raça baseadas no mundo atual

@@ -1,4 +1,4 @@
-import { getCurrentWorldConfig } from './worldsConfig.js';
+import { getCurrentWorldConfig } from '../../js/worldsConfig.js';
 
 class MagoCompanion {
     constructor() {
@@ -136,52 +136,76 @@ class MagoCompanion {
     }
 
     greet() {
-        const config = getCurrentWorldConfig();
-        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        const currentWorld = localStorage.getItem('selectedWorld') || 'tormenta';
         
         let greetings;
-        if (config.companionSpeech && config.companionSpeech.greetings) {
-            greetings = config.companionSpeech.greetings;
-        } else if (currentWorld === 'dnd') {
-            greetings = [
-                "Bem-vindo ao Forjador de Lendas! Sou seu guia pelos Reinos Esquecidos!",
-                "Um novo aventureiro para Faerûn! Que sua jornada seja épica.",
-                "Pelos deuses! Pronto para desbravar Waterdeep ou as selvas de Chult?"
-            ];
-        } else { // Tormenta como padrão
-            greetings = [
-                "Bem-vindo ao Forjador de Lendas! Sou Merlin, seu guia em Arton!",
-                "Um novo herói para Arton! Vamos criar uma lenda épica juntos!",
-                "Por minhas barbas mágicas! Que tal forjar um destino no Reinado?"
-            ];
+        
+        // Tentar obter configuração do mundo atual
+        try {
+            const config = getCurrentWorldConfig();
+            if (config && config.companionSpeech && config.companionSpeech.greetings) {
+                greetings = config.companionSpeech.greetings;
+            }
+        } catch (error) {
+            console.warn('Erro ao obter configuração do mundo, usando fallback:', error);
         }
+        
+        // Fallback para mensagens padrão se não conseguir obter do config
+        if (!greetings) {
+            if (currentWorld === 'dnd') {
+                greetings = [
+                    "Bem-vindo ao Forjador de Lendas! Sou seu guia pelos Reinos Esquecidos!",
+                    "Um novo aventureiro para Faerûn! Que sua jornada seja épica.",
+                    "Pelos deuses! Pronto para desbravar Waterdeep ou as selvas de Chult?"
+                ];
+            } else { // Tormenta como padrão
+                greetings = [
+                    "Bem-vindo ao Forjador de Lendas! Sou Merlin, seu guia em Arton!",
+                    "Um novo herói para Arton! Vamos criar uma lenda épica juntos!",
+                    "Por minhas barbas mágicas! Que tal forjar um destino no Reinado?"
+                ];
+            }
+        }
+        
         this.speak(greetings[Math.floor(Math.random() * greetings.length)]);
     }
 
     onNameInput(e) {
         const name = e.target.value.trim();
         if (name.length > 2) {
-            const config = getCurrentWorldConfig();
-            const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+            const currentWorld = localStorage.getItem('selectedWorld') || 'tormenta';
             
             let responses;
-            if (config.companionSpeech && config.companionSpeech.nameResponses) {
-                responses = config.companionSpeech.nameResponses.map(response => 
-                    response.replace('{name}', name)
-                );
-            } else if (currentWorld === 'dnd') {
-                responses = [
-                    `${name}? Um nome que ecoará por toda Faerûn!`,
-                    `Ah, ${name}! Vejo um futuro de glória e perigo te esperando nos Reinos.`,
-                    `${name}... *esfrega as mãos com antecipação* Um herói para enfrentar os dragões, talvez?`
-                ];
-            } else { // Tormenta
-                responses = [
-                    `${name}? Um nome que ecoará em Arton! Escolha sua raça!`,
-                    `Ah, ${name}! Vejo um futuro lendário no Reinado para você!`,
-                    `${name}... *acaricia a barba* Um herói contra a Tormenta, talvez?`
-                ];
+            
+            // Tentar obter configuração do mundo atual
+            try {
+                const config = getCurrentWorldConfig();
+                if (config && config.companionSpeech && config.companionSpeech.nameResponses) {
+                    responses = config.companionSpeech.nameResponses.map(response => 
+                        response.replace('{name}', name)
+                    );
+                }
+            } catch (error) {
+                console.warn('Erro ao obter configuração do mundo para nameInput, usando fallback:', error);
             }
+            
+            // Fallback para mensagens padrão
+            if (!responses) {
+                if (currentWorld === 'dnd') {
+                    responses = [
+                        `${name}? Um nome que ecoará por toda Faerûn!`,
+                        `Ah, ${name}! Vejo um futuro de glória e perigo te esperando nos Reinos.`,
+                        `${name}... *esfrega as mãos com antecipação* Um herói para enfrentar os dragões, talvez?`
+                    ];
+                } else { // Tormenta
+                    responses = [
+                        `${name}? Um nome que ecoará em Arton! Escolha sua raça!`,
+                        `Ah, ${name}! Vejo um futuro lendário no Reinado para você!`,
+                        `${name}... *acaricia a barba* Um herói contra a Tormenta, talvez?`
+                    ];
+                }
+            }
+            
             this.speak(responses[Math.floor(Math.random() * responses.length)]);
         }
     }
@@ -360,10 +384,231 @@ class MagoCompanion {
             this.speak(this.lastMessage);
         }
     }
+
+    // Métodos temáticos para reações específicas
+    reactToCharacterSave(characterName) {
+        const config = getCurrentWorldConfig();
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        let responses;
+        if (config.companionSpeech && config.companionSpeech.characterSaveResponses) {
+            responses = config.companionSpeech.characterSaveResponses;
+        } else if (currentWorld === 'dnd') {
+            responses = [
+                `${characterName} foi adicionado aos anais de Faerûn!`,
+                `Que ${characterName} encontre glória nos Reinos Esquecidos!`,
+                `Pelos deuses! ${characterName} está pronto para grandes aventuras!`
+            ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                `${characterName} foi registrado nos arquivos da Ordo Realitas!`,
+                `Que ${characterName} enfrente os horrores do Outro Lado com coragem!`,
+                `Por Veríssimo! ${characterName} está pronto para proteger a realidade!`
+            ];
+        } else { // Tormenta
+            responses = [
+                `${characterName} foi adicionado ao seu grimório de heróis!`,
+                `Que ${characterName} encontre glória em Arton!`,
+                `Por minhas barbas mágicas! ${characterName} está pronto para grandes aventuras!`
+            ];
+        }
+        
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 4000);
+    }
+
+    reactToCharacterUpdate(characterName) {
+        const config = getCurrentWorldConfig();
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        let responses;
+        if (config.companionSpeech && config.companionSpeech.characterUpdateResponses) {
+            responses = config.companionSpeech.characterUpdateResponses;
+        } else if (currentWorld === 'dnd') {
+            responses = [
+                `${characterName} foi atualizado nos anais de Faerûn!`,
+                `As mudanças de ${characterName} foram registradas pelos escribas!`,
+                `Pelos deuses! ${characterName} evolui constantemente!`
+            ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                `${characterName} foi atualizado nos arquivos da Ordo Realitas!`,
+                `Os dados de ${characterName} foram sincronizados com C.R.I.S.!`,
+                `Por Veríssimo! ${characterName} se adapta às ameaças!`
+            ];
+        } else { // Tormenta
+            responses = [
+                `${characterName} foi atualizado em seu grimório!`,
+                `As mudanças de ${characterName} foram anotadas!`,
+                `Por minhas barbas mágicas! ${characterName} evolui constantemente!`
+            ];
+        }
+        
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 4000);
+    }
+
+    reactToCharacterEdit(characterName) {
+        const config = getCurrentWorldConfig();
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        let responses;
+        if (config.companionSpeech && config.companionSpeech.characterEditResponses) {
+            responses = config.companionSpeech.characterEditResponses;
+        } else if (currentWorld === 'dnd') {
+            responses = [
+                `Editando ${characterName}. Que Oghma guie suas mudanças!`,
+                `Modificando ${characterName}. Faça suas alterações com sabedoria!`,
+                `${characterName} em revisão. Pelos deuses, faça-o brilhar!`
+            ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                `Editando ${characterName}. Adapte-se às novas ameaças!`,
+                `Modificando o perfil de ${characterName}. A Ordo evolui!`,
+                `${characterName} em atualização. Por Veríssimo, melhore-o!`
+            ];
+        } else { // Tormenta
+            responses = [
+                `Editando ${characterName}. Faça suas alterações!`,
+                `Modificando ${characterName}. Que Tanna-Toh guie sua mão!`,
+                `${characterName} em revisão. Por minhas barbas, aprimore-o!`
+            ];
+        }
+        
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 3000);
+    }
+
+    reactToCharacterDelete(characterName) {
+        const config = getCurrentWorldConfig();
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        let responses;
+        if (config.companionSpeech && config.companionSpeech.characterDeleteResponses) {
+            responses = config.companionSpeech.characterDeleteResponses;
+        } else if (currentWorld === 'dnd') {
+            responses = [
+                `${characterName} foi removido dos anais de Faerûn!`,
+                `Que ${characterName} descanse em paz nos arquivos divinos!`,
+                `Pelos deuses... ${characterName} partiu para outras aventuras!`
+            ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                `${characterName} foi removido dos arquivos da Ordo Realitas!`,
+                `O arquivo de ${characterName} foi apagado de C.R.I.S.!`,
+                `Por Veríssimo... ${characterName} encerrou sua missão!`
+            ];
+        } else { // Tormenta
+            responses = [
+                `${characterName} foi removido do seu grimório de heróis!`,
+                `Que ${characterName} encontre paz nos planos superiores!`,
+                `Por minhas barbas... ${characterName} partiu para outras aventuras!`
+            ];
+        }
+        
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 3000);
+    }
+
+    reactToStoryGeneration() {
+        const config = getCurrentWorldConfig();
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        let responses;
+        if (config.companionSpeech && config.companionSpeech.storyGenerationResponses) {
+            responses = config.companionSpeech.storyGenerationResponses;
+        } else if (currentWorld === 'dnd') {
+            responses = [
+                "Deixe-me consultar as crônicas de Faerûn...",
+                "Invocando as memórias dos Reinos Esquecidos...",
+                "Pelos deuses! Os pergaminhos antigos revelam segredos..."
+            ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                "Acessando os arquivos da Ordo Realitas...",
+                "Consultando os relatórios de agentes anteriores...",
+                "Por Veríssimo! Os registros paranormais contam histórias..."
+            ];
+        } else { // Tormenta
+            responses = [
+                "Deixe-me consultar os pergaminhos antigos...",
+                "Invocando as memórias de Arton...",
+                "Por minhas barbas mágicas! Os anais revelam segredos..."
+            ];
+        }
+        
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 3000);
+    }
+
+    reactToStorySuccess() {
+        const config = getCurrentWorldConfig();
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        let responses;
+        if (config.companionSpeech && config.companionSpeech.storySuccessResponses) {
+            responses = config.companionSpeech.storySuccessResponses;
+        } else if (currentWorld === 'dnd') {
+            responses = [
+                "Uma história digna das tavernas de Waterdeep!",
+                "Pelos deuses! Uma lenda nasce em Faerûn!",
+                "Que crônica magnífica! Oghma aprovaria!"
+            ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                "Uma história digna dos arquivos da Ordo!",
+                "Por Veríssimo! Uma nova lenda paranormal!",
+                "Que relatório extraordinário! C.R.I.S. aprovaria!"
+            ];
+        } else { // Tormenta
+            responses = [
+                "Uma história digna das tavernas de Arton!",
+                "Por minhas barbas mágicas! Uma lenda nasce!",
+                "Que crônica magnífica! Tanna-Toh aprovaria!"
+            ];
+        }
+        
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 3000);
+    }
+
+    reactToStoryFallback() {
+        const config = getCurrentWorldConfig();
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        let responses;
+        if (config.companionSpeech && config.companionSpeech.storyFallbackResponses) {
+            responses = config.companionSpeech.storyFallbackResponses;
+        } else if (currentWorld === 'dnd') {
+            responses = [
+                "Minha magia falhou, mas os velhos contos de Faerûn ainda servem!",
+                "Os deuses testam minha paciência, mas criei algo especial!",
+                "Mesmo sem magia divina, posso contar boas histórias!"
+            ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                "A conexão com C.R.I.S. falhou, mas os arquivos locais funcionam!",
+                "O Outro Lado interferiu, mas criei algo baseado em experiência!",
+                "Por Veríssimo! Mesmo sem tecnologia, posso improvisar!"
+            ];
+        } else { // Tormenta
+            responses = [
+                "Minha magia falhou, mas os velhos contos ainda servem!",
+                "A Tormenta interferiu, mas criei algo especial!",
+                "Por minhas barbas! Mesmo sem magia, tenho histórias!"
+            ];
+        }
+        
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 3000);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    window.magoCompanion = new MagoCompanion();
+    // Aguardar um pequeno delay para garantir que outros scripts foram carregados
+    setTimeout(() => {
+        window.magoCompanion = new MagoCompanion();
+    }, 100);
 });
 
 export { MagoCompanion };

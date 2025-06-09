@@ -249,10 +249,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     confirmButton.addEventListener('click', function () {
         const selectedWorld = worlds[currentIndex];
-        console.log(`Trocando para o mundo: ${selectedWorld.name} (${selectedWorld.id})`);
         
         // Verificar se o usuário já está no mundo selecionado
         const currentWorldId = localStorage.getItem('selectedWorld') || 'dnd';
+        
         if (selectedWorld.id === currentWorldId) {
             showWorldNotification(`Você já se encontra nessas terras!`);
             return;
@@ -271,24 +271,32 @@ document.addEventListener('DOMContentLoaded', function () {
             // Aplicar o tema do mundo selecionado
             if (window.applyWorldTheme) {
                 window.applyWorldTheme(selectedWorld.id);
-            } else if (typeof applyWorldTheme === 'function') {
-                applyWorldTheme(selectedWorld.id);
             } else {
-                // Tentar importar o módulo themeManager se não estiver disponível globalmente
-                import('./themeManager.js')
+                // Tentar importar o módulo themeManager
+                import('../src/ui/themeManager.js')
                     .then(module => {
                         module.applyWorldTheme(selectedWorld.id);
                     })
-                    .catch(err => console.error('Erro ao carregar o gerenciador de temas:', err));
+                    .catch(err => {
+                        console.error('Erro ao carregar o gerenciador de temas:', err);
+                        // Fallback: aplicar tema básico manualmente
+                        console.log('Aplicando tema básico como fallback...');
+                        // Pelo menos salvar a seleção
+                        localStorage.setItem('selectedWorld', selectedWorld.id);
+                        document.dispatchEvent(new CustomEvent('worldChanged'));
+                    });
             }
             
             // Salvar a seleção no localStorage
             localStorage.setItem('selectedWorld', selectedWorld.id);
             document.dispatchEvent(new CustomEvent('worldChanged'));
             
-            // Notificar pelo companion
-            if (window.companionSpeak) {
-                window.companionSpeak(`Bem-vindo ao mundo de ${selectedWorld.name}!`);
+            // Notificar pelo companion com saudação específica do mundo
+            if (window.magoCompanion && window.magoCompanion.greet) {
+                // Aguardar um pouco para o tema carregar antes da saudação
+                setTimeout(() => {
+                    window.magoCompanion.greet();
+                }, 300);
             }
             
             // Fechar o modal após carregar o tema

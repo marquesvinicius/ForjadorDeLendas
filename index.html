@@ -26,17 +26,19 @@
             background: rgba(35, 25, 15, 0.8);
             border: 1px solid var(--panel-border);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--accent-color);
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             z-index: 1000;
-            opacity: 0.7;
+            opacity: 0.8;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
 
         .logout-btn:hover {
@@ -44,11 +46,17 @@
             border-color: var(--accent-color);
             transform: scale(1.05);
             opacity: 1;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         }
 
         .logout-btn:active {
             transform: scale(0.95);
+        }
+
+        /* Touch feedback para mobile */
+        .logout-btn:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
         }
 
         /* Modal de logout customizado */
@@ -72,14 +80,121 @@
             color: var(--accent-color) !important;
         }
 
-        /* Responsividade */
+        /* Responsividade otimizada para mobile */
         @media (max-width: 768px) {
             .logout-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+                top: 1rem;
+                right: 1rem;
+                opacity: 0.9;
+                /* Aumenta a área clicável com padding invisível */
+                padding: 5px;
+                margin: -5px;
+                /* Melhora a acessibilidade touch */
+                touch-action: manipulation;
+                -webkit-touch-callout: none;
+                user-select: none;
+            }
+            
+            .logout-btn:hover {
+                /* Remove hover em touch devices */
+                transform: none;
+                box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            }
+            
+            .logout-btn:active {
+                transform: scale(0.9);
+                background: rgba(35, 25, 15, 1);
+                box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+            }
+            
+            /* Adiciona espaçamento ao título para evitar sobreposição */
+            .hero .hero-body {
+                padding-top: 2rem;
+                padding-left: 4rem;
+                padding-right: 4rem;
+            }
+            
+            .title.is-1.medieval-title {
+                margin-top: 1rem;
+                line-height: 1.2;
+            }
+        }
+
+        /* Para telas muito pequenas (smartphones em retrato) */
+        @media (max-width: 480px) {
+            .logout-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
+                top: 0.75rem;
+                right: 0.75rem;
+                border-width: 2px;
+            }
+            
+            /* Espaçamento extra para smartphones */
+            .hero .hero-body {
+                padding-top: 2rem !important;
+                padding-left: 2rem !important;
+                padding-right: 2rem !important;
+            }
+            
+            .title.is-1.medieval-title {
+                font-size: 2.5rem !important;
+                margin-top: 1.5rem !important;
+                line-height: 1.1 !important;
+            }
+            
+            .subtitle.medieval-title {
+                margin-top: 0.5rem;
+                font-size: 1.1rem !important;
+            }
+        }
+
+        /* Para touch devices - aumenta área clicável */
+        @media (hover: none) and (pointer: coarse) {
+            .logout-btn {
+                min-width: 48px; /* Padrão recomendado pela Apple/Google */
+                min-height: 48px;
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
+            }
+            
+            /* Remove efeitos hover em dispositivos touch */
+            .logout-btn:hover {
+                transform: none;
+                opacity: 0.9;
+            }
+            
+            /* Garante espaçamento adequado em todos os dispositivos touch */
+            .hero .hero-body {
+                padding-top: 2rem;
+                padding-left: 3rem;
+                padding-right: 3rem;
+            }
+        }
+
+        /* Media query adicional para evitar conflitos de altura em landscape */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .logout-btn {
                 top: 0.5rem;
                 right: 0.5rem;
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+            
+            .hero .hero-body {
+                padding-top: 1.5rem !important;
+                padding-bottom: 1rem !important;
+            }
+            
+            .title.is-1.medieval-title {
+                font-size: 2rem !important;
+                margin-top: 0.5rem !important;
             }
         }
     </style>
@@ -439,14 +554,48 @@
 
     <!-- Scripts -->
     <script src="js/config.js"></script>
-    <script type="module" src="js/app.js"></script>
-    <script src="js/companion.js"></script>
-    <script src="js/themeManager.js"></script>
-    <script src="js/worldSelector.js"></script>
-    <script src="js/worldManager.js"></script>
-    <script type="module" src="src/main.js"></script>
+    <script src="js/apiConfig.js"></script>
+    <script type="module" src="src/core/storage.js"></script>
     <script type="module" src="js/worldsConfig.js"></script>
+    <script type="module" src="src/ui/companion.js"></script>
+    <script type="module" src="src/ui/themeManager.js"></script>
+    <script src="js/worldSelector.js"></script>
+    <script type="module" src="src/logic/worldManager.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="src/main.js"></script>
 
+    <!-- Script para garantir inicialização do companion -->
+    <script>
+        // Fallback para garantir que o companion seja criado mesmo com problemas de módulo
+        document.addEventListener('DOMContentLoaded', () => {
+            // Aguardar um pouco para outros scripts carregarem
+            setTimeout(() => {
+                if (!window.magoCompanion) {
+                    console.log('Companion não encontrado, tentando inicializar fallback...');
+                    // Se o companion não estiver disponível, criar uma versão simples
+                    window.magoCompanion = {
+                        speak: function(text) {
+                            const speechBubble = document.querySelector('.companion-speech-bubble');
+                            const companionText = document.getElementById('companionText');
+                            if (speechBubble && companionText) {
+                                speechBubble.classList.remove('hidden');
+                                companionText.textContent = text;
+                            }
+                        },
+                        greet: function() {
+                            const currentWorld = localStorage.getItem('selectedWorld') || 'tormenta';
+                            const greetings = currentWorld === 'dnd' 
+                                ? ["Bem-vindo ao Forjador de Lendas! Sou seu guia pelos Reinos Esquecidos!"]
+                                : ["Bem-vindo ao Forjador de Lendas! Sou Merlin, seu guia em Arton!"];
+                            this.speak(greetings[0]);
+                        }
+                    };
+                    window.magoCompanion.greet();
+                }
+            }, 500);
+        });
+    </script>
+    
     <!-- Script para logout -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {

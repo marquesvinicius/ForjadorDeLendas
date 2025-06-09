@@ -15,7 +15,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "serve": "python -m http.server 3000",
-    "style": "npm run lint && npm run format"
+    "style": "npm run lint && npm run format",
+    "backend:setup": "python backend/run_dev.py",
+    "backend:dev": "cd backend && python run_dev.py",
+    "backend:install": "cd backend && pip install -r requirements.txt",
+    "backend:ping": "curl -s http://localhost:5000/ping || echo 'Backend não está rodando'",
+    "fullstack": "concurrently \"npm run serve\" \"npm run backend:dev\"",
+    "postinstall": "echo '\n🔧 Para configurar o backend: npm run backend:install\n📚 Veja backend/README.md para mais detalhes'"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +30,7 @@
     "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.27.2",
     "babel-jest": "^30.0.0-beta.3",
+    "concurrently": "^9.1.0",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",

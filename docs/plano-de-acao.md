@@ -45,6 +45,11 @@ Organizado por prioridade e complexidade para facilitar a execução incremental
 - [x] Refatorar JS para `import/export` usando ES6.
 - [x] Avaliar e integrar Vite como bundler.
 - [x] Separar arquivos por `core/`, `ui/`, `logic/`.
+- [x] Organizar arquivos na estrutura modular:
+  - `src/ui/`: companion.js, themeManager.js, auth.js, modals.js
+  - `src/logic/`: worldManager.js, attributes.js
+  - `src/core/`: storage.js
+  - `js/`: app.js, config.js, worldsConfig.js, themes.js, worldSelector.js
 
 ### 🔹 Autenticação e Login
 - [x] Criar página ou modal de login com tema medieval.
