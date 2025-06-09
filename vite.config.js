@@ -15,21 +15,37 @@ export default defineConfig({
     // Configurações de rollup
     rollupOptions: {
       input: {
-        main: './index.html'
+        main: './index.html',
+        login: './login.html'
       },
       output: {
         // Manter nomes de arquivos para facilitar debug
         entryFileNames: 'js/[name]-[hash].js',
         chunkFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
+      },
+      // Configurar scripts externos que não devem ser bundled
+      external: [],
+      preserveEntrySignatures: 'strict'
     },
     
     // Minificação
     minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: false,
+        drop_debugger: true
+      }
+    },
     
     // Source maps para desenvolvimento
-    sourcemap: true
+    sourcemap: false, // Desabilitar em produção para reduzir tamanho
+    
+    // Configurações para lidar com scripts legacy
+    target: 'es2015',
+    
+    // Configurações de assets
+    assetsInlineLimit: 4096
   },
   
   // Configurações do servidor de desenvolvimento
