@@ -530,6 +530,57 @@
                 </div>
             </div>
 
+            <!-- Forgot Password Card -->
+            <div id="forgotPasswordCard" class="auth-card hidden">
+                <div class="castle-header">
+                    <h1 class="castle-title">
+                        <i class="fas fa-key"></i>
+                        Recuperar Palavra
+                    </h1>
+                </div>
+
+                <div class="guard-message">
+                    <p>
+                        <strong>Esqueceu sua palavra de reconhecimento?</strong><br>
+                        Nossos guardas podem enviar uma nova palavra secreta para seu correio. 
+                        Informe o endereço registrado nos pergaminhos do reino.
+                    </p>
+                </div>
+
+                <form id="forgotPasswordForm" class="recognition-form">
+                    <div class="field-group">
+                        <label class="field-label" for="forgotEmail">
+                            <i class="fas fa-envelope"></i>
+                            Correio do Reino
+                        </label>
+                        <div class="input-container">
+                            <input 
+                                type="email" 
+                                id="forgotEmail" 
+                                class="field-input"
+                                placeholder="seu.email@reino.com"
+                                required
+                                autocomplete="email"
+                            >
+                            <i class="fas fa-envelope field-icon"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="guard-button" id="forgotPasswordButton">
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar Nova Palavra
+                    </button>
+
+                    <div id="forgotPasswordStatusMessage" class="status-message"></div>
+                </form>
+
+                <div class="castle-footer">
+                    <p class="footer-text">
+                        Lembrou da palavra? <a href="#" class="footer-link" id="backToLoginLink">Retornar ao reconhecimento</a>
+                    </p>
+                </div>
+            </div>
+
             <!-- Register Card -->
             <div id="registerCard" class="auth-card hidden">
                 <div class="castle-header">
@@ -658,6 +709,7 @@
                 // Elementos do login
                 this.loginCard = document.getElementById('loginCard');
                 this.registerCard = document.getElementById('registerCard');
+                this.forgotPasswordCard = document.getElementById('forgotPasswordCard');
                 this.form = document.getElementById('recognitionForm');
                 this.usernameInput = document.getElementById('username');
                 this.passwordInput = document.getElementById('password');
@@ -675,8 +727,14 @@
                 this.registerButton = document.getElementById('registerButton');
                 this.registerStatusMessage = document.getElementById('registerStatusMessage');
                 
+                // Elementos do esqueceu senha
+                this.forgotPasswordForm = document.getElementById('forgotPasswordForm');
+                this.forgotEmailInput = document.getElementById('forgotEmail');
+                this.forgotPasswordButton = document.getElementById('forgotPasswordButton');
+                this.forgotPasswordStatusMessage = document.getElementById('forgotPasswordStatusMessage');
+                
                 // Estado atual
-                this.currentMode = 'login'; // 'login' ou 'register'
+                this.currentMode = 'login'; // 'login', 'register' ou 'forgot'
                 
                 this.init();
             }
@@ -691,7 +749,10 @@
                 // Configurar event listeners para registro
                 this.registerForm.addEventListener('submit', (e) => this.handleRegister(e));
                 
-                // Links de alternância entre login e registro
+                // Configurar event listeners para esqueceu senha
+                this.forgotPasswordForm.addEventListener('submit', (e) => this.handleForgotPassword(e));
+                
+                // Links de alternância entre login, registro e esqueceu senha
                 document.getElementById('registerLink').addEventListener('click', (e) => {
                     e.preventDefault();
                     this.switchToRegister();
@@ -702,9 +763,14 @@
                     this.switchToLogin();
                 });
                 
+                document.getElementById('backToLoginLink').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.switchToLogin();
+                });
+                
                 document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
                     e.preventDefault();
-                    this.showMessage('🔧 Recuperação de senha em desenvolvimento!\n\nEntre em contato com o administrador do sistema.', 'error');
+                    this.switchToForgotPassword();
                 });
 
                 // Auto-focus no campo de usuário
@@ -839,7 +905,18 @@
             }
 
             showMessage(message, type, target = 'login') {
-                const messageElement = target === 'login' ? this.statusMessage : this.registerStatusMessage;
+                let messageElement;
+                
+                if (target === 'login') {
+                    messageElement = this.statusMessage;
+                } else if (target === 'register') {
+                    messageElement = this.registerStatusMessage;
+                } else if (target === 'forgot') {
+                    messageElement = this.forgotPasswordStatusMessage;
+                }
+                
+                if (!messageElement) return;
+                
                 messageElement.textContent = message;
                 messageElement.className = `status-message ${type}`;
                 messageElement.style.display = 'block';
@@ -855,7 +932,7 @@
 
             switchToRegister() {
                 this.currentMode = 'register';
-                this.loginCard.classList.add('hidden');
+                this.hideAllCards();
                 this.registerCard.classList.remove('hidden');
                 
                 // Adiciona classe para ajustar layout mobile
@@ -883,7 +960,7 @@
 
             switchToLogin() {
                 this.currentMode = 'login';
-                this.registerCard.classList.add('hidden');
+                this.hideAllCards();
                 this.loginCard.classList.remove('hidden');
                 
                 // Remove classe do modo registro
@@ -909,6 +986,42 @@
                 setTimeout(() => {
                     this.usernameInput.focus();
                 }, 500);
+            }
+
+            switchToForgotPassword() {
+                this.currentMode = 'forgot';
+                this.hideAllCards();
+                this.forgotPasswordCard.classList.remove('hidden');
+                
+                // Remove classe do modo registro se existir
+                const container = document.querySelector('.login-container');
+                if (container) {
+                    container.classList.remove('register-mode');
+                }
+                
+                // No mobile, vai para o topo
+                if (window.innerWidth < 1023) {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Informar guardas sobre mudança para esqueceu senha
+                if (window.loginGuards) {
+                    window.loginGuards.onSwitchToForgotPassword();
+                }
+                
+                // Auto-focus no campo de email
+                setTimeout(() => {
+                    this.forgotEmailInput.focus();
+                }, 500);
+            }
+
+            hideAllCards() {
+                this.loginCard.classList.add('hidden');
+                this.registerCard.classList.add('hidden');
+                this.forgotPasswordCard.classList.add('hidden');
             }
 
             async handleRegister(event) {
@@ -1019,6 +1132,80 @@
                     `;
                 }
             }
+
+            async handleForgotPassword(event) {
+                event.preventDefault();
+                
+                const email = this.forgotEmailInput.value.trim();
+
+                if (!email) {
+                    this.showMessage('Por favor, informe seu email!', 'error', 'forgot');
+                    return;
+                }
+
+                // Validação básica de email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    this.showMessage('Por favor, informe um email válido!', 'error', 'forgot');
+                    return;
+                }
+
+                this.setForgotPasswordLoading(true);
+                this.showMessage('Os guardas estão enviando uma nova palavra secreta...', 'loading', 'forgot');
+                
+                try {
+                    // Importar o supabaseAuth dinamicamente
+                    const { supabaseAuth } = await import('./src/core/supabase.js');
+                    
+                    const result = await supabaseAuth.resetPassword(email);
+                    
+                    if (result.success) {
+                        this.showMessage(`📧 Nova palavra enviada para ${email}!\n\nVerifique sua caixa de entrada e siga as instruções dos guardas.`, 'success', 'forgot');
+                        
+                        // Chamar reação dos guardas ao sucesso
+                        if (window.loginGuards) {
+                            window.loginGuards.onForgotPasswordSuccess(email);
+                        }
+                        
+                        // Limpar formulário
+                        this.forgotEmailInput.value = '';
+                        
+                        // Após 5 segundos, voltar para login
+                        setTimeout(() => {
+                            this.switchToLogin();
+                            this.showMessage('Use o link do email para criar uma nova palavra!', 'success');
+                        }, 5000);
+                    } else {
+                        this.showMessage(result.message || 'Email não encontrado nos pergaminhos do reino!', 'error', 'forgot');
+                        
+                        // Chamar reação dos guardas ao erro
+                        if (window.loginGuards) {
+                            window.loginGuards.onForgotPasswordError();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro no esqueceu senha:', error);
+                    this.showMessage('Erro de conexão com os guardas. Tente novamente.', 'error', 'forgot');
+                } finally {
+                    this.setForgotPasswordLoading(false);
+                }
+            }
+
+            setForgotPasswordLoading(isLoading) {
+                this.forgotPasswordButton.disabled = isLoading;
+                
+                if (isLoading) {
+                    this.forgotPasswordButton.innerHTML = `
+                        <span class="loading-spinner"></span>
+                        Enviando...
+                    `;
+                } else {
+                    this.forgotPasswordButton.innerHTML = `
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar Nova Palavra
+                    `;
+                }
+            }
         }
 
         // Inicializar quando DOM carregar
@@ -1126,6 +1313,30 @@
                     "Os documentos não foram preenchidos corretamente!",
                     "Registro negado! Verifique as informações fornecidas.",
                     "Erro nos pergaminhos! Tente preencher novamente."
+                ];
+
+                this.forgotPasswordMessages = [
+                    "Esqueceu sua palavra de reconhecimento? Sem problemas!",
+                    "Nossos correios podem enviar uma nova palavra secreta!",
+                    "Informe o endereço registrado nos pergaminhos do reino.",
+                    "Os guardas da torre de mensagens estão prontos para ajudar!",
+                    "Uma nova palavra será forjada especialmente para você!"
+                ];
+
+                this.forgotPasswordSuccessMessages = [
+                    "Pergaminho enviado! Verifique seu correio, aventureiro!",
+                    "Nova palavra secreta despachada pelos nossos pombos-correio!",
+                    "Mensagem dos guardas enviada! Siga as instruções do email.",
+                    "Os escribas enviaram sua nova palavra de reconhecimento!",
+                    "Correio real despachado! Sua nova chave chegará em breve!"
+                ];
+
+                this.forgotPasswordErrorMessages = [
+                    "Este endereço não consta em nossos pergaminhos!",
+                    "Erro no sistema de correios! Tente novamente.",
+                    "Email não reconhecido pelos arquivistas do reino!",
+                    "Falha na entrega! Verifique o endereço informado.",
+                    "Os pombos-correio não encontraram este destino!"
                 ];
                 
                 this.setupEventListeners();
@@ -1583,6 +1794,40 @@
                 setTimeout(() => {
                     const duration2 = window.innerWidth < 1023 ? 4000 : null;
                     this.speak('right', "Corrija os dados e tente registrar novamente!", duration2);
+                }, 1500);
+            }
+
+            // Métodos para esqueceu senha
+            onSwitchToForgotPassword() {
+                const forgotMessage = this.forgotPasswordMessages[Math.floor(Math.random() * this.forgotPasswordMessages.length)];
+                const duration = window.innerWidth < 1023 ? 4000 : null;
+                this.speak('left', forgotMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 4000 : null;
+                    this.speak('right', "Digite seu email e enviaremos uma nova palavra!", duration2);
+                }, 1000);
+            }
+
+            onForgotPasswordSuccess(email) {
+                const successMessage = this.forgotPasswordSuccessMessages[Math.floor(Math.random() * this.forgotPasswordSuccessMessages.length)];
+                const duration = window.innerWidth < 1023 ? 5000 : null;
+                this.speak('left', successMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 5000 : null;
+                    this.speak('right', `Nova palavra enviada para ${email}! Verifique sua caixa de entrada.`, duration2);
+                }, 1500);
+            }
+
+            onForgotPasswordError() {
+                const errorMessage = this.forgotPasswordErrorMessages[Math.floor(Math.random() * this.forgotPasswordErrorMessages.length)];
+                const duration = window.innerWidth < 1023 ? 4000 : null;
+                this.speak('left', errorMessage, duration);
+                
+                setTimeout(() => {
+                    const duration2 = window.innerWidth < 1023 ? 4000 : null;
+                    this.speak('right', "Verifique o email e tente novamente!", duration2);
                 }, 1500);
             }
         }
