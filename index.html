@@ -555,6 +555,63 @@
     <!-- Scripts -->
     <script src="js/config.js"></script>
     <script src="js/apiConfig.js"></script>
+    
+    <!-- Auth Guard - Verificação de autenticação -->
+    <script>
+        // Verificar autenticação antes de carregar a página
+        (function() {
+            'use strict';
+            
+            // Verificar se já está na página de login
+            if (window.location.pathname.includes('login.html')) {
+                return; // Não verificar auth na página de login
+            }
+            
+            console.log('🛡️ Auth Guard: Verificando autenticação...');
+            
+            // Verificar token de autenticação
+            const authToken = localStorage.getItem('forjador_auth_token');
+            const userData = localStorage.getItem('forjador_user_data');
+            
+            if (!authToken || !userData) {
+                console.log('❌ Auth Guard: Usuário não autenticado, redirecionando...');
+                // Salvar a URL atual para redirecionar depois do login
+                sessionStorage.setItem('forjador_redirect_after_login', window.location.href);
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                // Verificar se os dados são válidos
+                const user = JSON.parse(userData);
+                if (!user.username || !user.email) {
+                    throw new Error('Dados de usuário inválidos');
+                }
+                
+                console.log('✅ Auth Guard: Usuário autenticado:', user.username);
+                
+                // Opcional: Verificar expiração do token (se implementado)
+                // const tokenTimestamp = localStorage.getItem('forjador_token_timestamp');
+                // const now = Date.now();
+                // const maxAge = 24 * 60 * 60 * 1000; // 24 horas
+                // if (tokenTimestamp && (now - parseInt(tokenTimestamp)) > maxAge) {
+                //     console.log('⏰ Auth Guard: Token expirado, limpando...');
+                //     localStorage.removeItem('forjador_auth_token');
+                //     localStorage.removeItem('forjador_user_data');
+                //     window.location.href = 'login.html';
+                //     return;
+                // }
+                
+            } catch (error) {
+                console.error('❌ Auth Guard: Erro ao verificar dados de usuário:', error);
+                // Limpar dados corrompidos
+                localStorage.removeItem('forjador_auth_token');
+                localStorage.removeItem('forjador_user_data');
+                window.location.href = 'login.html';
+                return;
+            }
+        })();
+    </script>
     <script type="module" src="src/core/storage.js"></script>
     <script type="module" src="js/worldsConfig.js"></script>
     <script type="module" src="src/ui/companion.js"></script>
