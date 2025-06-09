@@ -362,23 +362,23 @@
             opacity: 0;
             transform: translateX(-20px);
             pointer-events: none;
-            position: absolute;
+                position: absolute;
             top: 0;
-            left: 0;
-            right: 0;
-        }
+                left: 0;
+                right: 0;
+            }
 
         .auth-card.slide-out-left {
-            opacity: 0;
+                opacity: 0;
             transform: translateX(-100%);
         }
 
         .auth-card.slide-in-right {
             opacity: 1;
             transform: translateX(0);
-        }
-
-        .guard-castle {
+            }
+            
+            .guard-castle {
             position: relative;
             overflow: hidden;
         }
@@ -450,22 +450,22 @@
         <div class="guard-castle">
             <!-- Login Card -->
             <div id="loginCard" class="auth-card">
-                <div class="castle-header">
-                    <h1 class="castle-title">
-                        <i class="fas fa-shield-alt"></i>
-                        Reconhecimento
-                    </h1>
-                </div>
+            <div class="castle-header">
+                <h1 class="castle-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Reconhecimento
+                </h1>
+            </div>
 
-                <div class="guard-message">
-                    <p>
-                        <strong>Alto lá, viajante!</strong><br>
-                        Nossos guardas precisam verificar sua identidade antes de permitir 
-                        o acesso aos segredos do Forjador de Lendas. Identifique-se!
-                    </p>
-                </div>
+            <div class="guard-message">
+                <p>
+                    <strong>Alto lá, viajante!</strong><br>
+                    Nossos guardas precisam verificar sua identidade antes de permitir 
+                    o acesso aos segredos do Forjador de Lendas. Identifique-se!
+                </p>
+            </div>
 
-                <form id="recognitionForm" class="recognition-form">
+            <form id="recognitionForm" class="recognition-form">
                 <div class="field-group">
                     <label class="field-label" for="username">
                         <i class="fas fa-user"></i>
@@ -517,16 +517,16 @@
                     Passar pelos Guardas
                 </button>
 
-                    <div id="statusMessage" class="status-message"></div>
-                </form>
+                <div id="statusMessage" class="status-message"></div>
+            </form>
 
-                <div class="castle-footer">
-                    <p class="footer-text">
-                        Primeiro acesso? <a href="#" class="footer-link" id="registerLink">Solicite passagem aos guardas</a>
-                    </p>
-                    <p class="footer-text" style="margin-top: 0.3rem;">
-                        <a href="#" class="footer-link" id="forgotPasswordLink">Esqueceu sua palavra de reconhecimento?</a>
-                    </p>
+            <div class="castle-footer">
+                <p class="footer-text">
+                    Primeiro acesso? <a href="#" class="footer-link" id="registerLink">Solicite passagem aos guardas</a>
+                </p>
+                <p class="footer-text" style="margin-top: 0.3rem;">
+                    <a href="#" class="footer-link" id="forgotPasswordLink">Esqueceu sua palavra de reconhecimento?</a>
+                </p>
                 </div>
             </div>
 
@@ -835,7 +835,7 @@
                                 sessionStorage.removeItem('forjador_redirect_after_login');
                                 window.location.href = redirectUrl;
                             } else {
-                                window.location.href = 'index.html';
+                            window.location.href = 'index.html';
                             }
                         }, 2000);
                     } else {
@@ -1297,7 +1297,7 @@
                     "Entrada concedida! Que sua jornada seja próspera!",
                     "Bem-vindo de volta ao Forjador de Lendas!"
                 ];
-
+                
                 this.registerMessages = [
                     "Interessado em se juntar ao reino? Excelente escolha!",
                     "Novos aventureiros são sempre bem-vindos aqui!",
@@ -1351,7 +1351,7 @@
                 this.setupScrollListener();
                 this.greet();
             }
-
+            
             setupEventListeners() {
                 // Eventos do formulário de login
                 const usernameInput = document.getElementById('username');
@@ -1395,7 +1395,7 @@
                         }
                     });
                 }
-
+                
                 if (this.rightGuardAvatar) {
                     this.rightGuardAvatar.addEventListener('click', () => {
                         if (window.innerWidth < 1023) {
@@ -1407,7 +1407,7 @@
                         }
                     });
                 }
-
+                
                 document.addEventListener('click', (e) => {
                     if (window.innerWidth < 1023) {
                         if (!this.leftGuardAvatar?.contains(e.target) &&
@@ -1415,7 +1415,7 @@
                             !this.leftSpeechBubble.classList.contains('hidden')) {
                             this.hideSpeechBubble('left');
                         }
-
+                        
                         if (!this.rightGuardAvatar?.contains(e.target) &&
                             this.rightSpeechBubble && !this.rightSpeechBubble.contains(e.target) &&
                             !this.rightSpeechBubble.classList.contains('hidden')) {
@@ -1471,15 +1471,15 @@
                 // Verifica também no redimensionamento
                 window.addEventListener('resize', checkFooterPosition);
             }
-
+            
             speak(guard, text, duration = null) {
                 const guardContainer = guard === 'left' ? this.leftGuard : this.rightGuard;
                 const speechBubble = guard === 'left' ? this.leftSpeechBubble : this.rightSpeechBubble;
                 const textElement = guard === 'left' ? this.leftGuardText : this.rightGuardText;
                 const avatar = guard === 'left' ? this.leftGuardAvatar : this.rightGuardAvatar;
-
+                
                 if (!speechBubble || !textElement) return;
-
+                
                 // Remove fade out
                 if (guardContainer) {
                     guardContainer.classList.remove('guard-fade-out');
@@ -1491,7 +1491,7 @@
                 } else {
                     this.rightLastMessage = text;
                 }
-
+                
                 // Limpa qualquer timeout anterior (speech bubble e avatar)
                 if (guard === 'left' && this.leftHideTimeout) {
                     clearTimeout(this.leftHideTimeout);
@@ -1511,14 +1511,14 @@
                 speechBubble.classList.remove('hidden', 'auto-hide');
                 speechBubble.classList.add('show', 'fade-in');
                 textElement.textContent = text;
-
+                
                 if (window.innerWidth <= 768) {
                     // Em mobile, pisca o avatar quando fala
                     if (avatar) {
-                        avatar.style.boxShadow = '0 0 15px var(--accent-color)';
-                        setTimeout(() => {
-                            avatar.style.boxShadow = '';
-                        }, 1000);
+                    avatar.style.boxShadow = '0 0 15px var(--accent-color)';
+                    setTimeout(() => {
+                        avatar.style.boxShadow = '';
+                    }, 1000);
                     }
                 }
 
@@ -1546,7 +1546,7 @@
                     speechBubble.classList.add('hidden');
                 }
             }
-
+            
             autoHideSpeechBubble(guard) {
                 const speechBubble = guard === 'left' ? this.leftSpeechBubble : this.rightSpeechBubble;
                 if (speechBubble && window.innerWidth < 1023) {
@@ -1620,7 +1620,7 @@
                     this.rightAvatarTimeout = timeoutId;
                 }
             }
-
+            
             greet() {
                 // Saudação inicial alternada
                 setTimeout(() => {
@@ -1653,7 +1653,7 @@
                     this.autoHideAvatar('right');
                 }, totalInactivityDuration);
             }
-
+            
             onUsernameInput() {
                 const username = document.getElementById('username')?.value.trim();
                 if (username && username.length > 2) {
@@ -1666,7 +1666,7 @@
                     this.speak('left', responses[Math.floor(Math.random() * responses.length)], duration);
                 }
             }
-
+            
             onPasswordInput() {
                 const messages = [
                     "Palavra de reconhecimento em análise...",
@@ -1739,14 +1739,14 @@
 
             // Método para ser chamado pelo sistema de login
             onLoginSuccess() {
-                const successMessage = this.successMessages[Math.floor(Math.random() * this.successMessages.length)];
+                    const successMessage = this.successMessages[Math.floor(Math.random() * this.successMessages.length)];
                 const duration = window.innerWidth < 1023 ? 4000 : null;
                 this.speak('left', successMessage, duration);
-                
-                setTimeout(() => {
+                    
+                    setTimeout(() => {
                     const duration2 = window.innerWidth < 1023 ? 4000 : null;
                     this.speak('right', "Portões abertos! Bem-vindo ao reino!", duration2);
-                }, 1000);
+                    }, 1000);
             }
 
             onLoginError() {
@@ -1754,7 +1754,7 @@
                 const duration = window.innerWidth < 1023 ? 4000 : null;
                 this.speak('left', errorMessage, duration);
                 
-                setTimeout(() => {
+                    setTimeout(() => {
                     const duration2 = window.innerWidth < 1023 ? 4000 : null;
                     this.speak('right', "Tente novamente, mas com as credenciais corretas!", duration2);
                 }, 1500);
@@ -1765,8 +1765,8 @@
                 const registerMessage = this.registerMessages[Math.floor(Math.random() * this.registerMessages.length)];
                 const duration = window.innerWidth < 1023 ? 4000 : null;
                 this.speak('left', registerMessage, duration);
-                
-                setTimeout(() => {
+                    
+                    setTimeout(() => {
                     const duration2 = window.innerWidth < 1023 ? 4000 : null;
                     this.speak('right', "Preencha o formulário com suas informações!", duration2);
                 }, 1000);
@@ -1790,8 +1790,8 @@
                 setTimeout(() => {
                     const duration2 = window.innerWidth < 1023 ? 5000 : null;
                     this.speak('right', `${username}, agora faça login para acessar o reino!`, duration2);
-                }, 1500);
-            }
+                    }, 1500);
+                }
 
             onRegisterError() {
                 const errorMessage = this.registerErrorMessages[Math.floor(Math.random() * this.registerErrorMessages.length)];

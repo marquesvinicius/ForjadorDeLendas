@@ -3,8 +3,8 @@ services:
     name: forjador-backend
     env: python
     plan: free
-    buildCommand: ""
-    startCommand: python generate_story.py
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python generate_story.py
     envVars:
       - key: GEMINI_API_KEY
         sync: false 
