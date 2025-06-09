@@ -59,3 +59,12 @@ backend/env/
 test-*.html
 debug-*.html
 *-test.html
+
+# Documentação temporária e arquivos internos
+docs/
+SETUP-*.md
+CONTEXTUALIZACAO_*.md
+*-setup.md
+*-config.md
+*-integracao.md
+plano-de-*.md
