@@ -556,66 +556,8 @@
     <script type="module" src="js/config.js"></script>
     <script type="module" src="js/apiConfig.js"></script>
     
-    <!-- Auth Guard - Verificação de autenticação com Supabase -->
-    <script type="module">
-        import { supabaseAuth } from './src/core/supabase.js';
-        
-        // Auth Guard com Supabase - Verificar autenticação antes de carregar a página
-        (async function() {
-            'use strict';
-            
-            // Verificar se já está na página de login
-            if (window.location.pathname.includes('login.html')) {
-                return; // Não verificar auth na página de login
-            }
-            
-            console.log('🛡️ Auth Guard Supabase: Verificando autenticação...');
-            
-            try {
-                // Aguardar inicialização do Supabase
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // Verificar se usuário está autenticado no Supabase
-                const isAuthenticated = supabaseAuth.isAuthenticated();
-                const currentUser = supabaseAuth.getCurrentUser();
-                
-                if (!isAuthenticated || !currentUser) {
-                    console.log('❌ Auth Guard: Usuário não autenticado no Supabase, redirecionando...');
-                    
-                    // Tentar verificar localStorage como fallback
-                    const authToken = localStorage.getItem('forjador_auth_token');
-                    const userData = localStorage.getItem('forjador_user_data');
-                    
-                    if (!authToken || !userData) {
-                        // Salvar a URL atual para redirecionar depois do login
-                        sessionStorage.setItem('forjador_redirect_after_login', window.location.href);
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                    
-                    console.log('⚠️ Auth Guard: Usando dados locais como fallback');
-                } else {
-                    console.log('✅ Auth Guard: Usuário autenticado no Supabase:', currentUser.email);
-                }
-                
-            } catch (error) {
-                console.error('❌ Auth Guard: Erro ao verificar autenticação:', error);
-                
-                // Fallback para sistema local
-                const authToken = localStorage.getItem('forjador_auth_token');
-                const userData = localStorage.getItem('forjador_user_data');
-                
-                if (!authToken || !userData) {
-                    console.log('❌ Auth Guard: Fallback falhou, redirecionando...');
-                    sessionStorage.setItem('forjador_redirect_after_login', window.location.href);
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                console.log('⚠️ Auth Guard: Usando dados locais por erro de conexão');
-            }
-        })();
-    </script>
+    <!-- Auth Guard - Sistema modular sem JavaScript inline -->
+    <script type="module" src="js/auth-guard.js"></script>
     <script type="module" src="src/core/storage.js"></script>
     <script type="module" src="js/worldsConfig.js"></script>
     <script type="module" src="src/ui/companion.js"></script>
