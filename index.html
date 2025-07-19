@@ -675,18 +675,28 @@
                 try {
                     console.log('🚪 Fazendo logout...');
                     
+                    // Fechar modal antes do logout
+                    hideLogoutModal();
+                    
                     // Logout no Supabase
-                    await supabaseAuth.signOut();
+                    const result = await supabaseAuth.signOut();
+                    console.log('✅ Logout realizado:', result);
                     
                     // Limpar dados locais também (compatibilidade)
                     localStorage.removeItem('forjador_auth_token');
                     localStorage.removeItem('forjador_user_data');
                     localStorage.removeItem('forjador_remember_me');
+                    localStorage.removeItem('forjador_characters');
+                    localStorage.removeItem('forjador_settings');
                     
-                    // O redirecionamento será feito automaticamente pelo Supabase
+                    // Redirecionar explicitamente para a tela de login
+                    console.log('🔄 Redirecionando para login...');
+                    window.location.href = 'login.html';
                     
                 } catch (error) {
                     console.error('❌ Erro no logout:', error);
+                    // Fechar modal em caso de erro também
+                    hideLogoutModal();
                     // Fallback: redirecionar mesmo se houver erro
                     window.location.href = 'login.html';
                 }

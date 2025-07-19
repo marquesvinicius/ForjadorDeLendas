@@ -319,10 +319,8 @@ export class SupabaseAuth {
         })
         document.dispatchEvent(event)
 
-        // Redirecionar para página principal se estiver na página de login
-        if (window.location.pathname.includes('login.html')) {
-            window.location.href = 'index.html'
-        }
+        // ⭐ REDIRECIONAMENTO REMOVIDO - Auth Guard controla navegação
+        console.log('🔄 Evento de login disparado, deixando Auth Guard controlar navegação')
     }
 
     /**
@@ -335,8 +333,14 @@ export class SupabaseAuth {
         const event = new CustomEvent('supabaseSignOut')
         document.dispatchEvent(event)
 
-        // Redirecionar para página de login
-        window.location.href = 'login.html'
+        // ⭐ REDIRECIONAMENTO EXPLÍCITO PARA LOGIN
+        // Se estiver em qualquer página que não seja login, redirecionar
+        if (!window.location.pathname.includes('login.html')) {
+            console.log('🔄 Redirecionando para login após logout...');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 500); // Pequeno delay para garantir que o evento seja processado
+        }
     }
 
     /**

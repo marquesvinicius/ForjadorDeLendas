@@ -26,9 +26,25 @@ export class AuthGuard {
             // Aguardar Supabase inicializar completamente
             await this.waitForSupabaseInit();
             
-            // Verificar autenticação
-            const isAuthenticated = supabaseAuth.isAuthenticated();
-            const currentUser = supabaseAuth.getCurrentUser();
+            // ⭐ VERIFICAÇÃO DUPLA: Primeiro tentar método padrão, depois fallback
+            let isAuthenticated = false;
+            let currentUser = null;
+            
+            if (supabaseAuth?.initialized) {
+                // Verificação normal
+                isAuthenticated = supabaseAuth.isAuthenticated();
+                currentUser = supabaseAuth.getCurrentUser();
+                console.log('🔍 Auth Guard: Verificação padrão -', { isAuthenticated, user: currentUser?.email });
+            }
+            
+            // Se não funcionar, usar verificação direta
+            if (!isAuthenticated) {
+                console.log('⚠️ Auth Guard: Tentando verificação direta...');
+                const sessionResult = await this.checkSessionDirectly();
+                isAuthenticated = sessionResult.isAuthenticated;
+                currentUser = sessionResult.user;
+                console.log('🔍 Auth Guard: Verificação direta -', { isAuthenticated, user: currentUser?.email });
+            }
             
             if (!isAuthenticated || !currentUser) {
                 console.log('❌ Auth Guard: Usuário não autenticado, redirecionando...');
@@ -49,17 +65,58 @@ export class AuthGuard {
      */
     async waitForSupabaseInit() {
         return new Promise((resolve) => {
+            let attempts = 0;
+            const maxAttempts = 60; // 3 segundos máximo (mais rápido)
+            
             const checkAuth = () => {
-                if (supabaseAuth.initialized) {
+                attempts++;
+                
+                // Debug simplificado
+                if (attempts % 10 === 0) { // Log a cada 10 tentativas
+                    console.log(`⏳ Auth Guard: Aguardando Supabase... (${attempts}/${maxAttempts})`);
+                }
+                
+                if (supabaseAuth?.initialized) {
                     console.log('✅ Auth Guard: Supabase pronto');
                     resolve();
+                } else if (attempts >= maxAttempts) {
+                    console.warn('⚠️ Auth Guard: Timeout aguardando Supabase, usando verificação direta');
+                    resolve(); // Continuar mesmo assim
                 } else {
-                    console.log('⏳ Auth Guard: Aguardando Supabase...');
                     setTimeout(checkAuth, 50);
                 }
             };
             checkAuth();
         });
+    }
+
+    /**
+     * Verificar sessão diretamente no Supabase (bypass da flag initialized)
+     */
+    async checkSessionDirectly() {
+        try {
+            // Verificar diretamente no cliente Supabase
+            const { data: { session }, error } = await supabaseAuth.client.auth.getSession();
+            
+            if (error) {
+                console.error('❌ Auth Guard: Erro ao verificar sessão:', error);
+                return { isAuthenticated: false };
+            }
+            
+            if (session?.user) {
+                return { 
+                    isAuthenticated: true, 
+                    email: session.user.email,
+                    user: session.user 
+                };
+            }
+            
+            return { isAuthenticated: false };
+            
+        } catch (error) {
+            console.error('❌ Auth Guard: Erro na verificação direta:', error);
+            return { isAuthenticated: false };
+        }
     }
 
     /**
@@ -105,6 +162,25 @@ export class AuthGuard {
 // Inicializar Auth Guard quando DOM carregar
 document.addEventListener('DOMContentLoaded', () => {
     new AuthGuard();
+});
+
+// ⭐ ESCUTAR EVENTOS DE LOGIN PARA CONTROLAR REDIRECIONAMENTO
+document.addEventListener('supabaseSignIn', (event) => {
+    console.log('🎉 Auth Guard: Login detectado!', event.detail?.user?.email);
+    
+    if (window.location.pathname.includes('login.html')) {
+        // Verificar se há URL para redirecionamento
+        const redirectUrl = sessionStorage.getItem('forjador_redirect_after_login');
+        
+        if (redirectUrl && redirectUrl !== window.location.href) {
+            console.log('🔄 Redirecionando para URL salva:', redirectUrl);
+            sessionStorage.removeItem('forjador_redirect_after_login');
+            window.location.href = redirectUrl;
+        } else {
+            console.log('🔄 Redirecionando para index.html');
+            window.location.href = 'index.html';
+        }
+    }
 });
 
 // Expor função para limpar cache

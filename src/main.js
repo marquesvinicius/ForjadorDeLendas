@@ -150,26 +150,26 @@ class ForjadorApp {
 
     try {
       const characters = await this.storage.getAllCharacters();
-      const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
-      
-      // Filtrar por mundo atual
-      const filteredCharacters = characters.filter(character => {
-        if (!character.world && currentWorld === 'dnd') {
-          return true;
-        }
-        return character.world === currentWorld;
-      });
-
-      if (filteredCharacters.length === 0) {
-        savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado para este mundo ainda. Comece a forjar sua lenda!</p>';
-        return;
+    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+    
+    // Filtrar por mundo atual
+    const filteredCharacters = characters.filter(character => {
+      if (!character.world && currentWorld === 'dnd') {
+        return true;
       }
+      return character.world === currentWorld;
+    });
 
-      savedCharactersList.innerHTML = '';
-      filteredCharacters.forEach(character => {
-        const characterCard = this.createCharacterCard(character);
-        savedCharactersList.appendChild(characterCard);
-      });
+    if (filteredCharacters.length === 0) {
+      savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado para este mundo ainda. Comece a forjar sua lenda!</p>';
+      return;
+    }
+
+    savedCharactersList.innerHTML = '';
+    filteredCharacters.forEach(character => {
+      const characterCard = this.createCharacterCard(character);
+      savedCharactersList.appendChild(characterCard);
+    });
     } catch (error) {
       console.error('Erro ao carregar personagens:', error);
       savedCharactersList.innerHTML = '<p class="empty-list-message">Erro ao carregar personagens. Tente recarregar a página.</p>';
@@ -210,15 +210,15 @@ class ForjadorApp {
   async openCharacterModal(characterId) {
     try {
       const character = await this.storage.getCharacterById(characterId);
-      if (!character) {
-        showMessage('Personagem não encontrado!', 'is-danger');
-        return;
-      }
+    if (!character) {
+      showMessage('Personagem não encontrado!', 'is-danger');
+      return;
+    }
 
-      this.currentCharacterId = characterId;
-      
-      // Implementar modal de detalhes...
-      showMessage(`Abrindo detalhes de ${character.name}`, 'is-info');
+    this.currentCharacterId = characterId;
+    
+    // Implementar modal de detalhes...
+    showMessage(`Abrindo detalhes de ${character.name}`, 'is-info');
     } catch (error) {
       console.error('Erro ao abrir personagem:', error);
       showMessage('Erro ao carregar personagem!', 'is-danger');

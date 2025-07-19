@@ -46,12 +46,22 @@ export class LoginManager {
     async waitForSupabaseInit() {
         // Aguardar até o Supabase terminar verificação inicial
         return new Promise((resolve) => {
+            let attempts = 0;
+            const maxAttempts = 40; // 2 segundos máximo
+            
             const checkAuth = () => {
+                attempts++;
+                
                 if (supabaseAuth.initialized) {
                     console.log('✅ Supabase pronto, continuando...');
                     resolve();
+                } else if (attempts >= maxAttempts) {
+                    console.warn('⚠️ Timeout aguardando Supabase, continuando mesmo assim...');
+                    resolve();
                 } else {
-                    console.log('⏳ Aguardando Supabase inicializar...');
+                    if (attempts % 10 === 0) {
+                        console.log(`⏳ Aguardando Supabase inicializar... (${attempts}/${maxAttempts})`);
+                    }
                     setTimeout(checkAuth, 50);
                 }
             };
@@ -64,9 +74,12 @@ export class LoginManager {
      */
     setupEventListeners() {
         // Formulário de login
-        const loginForm = document.getElementById('guardForm');
+        const loginForm = document.getElementById('recognitionForm');
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+            console.log('✅ Event listener adicionado: formulário de login');
+        } else {
+            console.error('❌ Formulário de login não encontrado: #recognitionForm');
         }
 
         // Botão de registro
@@ -366,17 +379,23 @@ export class LoginManager {
 
             if (result.success) {
                 if (result.needsConfirmation) {
-                    this.showMessage('Conta criada! Verifique seu email para confirmar.', 'success');
-                } else {
-                    this.showMessage(`Conta criada com sucesso! Bem-vindo, ${username}!`, 'success');
+                    this.showMessage('Conta criada! Verifique seu email para confirmar e depois faça login.', 'success');
                     
-                    // Aguardar um pouco e voltar ao login
+                    // Aguardar um pouco e voltar ao login com email preenchido
                     setTimeout(() => {
                         this.showLoginForm();
                         const usernameInput = document.getElementById('username');
                         if (usernameInput) {
-                            usernameInput.value = username;
+                            usernameInput.value = email; // Usar email, não username
                         }
+                        this.showMessage('Após confirmar seu email, faça login aqui.', 'info');
+                    }, 3000);
+                } else {
+                    this.showMessage(`Conta criada com sucesso! Bem-vindo, ${username}!`, 'success');
+                    
+                    // Se não precisar confirmar email, redirecionar para o index
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
                     }, 2000);
                 }
             } else {
@@ -451,13 +470,20 @@ export class LoginManager {
     /**
      * Validar formulário de login
      */
-    validateLoginForm(email, password) {
-        if (!email || !password) {
+    validateLoginForm(emailOrUsername, password) {
+        if (!emailOrUsername || !password) {
             this.showMessage('Por favor, preencha todos os campos', 'error');
             return false;
         }
 
-        if (!this.validateEmail(email)) {
+        // Se não contém @ e não foi convertido para email, mostrar erro mais claro
+        if (!emailOrUsername.includes('@') && emailOrUsername.length < 3) {
+            this.showMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
+            return false;
+        }
+
+        // Se contém @ mas não é um email válido
+        if (emailOrUsername.includes('@') && !this.validateEmail(emailOrUsername)) {
             this.showMessage('Por favor, insira um email válido', 'error');
             return false;
         }
