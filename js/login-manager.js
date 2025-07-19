@@ -109,7 +109,7 @@ export class LoginManager {
     }
 
     /**
-     * Manipular login com email/senha
+     * Manipular login com email/senha OU username/senha
      */
     async handleLogin(event) {
         event.preventDefault();
@@ -117,16 +117,22 @@ export class LoginManager {
         if (this.isLoading) return;
 
         const formData = new FormData(event.target);
-        const email = formData.get('email') || formData.get('username'); // Compatibility
+        let emailOrUsername = formData.get('email') || formData.get('username');
         const password = formData.get('password');
 
-        if (!this.validateLoginForm(email, password)) return;
+        // 🎯 MELHORIA: Converter username para email se necessário
+        if (emailOrUsername && !emailOrUsername.includes('@')) {
+            console.log(`🔄 Convertendo username "${emailOrUsername}" para email`);
+            emailOrUsername = `${emailOrUsername}@test.com`;
+        }
+
+        if (!this.validateLoginForm(emailOrUsername, password)) return;
 
         this.setLoading(true);
         this.showMessage('Verificando suas credenciais...', 'loading');
 
         try {
-            const result = await supabaseAuth.signIn(email, password);
+            const result = await supabaseAuth.signIn(emailOrUsername, password);
 
             if (result.success) {
                 this.showMessage(result.message, 'success');
