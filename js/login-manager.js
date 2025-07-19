@@ -15,14 +15,20 @@ export class LoginManager {
      * Inicializar o gerenciador de login
      */
     async init() {
-        // Verificar se já está logado
+        // ⭐ AGUARDAR o Supabase terminar de verificar sessão
+        await this.waitForSupabaseInit();
+
+        // Verificar se já está logado APÓS Supabase carregar
         if (supabaseAuth.isAuthenticated()) {
+            console.log('🔄 Usuário já autenticado, redirecionando...');
             // Se já estiver logado e estiver na página de login, redirecionar
             if (window.location.pathname.includes('login.html')) {
                 window.location.href = 'index.html';
                 return;
             }
         }
+
+        console.log('🎯 Usuário não autenticado, mostrando login');
 
         // Configurar event listeners
         this.setupEventListeners();
@@ -32,6 +38,25 @@ export class LoginManager {
         
         // Verificar se há processo de reset de senha
         this.checkPasswordReset();
+    }
+
+    /**
+     * Aguardar Supabase terminar inicialização
+     */
+    async waitForSupabaseInit() {
+        // Aguardar até o Supabase terminar verificação inicial
+        return new Promise((resolve) => {
+            const checkAuth = () => {
+                if (supabaseAuth.initialized) {
+                    console.log('✅ Supabase pronto, continuando...');
+                    resolve();
+                } else {
+                    console.log('⏳ Aguardando Supabase inicializar...');
+                    setTimeout(checkAuth, 50);
+                }
+            };
+            checkAuth();
+        });
     }
 
     /**

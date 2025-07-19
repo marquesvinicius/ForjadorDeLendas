@@ -22,6 +22,7 @@ export class SupabaseAuth {
     constructor() {
         this.client = supabase
         this.currentUser = null
+        this.initialized = false
         this.init()
     }
 
@@ -29,12 +30,24 @@ export class SupabaseAuth {
      * Inicializa o sistema de autenticação
      */
     async init() {
-        // Verificar sessão atual
-        const { data: { session } } = await this.client.auth.getSession()
-        
-        if (session?.user) {
-            this.currentUser = session.user
-            console.log('🔐 Usuário autenticado:', session.user.email)
+        try {
+            // Verificar sessão atual
+            const { data: { session } } = await this.client.auth.getSession()
+            
+            if (session?.user) {
+                this.currentUser = session.user
+                console.log('🔐 Usuário autenticado:', session.user.email)
+            } else {
+                console.log('👤 Nenhum usuário autenticado')
+            }
+
+            // Marcar como inicializado
+            this.initialized = true
+            console.log('✅ Supabase inicializado')
+
+        } catch (error) {
+            console.error('❌ Erro ao inicializar Supabase:', error)
+            this.initialized = true // Marcar como inicializado mesmo com erro
         }
 
         // Escutar mudanças de autenticação

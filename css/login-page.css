@@ -32,9 +32,27 @@ body {
     backdrop-filter: blur(2px); /* Adiciona leve desfoque no fundo */
 }
 
+/* Padding reduzido para formulários mais longos */
+.guard-castle:has(#registerCard:not(.hidden)) {
+    padding: 1.5rem;
+}
+
+.guard-castle:has(#forgotPasswordCard:not(.hidden)) {
+    padding: 1.5rem;
+}
+
 .castle-header {
     text-align: center;
     margin-bottom: 2rem;
+}
+
+/* Header mais compacto no registro e recuperação de senha */
+#registerCard .castle-header {
+    margin-bottom: 1.25rem;
+}
+
+#forgotPasswordCard .castle-header {
+    margin-bottom: 1.25rem;
 }
 
 .castle-title {
@@ -98,6 +116,17 @@ body {
     position: relative;
 }
 
+/* Mensagem dos guardas mais compacta no registro */
+#registerCard .guard-message {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+#forgotPasswordCard .guard-message {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
 .guard-message p {
     color: var(--text-color);
     font-size: 0.95rem;
@@ -112,6 +141,15 @@ body {
 
 .field-group {
     margin-bottom: 1rem;
+}
+
+/* Espaçamento reduzido para formulário de registro */
+#registerCard .field-group {
+    margin-bottom: 0.75rem;
+}
+
+#forgotPasswordCard .field-group {
+    margin-bottom: 0.75rem;
 }
 
 .field-label {
@@ -165,6 +203,11 @@ body {
     align-items: center;
     gap: 0.5rem;
     margin: 1rem 0;
+}
+
+/* Checkbox de aceitar termos mais compacto no registro */
+#registerCard .remember-guards {
+    margin: 0.75rem 0;
 }
 
 .custom-checkbox {
@@ -238,6 +281,15 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     margin: 1rem 0;
+}
+
+/* Botão mais compacto no registro e recuperação de senha */
+#registerCard .guard-button {
+    margin: 0.75rem 0;
+}
+
+#forgotPasswordCard .guard-button {
+    margin: 0.75rem 0;
 }
 
 .guard-button:hover {
@@ -374,12 +426,30 @@ body {
         margin: 0 auto;
     }
     
+    /* Padding ainda mais reduzido no mobile para formulários longos */
+    .guard-castle:has(#registerCard:not(.hidden)) {
+        padding: 1.25rem;
+    }
+    
+    .guard-castle:has(#forgotPasswordCard:not(.hidden)) {
+        padding: 1.25rem;
+    }
+    
+    /* Campos ainda mais compactos no mobile para registro */
+    #registerCard .field-group {
+        margin-bottom: 0.6rem;
+    }
+    
+    #forgotPasswordCard .field-group {
+        margin-bottom: 0.6rem;
+    }
+    
     /* Quando formulário de registro está ativo, permite scroll */
     .login-container:has(#registerCard:not(.hidden)) {
         align-items: flex-start; /* Só alinha ao topo no registro */
         min-height: auto; /* Remove altura fixa */
-        padding-top: 2rem;
-        padding-bottom: 4rem;
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
     }
 }
 
@@ -388,8 +458,12 @@ body {
     .login-container.register-mode {
         min-height: auto !important;
         align-items: flex-start !important;
-        padding-top: 2rem !important;
-        padding-bottom: 4rem !important;
+        padding-top: 1.5rem !important;
+        padding-bottom: 3rem !important;
+    }
+    
+    .login-container.register-mode .guard-castle {
+        padding: 1.25rem !important;
     }
     
     /* Modo login explícito (quando não está em register-mode) */
