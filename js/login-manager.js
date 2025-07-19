@@ -62,7 +62,23 @@ export class LoginManager {
             });
         }
 
-        // Botão de voltar ao login
+        // Botões de voltar ao login (IDs específicos)
+        const backToLoginSelectors = ['#loginLink', '#backToLoginLink'];
+        backToLoginSelectors.forEach(selector => {
+            const btn = document.querySelector(selector);
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log(`🔄 Clicado: ${selector} - Voltando ao login`);
+                    this.showLoginForm();
+                });
+                console.log(`✅ Event listener adicionado: ${selector}`);
+            } else {
+                console.warn(`⚠️ Botão não encontrado: ${selector}`);
+            }
+        });
+
+        // Botão de voltar ao login (classe genérica - fallback)
         const backToLoginBtns = document.querySelectorAll('.back-to-login');
         backToLoginBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -73,6 +89,10 @@ export class LoginManager {
 
         // OAuth providers
         this.setupOAuthListeners();
+
+        // Configurar formulários específicos
+        this.setupRegisterFormListeners();
+        this.setupForgotPasswordFormListeners();
     }
 
     /**
@@ -195,8 +215,7 @@ export class LoginManager {
             }, 300);
         }
         
-        // Configurar event listener do formulário se ainda não existir
-        this.setupRegisterFormListeners();
+        // Event listeners já configurados no init
     }
 
     /**
@@ -220,8 +239,7 @@ export class LoginManager {
             }, 300);
         }
         
-        // Configurar event listener do formulário se ainda não existir
-        this.setupForgotPasswordFormListeners();
+        // Event listeners já configurados no init
     }
 
     /**
@@ -261,19 +279,8 @@ export class LoginManager {
         if (registerForm && !registerForm.dataset.listenerAdded) {
             registerForm.addEventListener('submit', (e) => this.handleRegister(e));
             registerForm.dataset.listenerAdded = 'true';
+            console.log('✅ Event listener adicionado: form de registro');
         }
-
-        // Botão de voltar ao login
-        const backToLoginBtns = document.querySelectorAll('#backToLogin, #backToLoginFromRegister');
-        backToLoginBtns.forEach(btn => {
-            if (btn && !btn.dataset.listenerAdded) {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.showLoginForm();
-                });
-                btn.dataset.listenerAdded = 'true';
-            }
-        });
     }
 
     /**
@@ -284,19 +291,8 @@ export class LoginManager {
         if (forgotForm && !forgotForm.dataset.listenerAdded) {
             forgotForm.addEventListener('submit', (e) => this.handleForgotPassword(e));
             forgotForm.dataset.listenerAdded = 'true';
+            console.log('✅ Event listener adicionado: form de forgot password');
         }
-
-        // Botão de voltar ao login
-        const backToLoginBtns = document.querySelectorAll('#backToLoginFromForgot');
-        backToLoginBtns.forEach(btn => {
-            if (btn && !btn.dataset.listenerAdded) {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.showLoginForm();
-                });
-                btn.dataset.listenerAdded = 'true';
-            }
-        });
     }
 
     /**
