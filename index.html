@@ -556,10 +556,12 @@
     <script type="module" src="js/config.js"></script>
     <script type="module" src="js/apiConfig.js"></script>
     
-    <!-- Auth Guard - Verificação de autenticação -->
-    <script>
-        // Verificar autenticação antes de carregar a página
-        (function() {
+    <!-- Auth Guard - Verificação de autenticação com Supabase -->
+    <script type="module">
+        import { supabaseAuth } from './src/core/supabase.js';
+        
+        // Auth Guard com Supabase - Verificar autenticação antes de carregar a página
+        (async function() {
             'use strict';
             
             // Verificar se já está na página de login
@@ -567,48 +569,50 @@
                 return; // Não verificar auth na página de login
             }
             
-            console.log('🛡️ Auth Guard: Verificando autenticação...');
-            
-            // Verificar token de autenticação
-            const authToken = localStorage.getItem('forjador_auth_token');
-            const userData = localStorage.getItem('forjador_user_data');
-            
-            if (!authToken || !userData) {
-                console.log('❌ Auth Guard: Usuário não autenticado, redirecionando...');
-                // Salvar a URL atual para redirecionar depois do login
-                sessionStorage.setItem('forjador_redirect_after_login', window.location.href);
-                window.location.href = 'login.html';
-                return;
-            }
+            console.log('🛡️ Auth Guard Supabase: Verificando autenticação...');
             
             try {
-                // Verificar se os dados são válidos
-                const user = JSON.parse(userData);
-                if (!user.username || !user.email) {
-                    throw new Error('Dados de usuário inválidos');
+                // Aguardar inicialização do Supabase
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Verificar se usuário está autenticado no Supabase
+                const isAuthenticated = supabaseAuth.isAuthenticated();
+                const currentUser = supabaseAuth.getCurrentUser();
+                
+                if (!isAuthenticated || !currentUser) {
+                    console.log('❌ Auth Guard: Usuário não autenticado no Supabase, redirecionando...');
+                    
+                    // Tentar verificar localStorage como fallback
+                    const authToken = localStorage.getItem('forjador_auth_token');
+                    const userData = localStorage.getItem('forjador_user_data');
+                    
+                    if (!authToken || !userData) {
+                        // Salvar a URL atual para redirecionar depois do login
+                        sessionStorage.setItem('forjador_redirect_after_login', window.location.href);
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    console.log('⚠️ Auth Guard: Usando dados locais como fallback');
+                } else {
+                    console.log('✅ Auth Guard: Usuário autenticado no Supabase:', currentUser.email);
                 }
                 
-                console.log('✅ Auth Guard: Usuário autenticado:', user.username);
-                
-                // Opcional: Verificar expiração do token (se implementado)
-                // const tokenTimestamp = localStorage.getItem('forjador_token_timestamp');
-                // const now = Date.now();
-                // const maxAge = 24 * 60 * 60 * 1000; // 24 horas
-                // if (tokenTimestamp && (now - parseInt(tokenTimestamp)) > maxAge) {
-                //     console.log('⏰ Auth Guard: Token expirado, limpando...');
-                //     localStorage.removeItem('forjador_auth_token');
-                //     localStorage.removeItem('forjador_user_data');
-                //     window.location.href = 'login.html';
-                //     return;
-                // }
-                
             } catch (error) {
-                console.error('❌ Auth Guard: Erro ao verificar dados de usuário:', error);
-                // Limpar dados corrompidos
-                localStorage.removeItem('forjador_auth_token');
-                localStorage.removeItem('forjador_user_data');
-                window.location.href = 'login.html';
-                return;
+                console.error('❌ Auth Guard: Erro ao verificar autenticação:', error);
+                
+                // Fallback para sistema local
+                const authToken = localStorage.getItem('forjador_auth_token');
+                const userData = localStorage.getItem('forjador_user_data');
+                
+                if (!authToken || !userData) {
+                    console.log('❌ Auth Guard: Fallback falhou, redirecionando...');
+                    sessionStorage.setItem('forjador_redirect_after_login', window.location.href);
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                console.log('⚠️ Auth Guard: Usando dados locais por erro de conexão');
             }
         })();
     </script>
@@ -618,7 +622,7 @@
     <script type="module" src="src/ui/themeManager.js"></script>
     <script type="module" src="js/worldSelector.js"></script>
     <script type="module" src="src/logic/worldManager.js"></script>
-    <script type="module" src="js/app.js"></script>
+    <!-- <script type="module" src="js/app.js"></script> Sistema antigo comentado --></script>
     <script type="module" src="src/main.js"></script>
 
     <!-- Script para garantir inicialização do companion -->
@@ -653,8 +657,8 @@
         });
     </script>
     
-    <!-- Script para logout -->
-    <script>
+    <!-- Script para logout - Sistema antigo comentado -->
+    <!--<script>
         document.addEventListener('DOMContentLoaded', () => {
             const logoutButton = document.getElementById('logoutButton');
             const logoutModal = document.getElementById('logoutModal');
@@ -695,6 +699,72 @@
             // Fechar modal com ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && logoutModal.classList.contains('is-active')) {
+                    hideLogoutModal();
+                }
+            });
+        });
+    </script>-->
+
+    <!-- Script para logout - Sistema Supabase -->
+    <script type="module">
+        import { supabaseAuth } from './src/core/supabase.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutButton = document.getElementById('logoutButton');
+            const logoutModal = document.getElementById('logoutModal');
+            const confirmLogout = document.getElementById('confirmLogout');
+            const cancelLogout = document.getElementById('cancelLogout');
+            const closeLogoutModal = document.getElementById('closeLogoutModal');
+            
+            // Função para mostrar modal
+            function showLogoutModal() {
+                logoutModal.classList.add('is-active');
+            }
+            
+            // Função para esconder modal
+            function hideLogoutModal() {
+                logoutModal.classList.remove('is-active');
+            }
+            
+            // Função para fazer logout com Supabase
+            async function performLogout() {
+                try {
+                    console.log('🚪 Fazendo logout...');
+                    
+                    // Logout no Supabase
+                    await supabaseAuth.signOut();
+                    
+                    // Limpar dados locais também (compatibilidade)
+                    localStorage.removeItem('forjador_auth_token');
+                    localStorage.removeItem('forjador_user_data');
+                    localStorage.removeItem('forjador_remember_me');
+                    
+                    // O redirecionamento será feito automaticamente pelo Supabase
+                    
+                } catch (error) {
+                    console.error('❌ Erro no logout:', error);
+                    // Fallback: redirecionar mesmo se houver erro
+                    window.location.href = 'login.html';
+                }
+            }
+            
+            // Event listeners
+            if (logoutButton) logoutButton.addEventListener('click', showLogoutModal);
+            if (confirmLogout) confirmLogout.addEventListener('click', performLogout);
+            if (cancelLogout) cancelLogout.addEventListener('click', hideLogoutModal);
+            if (closeLogoutModal) closeLogoutModal.addEventListener('click', hideLogoutModal);
+            
+            // Fechar modal ao clicar no background
+            if (logoutModal) {
+                const modalBackground = logoutModal.querySelector('.modal-background');
+                if (modalBackground) {
+                    modalBackground.addEventListener('click', hideLogoutModal);
+                }
+            }
+            
+            // Fechar modal com ESC
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && logoutModal && logoutModal.classList.contains('is-active')) {
                     hideLogoutModal();
                 }
             });

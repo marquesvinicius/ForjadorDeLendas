@@ -5,6 +5,7 @@
 
 // Importações dos módulos core
 import { characterStorage } from './core/storage.js';
+import { hybridStorage } from './core/hybrid-storage.js';
 
 // Importações dos módulos de lógica
 import { 
@@ -35,7 +36,8 @@ import { authSystem } from './ui/auth.js';
  */
 class ForjadorApp {
   constructor() {
-    this.storage = characterStorage;
+    this.storage = hybridStorage; // Usando sistema híbrido (Supabase + Local)
+    this.legacyStorage = characterStorage; // Backup do sistema local
     this.authSystem = authSystem;
     this.currentCharacterId = null;
     this.init();
@@ -44,10 +46,10 @@ class ForjadorApp {
   /**
    * Inicializa a aplicação
    */
-  init() {
+  async init() {
     this.setupEventListeners();
     this.setupAuthUI();
-    this.loadCharacters();
+    await this.loadCharacters();
     this.setupModals();
     
     console.log('🧙‍♂️ Forjador de Lendas inicializado!');
@@ -95,7 +97,7 @@ class ForjadorApp {
   /**
    * Salva um personagem
    */
-  saveCharacter(e) {
+  async saveCharacter(e) {
     e.preventDefault();
 
     // Ler dados do formulário
@@ -121,7 +123,8 @@ class ForjadorApp {
     }
 
     try {
-      const savedCharacter = this.storage.saveCharacter(characterData);
+      showMessage('Salvando personagem...', 'is-info');
+      const savedCharacter = await this.storage.saveCharacter(characterData);
       
       if (this.currentCharacterId) {
         showMessage(`${savedCharacter.name} foi atualizado!`, 'is-success');
@@ -129,7 +132,7 @@ class ForjadorApp {
         showMessage(`${savedCharacter.name} foi criado!`, 'is-success');
       }
 
-      this.loadCharacters();
+      await this.loadCharacters();
       this.clearForm();
       
     } catch (error) {
@@ -141,31 +144,36 @@ class ForjadorApp {
   /**
    * Carrega e exibe a lista de personagens
    */
-  loadCharacters() {
+  async loadCharacters() {
     const savedCharactersList = document.getElementById('savedCharactersList');
     if (!savedCharactersList) return;
 
-    const characters = this.storage.getAllCharacters();
-    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
-    
-    // Filtrar por mundo atual
-    const filteredCharacters = characters.filter(character => {
-      if (!character.world && currentWorld === 'dnd') {
-        return true;
+    try {
+      const characters = await this.storage.getAllCharacters();
+      const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+      
+      // Filtrar por mundo atual
+      const filteredCharacters = characters.filter(character => {
+        if (!character.world && currentWorld === 'dnd') {
+          return true;
+        }
+        return character.world === currentWorld;
+      });
+
+      if (filteredCharacters.length === 0) {
+        savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado para este mundo ainda. Comece a forjar sua lenda!</p>';
+        return;
       }
-      return character.world === currentWorld;
-    });
 
-    if (filteredCharacters.length === 0) {
-      savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado para este mundo ainda. Comece a forjar sua lenda!</p>';
-      return;
+      savedCharactersList.innerHTML = '';
+      filteredCharacters.forEach(character => {
+        const characterCard = this.createCharacterCard(character);
+        savedCharactersList.appendChild(characterCard);
+      });
+    } catch (error) {
+      console.error('Erro ao carregar personagens:', error);
+      savedCharactersList.innerHTML = '<p class="empty-list-message">Erro ao carregar personagens. Tente recarregar a página.</p>';
     }
-
-    savedCharactersList.innerHTML = '';
-    filteredCharacters.forEach(character => {
-      const characterCard = this.createCharacterCard(character);
-      savedCharactersList.appendChild(characterCard);
-    });
   }
 
   /**
@@ -199,17 +207,22 @@ class ForjadorApp {
   /**
    * Abre o modal de detalhes do personagem
    */
-  openCharacterModal(characterId) {
-    const character = this.storage.getCharacterById(characterId);
-    if (!character) {
-      showMessage('Personagem não encontrado!', 'is-danger');
-      return;
-    }
+  async openCharacterModal(characterId) {
+    try {
+      const character = await this.storage.getCharacterById(characterId);
+      if (!character) {
+        showMessage('Personagem não encontrado!', 'is-danger');
+        return;
+      }
 
-    this.currentCharacterId = characterId;
-    
-    // Implementar modal de detalhes...
-    showMessage(`Abrindo detalhes de ${character.name}`, 'is-info');
+      this.currentCharacterId = characterId;
+      
+      // Implementar modal de detalhes...
+      showMessage(`Abrindo detalhes de ${character.name}`, 'is-info');
+    } catch (error) {
+      console.error('Erro ao abrir personagem:', error);
+      showMessage('Erro ao carregar personagem!', 'is-danger');
+    }
   }
 
   /**
@@ -440,7 +453,7 @@ class ForjadorApp {
 }
 
 // Inicializar aplicação quando DOM estiver carregado
-// Comentado temporariamente para evitar conflito com app.js
-// document.addEventListener('DOMContentLoaded', () => {
-//   window.forjadorApp = new ForjadorApp();
-// }); 
+document.addEventListener('DOMContentLoaded', async () => {
+  window.forjadorApp = new ForjadorApp();
+  console.log('🚀 Aplicação híbrida Supabase+Local inicializada!');
+}); 

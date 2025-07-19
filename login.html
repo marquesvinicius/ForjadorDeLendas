@@ -296,8 +296,9 @@
     <!-- Scripts -->
     <script type="module" src="js/config.js"></script>
     <script type="module" src="src/core/supabase.js"></script>
-    <!-- <script type="module" src="js/login-manager.js"></script> Desabilitado - conflito com implementação nova -->
-    <script type="module">
+    <script type="module" src="js/login-manager.js"></script> <!-- Ativado - Sistema Supabase -->
+    <!-- Script antigo comentado - agora usando Supabase -->
+    <!--<script type="module">
         // Sistema de autenticação para página de login e registro
         class LoginPageAuth {
             constructor() {
@@ -814,7 +815,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             new LoginPageAuth();
         });
-    </script>
+    </script>-->
 
     <!-- Sistema de guardas interativos - Baseado no companion -->
     <script>
