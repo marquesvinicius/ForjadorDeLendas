@@ -550,7 +550,7 @@ async function fetchBackstoryFromLocal(prompt) {
         const duration = Date.now() - startTime;
         
         // Log de sucesso com métricas
-        console.log(`✅ Backstory gerada em ${duration}ms`);
+            console.log(`✅ Backstory gerada em ${duration}ms`);
         return backstory;
         
     } catch (error) {
@@ -559,7 +559,7 @@ async function fetchBackstoryFromLocal(prompt) {
         // Log detalhado do erro
         console.error('❌ Erro ao gerar história via API:', error.message);
         console.log(`Tempo decorrido: ${duration}ms`);
-        
+
         // Retorna null para fallback
         return null;
     }
