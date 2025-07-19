@@ -29,14 +29,8 @@ export default defineConfig({
       preserveEntrySignatures: 'strict'
     },
     
-    // Minificação
+    // Minificação simplificada
     minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: false,
-        drop_debugger: true
-      }
-    },
     
     // Source maps para desenvolvimento
     sourcemap: false, // Desabilitar em produção para reduzir tamanho

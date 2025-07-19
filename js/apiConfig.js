@@ -116,4 +116,7 @@ API_CONFIG.testConnection().then(isOnline => {
     } else {
         console.log('⚠️ Usando geração local de histórias');
     }
-}); 
+});
+
+// Exportação ES6 modules
+export { API_CONFIG }; 

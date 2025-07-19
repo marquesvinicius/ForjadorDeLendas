@@ -64,7 +64,10 @@ const log = {
     }
 };
 
-// Exportar para uso global
+// Exportar para uso global e ES modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { CONFIG, log };
-} 
+}
+
+// Exportação ES6 modules
+export { CONFIG, log }; 

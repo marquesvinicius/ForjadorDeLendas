@@ -7,15 +7,15 @@
   "routes": [
     {
       "src": "/",
-      "dest": "/index.html"
+      "dest": "/login.html"
     },
     {
       "src": "/login",
       "dest": "/login.html"
     },
     {
-      "src": "/login.html",
-      "dest": "/login.html"
+      "src": "/index.html",
+      "dest": "/index.html"
     },
     {
       "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot))",
