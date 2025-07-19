@@ -178,24 +178,240 @@ export class LoginManager {
      * Mostrar formulário de registro
      */
     showRegisterForm() {
-        // Implementar quando necessário
-        alert('Funcionalidade de registro será implementada em breve!');
+        console.log('🔄 Mostrando formulário de registro');
+        
+        // Esconder todos os cards
+        this.hideAllCards();
+        
+        // Mostrar card de registro
+        const registerCard = document.getElementById('registerCard');
+        if (registerCard) {
+            registerCard.classList.remove('hidden');
+            
+            // Auto-focus no primeiro campo
+            setTimeout(() => {
+                const firstInput = registerCard.querySelector('input');
+                if (firstInput) firstInput.focus();
+            }, 300);
+        }
+        
+        // Configurar event listener do formulário se ainda não existir
+        this.setupRegisterFormListeners();
     }
 
     /**
      * Mostrar formulário de esqueci senha
      */
     showForgotPasswordForm() {
-        // Implementar quando necessário
-        alert('Funcionalidade de recuperação de senha será implementada em breve!');
+        console.log('🔄 Mostrando formulário de esqueci senha');
+        
+        // Esconder todos os cards
+        this.hideAllCards();
+        
+        // Mostrar card de forgot password
+        const forgotCard = document.getElementById('forgotPasswordCard');
+        if (forgotCard) {
+            forgotCard.classList.remove('hidden');
+            
+            // Auto-focus no campo de email
+            setTimeout(() => {
+                const emailInput = forgotCard.querySelector('input[type="email"]');
+                if (emailInput) emailInput.focus();
+            }, 300);
+        }
+        
+        // Configurar event listener do formulário se ainda não existir
+        this.setupForgotPasswordFormListeners();
     }
 
     /**
      * Mostrar formulário de login
      */
     showLoginForm() {
-        // Reset form state
-        console.log('Voltando ao formulário de login');
+        console.log('🔄 Voltando ao formulário de login');
+        
+        // Esconder todos os cards
+        this.hideAllCards();
+        
+        // Mostrar card de login
+        const loginCard = document.getElementById('loginCard');
+        if (loginCard) {
+            loginCard.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * Esconder todos os cards
+     */
+    hideAllCards() {
+        const cards = ['loginCard', 'registerCard', 'forgotPasswordCard'];
+        cards.forEach(cardId => {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.classList.add('hidden');
+            }
+        });
+    }
+
+    /**
+     * Configurar listeners do formulário de registro
+     */
+    setupRegisterFormListeners() {
+        const registerForm = document.getElementById('registrationForm');
+        if (registerForm && !registerForm.dataset.listenerAdded) {
+            registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+            registerForm.dataset.listenerAdded = 'true';
+        }
+
+        // Botão de voltar ao login
+        const backToLoginBtns = document.querySelectorAll('#backToLogin, #backToLoginFromRegister');
+        backToLoginBtns.forEach(btn => {
+            if (btn && !btn.dataset.listenerAdded) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showLoginForm();
+                });
+                btn.dataset.listenerAdded = 'true';
+            }
+        });
+    }
+
+    /**
+     * Configurar listeners do formulário de forgot password
+     */
+    setupForgotPasswordFormListeners() {
+        const forgotForm = document.getElementById('forgotPasswordForm');
+        if (forgotForm && !forgotForm.dataset.listenerAdded) {
+            forgotForm.addEventListener('submit', (e) => this.handleForgotPassword(e));
+            forgotForm.dataset.listenerAdded = 'true';
+        }
+
+        // Botão de voltar ao login
+        const backToLoginBtns = document.querySelectorAll('#backToLoginFromForgot');
+        backToLoginBtns.forEach(btn => {
+            if (btn && !btn.dataset.listenerAdded) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showLoginForm();
+                });
+                btn.dataset.listenerAdded = 'true';
+            }
+        });
+    }
+
+    /**
+     * Manipular registro de usuário
+     */
+    async handleRegister(event) {
+        event.preventDefault();
+
+        if (this.isLoading) return;
+
+        const formData = new FormData(event.target);
+        const username = formData.get('username')?.trim();
+        const email = formData.get('email')?.trim();
+        const password = formData.get('password');
+        const confirmPassword = formData.get('confirmPassword');
+
+        // Validações
+        if (!username || !email || !password || !confirmPassword) {
+            this.showMessage('Por favor, preencha todos os campos', 'error');
+            return;
+        }
+
+        if (!this.validateEmail(email)) {
+            this.showMessage('Por favor, insira um email válido', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showMessage('A senha deve ter pelo menos 6 caracteres', 'error');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            this.showMessage('As senhas não coincidem', 'error');
+            return;
+        }
+
+        this.setLoading(true);
+        this.showMessage('Criando sua conta...', 'loading');
+
+        try {
+            const result = await supabaseAuth.signUp(email, password, {
+                username: username,
+                full_name: username
+            });
+
+            if (result.success) {
+                if (result.needsConfirmation) {
+                    this.showMessage('Conta criada! Verifique seu email para confirmar.', 'success');
+                } else {
+                    this.showMessage(`Conta criada com sucesso! Bem-vindo, ${username}!`, 'success');
+                    
+                    // Aguardar um pouco e voltar ao login
+                    setTimeout(() => {
+                        this.showLoginForm();
+                        const usernameInput = document.getElementById('username');
+                        if (usernameInput) {
+                            usernameInput.value = username;
+                        }
+                    }, 2000);
+                }
+            } else {
+                this.showMessage(result.message, 'error');
+            }
+        } catch (error) {
+            console.error('❌ Erro no registro:', error);
+            this.showMessage('Erro inesperado. Tente novamente.', 'error');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    /**
+     * Manipular esqueci senha
+     */
+    async handleForgotPassword(event) {
+        event.preventDefault();
+
+        if (this.isLoading) return;
+
+        const formData = new FormData(event.target);
+        const email = formData.get('email')?.trim();
+
+        if (!email) {
+            this.showMessage('Por favor, insira seu email', 'error');
+            return;
+        }
+
+        if (!this.validateEmail(email)) {
+            this.showMessage('Por favor, insira um email válido', 'error');
+            return;
+        }
+
+        this.setLoading(true);
+        this.showMessage('Enviando email de recuperação...', 'loading');
+
+        try {
+            const result = await supabaseAuth.resetPassword(email);
+
+            if (result.success) {
+                this.showMessage('Email de recuperação enviado! Verifique sua caixa de entrada.', 'success');
+                
+                // Voltar ao login após alguns segundos
+                setTimeout(() => {
+                    this.showLoginForm();
+                }, 3000);
+            } else {
+                this.showMessage(result.message, 'error');
+            }
+        } catch (error) {
+            console.error('❌ Erro no reset de senha:', error);
+            this.showMessage('Erro inesperado. Tente novamente.', 'error');
+        } finally {
+            this.setLoading(false);
+        }
     }
 
     /**
