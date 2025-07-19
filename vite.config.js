@@ -4,6 +4,9 @@ export default defineConfig({
   // Diretório raiz do projeto
   root: '.',
   
+  // Diretório público para assets estáticos
+  publicDir: 'public',
+  
   // Diretório de build
   build: {
     outDir: 'dist',
