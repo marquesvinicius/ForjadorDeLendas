@@ -44,7 +44,7 @@ export class LoginManager {
                 
                 // Delay antes do redirecionamento para evitar loops rápidos
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                window.location.href = 'index.html';
                 }, 1000);
                 return;
             }

@@ -195,10 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ⭐ ESCUTAR EVENTOS DE LOGIN PARA CONTROLAR REDIRECIONAMENTO (apenas uma vez)
 if (!window.authGuardListenerAdded) {
-    document.addEventListener('supabaseSignIn', (event) => {
+document.addEventListener('supabaseSignIn', (event) => {
         console.log('🎉 Auth Guard: Login detectado!', event.detail?.user?.email);
         
-        if (window.location.pathname.includes('login.html')) {
+    if (window.location.pathname.includes('login.html')) {
             // Verificar se há URL para redirecionamento
             const redirectUrl = sessionStorage.getItem('forjador_redirect_after_login');
             
@@ -208,10 +208,10 @@ if (!window.authGuardListenerAdded) {
                 window.location.href = redirectUrl;
             } else {
                 console.log('🔄 Auth Guard: Redirecionando para index.html');
-                window.location.href = 'index.html';
+        window.location.href = 'index.html';
             }
-        }
-    });
+    }
+});
     
     window.authGuardListenerAdded = true;
     console.log('✅ Auth Guard listener registrado');

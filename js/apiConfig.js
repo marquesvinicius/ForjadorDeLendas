@@ -36,13 +36,13 @@ const API_CONFIG = {
         try {
             // Usar circuit breaker para evitar loops de tentativas
             const result = await backendCircuitBreaker.execute(async () => {
-                const response = await fetch(`${this.BASE_URL}${this.ENDPOINTS.PING}`, {
-                    method: 'GET',
-                    signal: AbortSignal.timeout(5000) // 5 segundos para teste
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
+            const response = await fetch(`${this.BASE_URL}${this.ENDPOINTS.PING}`, {
+                method: 'GET',
+                signal: AbortSignal.timeout(5000) // 5 segundos para teste
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
                     return data.status === 'alive';
                 }
                 
@@ -50,13 +50,13 @@ const API_CONFIG = {
             });
             
             this.isOnline = result;
-            return this.isOnline;
+                return this.isOnline;
             
         } catch (error) {
             if (error.circuitBreakerOpen) {
                 console.log('⚡ Circuit breaker ativo para backend, assumindo offline');
-                this.isOnline = false;
-                return false;
+            this.isOnline = false;
+            return false;
             }
             
             console.log('Backend não disponível:', error.message);

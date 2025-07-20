@@ -28,7 +28,7 @@ export class HybridStorage {
             const connectionTest = await supabaseCircuitBreaker.execute(async () => {
                 return await this.supabaseStorage.testConnection();
             });
-            this.isOnline = connectionTest.success;
+        this.isOnline = connectionTest.success;
         } catch (error) {
             // Se circuit breaker está aberto, assumir modo offline
             if (error.circuitBreakerOpen) {
@@ -44,16 +44,16 @@ export class HybridStorage {
 
         // Configurar eventos de autenticação (apenas uma vez)
         if (!this.listenersAdded) {
-            document.addEventListener('supabaseSignIn', (event) => {
+        document.addEventListener('supabaseSignIn', (event) => {
                 console.log('📥 HybridStorage: Evento SignIn recebido para:', event.detail?.user?.email);
-                this.onUserLogin(event.detail.user);
-            });
+            this.onUserLogin(event.detail.user);
+        });
 
-            document.addEventListener('supabaseSignOut', () => {
+        document.addEventListener('supabaseSignOut', () => {
                 console.log('📤 HybridStorage: Evento SignOut recebido');
-                this.onUserLogout();
-            });
-            
+            this.onUserLogout();
+        });
+
             this.listenersAdded = true;
             console.log('✅ Event listeners do HybridStorage registrados');
         }
