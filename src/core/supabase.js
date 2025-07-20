@@ -23,6 +23,9 @@ export class SupabaseAuth {
         this.client = supabase
         this.currentUser = null
         this.initialized = false
+        this.lastEventTime = 0
+        this.eventDebounceTime = 1000 // 1 segundo
+        this.authStateSubscription = null
         this.init()
     }
 
@@ -50,12 +53,24 @@ export class SupabaseAuth {
             this.initialized = true // Marcar como inicializado mesmo com erro
         }
 
-        // Escutar mudanças de autenticação
-        this.client.auth.onAuthStateChange((event, session) => {
-            console.log('🔄 Auth state changed:', event)
+        // Escutar mudanças de autenticação (com proteção contra duplicatas)
+        if (this.authStateSubscription) {
+            this.authStateSubscription.unsubscribe()
+        }
+        
+        this.authStateSubscription = this.client.auth.onAuthStateChange((event, session) => {
+            const now = Date.now()
+            console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email || 'none')
+            
+            // Debouncing para evitar eventos duplicados
+            if (event === 'SIGNED_IN' && now - this.lastEventTime < this.eventDebounceTime) {
+                console.log('⚡ Evento SIGNED_IN ignorado (debounce ativo)')
+                return
+            }
             
             switch (event) {
                 case 'SIGNED_IN':
+                    this.lastEventTime = now
                     this.currentUser = session?.user || null
                     this.onSignIn(session?.user)
                     break
@@ -65,6 +80,11 @@ export class SupabaseAuth {
                     break
                 case 'TOKEN_REFRESHED':
                     console.log('🔄 Token refreshed')
+                    break
+                case 'INITIAL_SESSION':
+                    // Não disparar eventos para sessão inicial
+                    this.currentUser = session?.user || null
+                    console.log('📋 Sessão inicial carregada')
                     break
             }
         })
@@ -313,14 +333,44 @@ export class SupabaseAuth {
     onSignIn(user) {
         console.log('🎉 Usuário logado:', user.email)
         
+        // Verificar se já há um evento recente para este usuário (mais agressivo)
+        const now = Date.now();
+        const eventKey = `signin_${user.email}`;
+        const lastEventTime = window.lastSignInEvents?.[eventKey] || 0;
+        
+        // Bloquear eventos duplicados em uma janela maior (5 segundos)
+        if (now - lastEventTime < 5000) {
+            console.log('⚡ Evento SignIn duplicado ignorado para:', user.email, `(${now - lastEventTime}ms ago)`)
+            return
+        }
+        
+        // Salvar timestamp do evento
+        if (!window.lastSignInEvents) window.lastSignInEvents = {};
+        window.lastSignInEvents[eventKey] = now;
+        
+        // Verificar se há muitos eventos em sequência
+        if (!window.signInEventCount) window.signInEventCount = 0;
+        window.signInEventCount++;
+        
+        if (window.signInEventCount > 10) {
+            console.error('🚨 MUITOS EVENTOS SIGNIN - PARANDO PARA PREVENIR LOOP!');
+            return;
+        }
+        
+        // Reset contador após um tempo
+        setTimeout(() => {
+            if (window.signInEventCount > 0) {
+                window.signInEventCount = Math.max(0, window.signInEventCount - 1);
+            }
+        }, 10000);
+        
         // Dispatch evento customizado
         const event = new CustomEvent('supabaseSignIn', {
             detail: { user }
         })
         document.dispatchEvent(event)
 
-        // ⭐ REDIRECIONAMENTO REMOVIDO - Auth Guard controla navegação
-        console.log('🔄 Evento de login disparado, deixando Auth Guard controlar navegação')
+        console.log('🔄 Evento de login disparado para:', user.email, `(#${window.signInEventCount})`)
     }
 
     /**

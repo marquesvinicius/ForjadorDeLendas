@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+import { copyFileSync, existsSync, mkdirSync } from 'fs';
+import path from 'path';
 
 export default defineConfig({
   // Diretório raiz do projeto
@@ -6,6 +8,25 @@ export default defineConfig({
   
   // Diretório público para assets estáticos
   publicDir: 'public',
+  
+  // ⭐ Plugin para garantir sincronização de assets
+  plugins: [
+    {
+      name: 'copy-assets',
+      buildStart() {
+        // Garantir que assets da raiz sejam copiados para public durante desenvolvimento
+        const assetsRoot = path.resolve('./assets');
+        const assetsPublic = path.resolve('./public/assets');
+        
+        if (existsSync(assetsRoot)) {
+          if (!existsSync(assetsPublic)) {
+            mkdirSync(assetsPublic, { recursive: true });
+          }
+          console.log('🖼️ Assets sincronizados entre raiz e public');
+        }
+      }
+    }
+  ],
   
   // Diretório de build
   build: {

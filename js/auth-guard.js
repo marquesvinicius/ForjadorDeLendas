@@ -20,6 +20,23 @@ export class AuthGuard {
             return;
         }
 
+        // ⭐ PROTEÇÃO CONTRA LOOP INFINITO
+        const authCheckCount = sessionStorage.getItem('authCheckCount') || '0';
+        if (parseInt(authCheckCount) > 5) {
+            console.warn('🚨 Auth Guard: Loop de verificação detectado! Forçando logout...');
+            sessionStorage.removeItem('authCheckCount');
+            // Limpar todos os dados e ir para login
+            AuthGuard.clearAuthData();
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
+            return;
+        }
+
+        // Incrementar contador
+        const currentCount = parseInt(authCheckCount) + 1;
+        sessionStorage.setItem('authCheckCount', currentCount.toString());
+
         console.log('🛡️ Auth Guard: Verificando autenticação...');
 
         try {
@@ -52,10 +69,22 @@ export class AuthGuard {
                 return;
             }
 
+            // ✅ Autenticação bem-sucedida - limpar contadores
+            sessionStorage.removeItem('authCheckCount');
+            sessionStorage.removeItem('loginRedirectCount');
             console.log('✅ Auth Guard: Usuário autenticado:', currentUser.email);
             
         } catch (error) {
             console.error('❌ Auth Guard: Erro ao verificar autenticação:', error);
+            
+            // ⚠️ Não redirecionar imediatamente em caso de erro de rede
+            // Pode ser um problema temporário de conectividade
+            if (error.message?.includes('Failed to fetch') || error.message?.includes('network')) {
+                console.warn('⚠️ Auth Guard: Erro de rede detectado, mantendo usuário na página');
+                sessionStorage.removeItem('authCheckCount'); // Reset contador em erro de rede
+                return;
+            }
+            
             this.redirectToLogin();
         }
     }
@@ -164,24 +193,29 @@ document.addEventListener('DOMContentLoaded', () => {
     new AuthGuard();
 });
 
-// ⭐ ESCUTAR EVENTOS DE LOGIN PARA CONTROLAR REDIRECIONAMENTO
-document.addEventListener('supabaseSignIn', (event) => {
-    console.log('🎉 Auth Guard: Login detectado!', event.detail?.user?.email);
-    
-    if (window.location.pathname.includes('login.html')) {
-        // Verificar se há URL para redirecionamento
-        const redirectUrl = sessionStorage.getItem('forjador_redirect_after_login');
+// ⭐ ESCUTAR EVENTOS DE LOGIN PARA CONTROLAR REDIRECIONAMENTO (apenas uma vez)
+if (!window.authGuardListenerAdded) {
+    document.addEventListener('supabaseSignIn', (event) => {
+        console.log('🎉 Auth Guard: Login detectado!', event.detail?.user?.email);
         
-        if (redirectUrl && redirectUrl !== window.location.href) {
-            console.log('🔄 Redirecionando para URL salva:', redirectUrl);
-            sessionStorage.removeItem('forjador_redirect_after_login');
-            window.location.href = redirectUrl;
-        } else {
-            console.log('🔄 Redirecionando para index.html');
-            window.location.href = 'index.html';
+        if (window.location.pathname.includes('login.html')) {
+            // Verificar se há URL para redirecionamento
+            const redirectUrl = sessionStorage.getItem('forjador_redirect_after_login');
+            
+            if (redirectUrl && redirectUrl !== window.location.href) {
+                console.log('🔄 Auth Guard: Redirecionando para URL salva:', redirectUrl);
+                sessionStorage.removeItem('forjador_redirect_after_login');
+                window.location.href = redirectUrl;
+            } else {
+                console.log('🔄 Auth Guard: Redirecionando para index.html');
+                window.location.href = 'index.html';
+            }
         }
-    }
-});
+    });
+    
+    window.authGuardListenerAdded = true;
+    console.log('✅ Auth Guard listener registrado');
+}
 
 // Expor função para limpar cache
 window.clearAuthData = AuthGuard.clearAuthData; 

@@ -15,6 +15,21 @@ export class LoginManager {
      * Inicializar o gerenciador de login
      */
     async init() {
+        // ⭐ PROTEÇÃO CONTRA LOOP INFINITO
+        const redirectCount = sessionStorage.getItem('loginRedirectCount') || '0';
+        if (parseInt(redirectCount) > 3) {
+            console.warn('🚨 Loop de redirecionamento detectado! Parando...');
+            sessionStorage.removeItem('loginRedirectCount');
+            // Forçar logout para quebrar o loop
+            try {
+                await supabaseAuth.signOut();
+                this.showMessage('Sistema reiniciado devido a erro de redirecionamento.', 'info');
+            } catch (e) {
+                console.error('Erro ao forçar logout:', e);
+            }
+            return;
+        }
+
         // ⭐ AGUARDAR o Supabase terminar de verificar sessão
         await this.waitForSupabaseInit();
 
@@ -23,11 +38,20 @@ export class LoginManager {
             console.log('🔄 Usuário já autenticado, redirecionando...');
             // Se já estiver logado e estiver na página de login, redirecionar
             if (window.location.pathname.includes('login.html')) {
-                window.location.href = 'index.html';
+                // Incrementar contador de redirecionamento
+                const currentCount = parseInt(redirectCount) + 1;
+                sessionStorage.setItem('loginRedirectCount', currentCount.toString());
+                
+                // Delay antes do redirecionamento para evitar loops rápidos
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
                 return;
             }
         }
 
+        // Reset contador se chegou aqui sem problemas
+        sessionStorage.removeItem('loginRedirectCount');
         console.log('🎯 Usuário não autenticado, mostrando login');
 
         // Configurar event listeners

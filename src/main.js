@@ -22,8 +22,8 @@ import {
   setupModalCloseListeners 
 } from './ui/modals.js';
 
-// Importação do sistema de autenticação
-import { authSystem } from './ui/auth.js';
+// Importação do sistema de autenticação Supabase
+import { supabaseAuth } from './core/supabase.js';
 
 // Scripts legados serão carregados pelo HTML, não como modules
 // import '../js/companion.js';
@@ -38,8 +38,9 @@ class ForjadorApp {
   constructor() {
     this.storage = hybridStorage; // Usando sistema híbrido (Supabase + Local)
     this.legacyStorage = characterStorage; // Backup do sistema local
-    this.authSystem = authSystem;
+    this.authSystem = supabaseAuth; // ⭐ MUDANÇA: Apenas Supabase Auth
     this.currentCharacterId = null;
+    this.authListenersAdded = false;
     this.init();
   }
 
@@ -296,16 +297,21 @@ class ForjadorApp {
     // Criar botão de autenticação se não existir
     this.createAuthButton();
     
-    // Configurar listeners de eventos de autenticação
-    document.addEventListener('userLoggedIn', (e) => {
-      console.log('🎉 Usuário logado:', e.detail.user.username);
-      this.onUserLogin(e.detail.user);
-    });
+    // Configurar listeners de eventos Supabase (apenas uma vez)
+    if (!this.authListenersAdded) {
+      document.addEventListener('supabaseSignIn', (e) => {
+        console.log('🎉 ForjadorApp: Usuário logado via Supabase:', e.detail.user.email);
+        this.onUserLogin(e.detail.user);
+      });
 
-    document.addEventListener('userLoggedOut', () => {
-      console.log('👋 Usuário deslogado');
-      this.onUserLogout();
-    });
+      document.addEventListener('supabaseSignOut', () => {
+        console.log('👋 ForjadorApp: Usuário deslogado via Supabase');
+        this.onUserLogout();
+      });
+      
+      this.authListenersAdded = true;
+      console.log('✅ Supabase listeners do ForjadorApp registrados');
+    }
   }
 
   /**
@@ -322,93 +328,18 @@ class ForjadorApp {
     if (!container) return;
 
     // Criar botão de autenticação
-    const authButtonContainer = document.createElement('div');
-    authButtonContainer.className = 'auth-button-container';
-    authButtonContainer.innerHTML = `
-      <button class="button is-primary auth-button medieval-button">
-        <span class="icon">
-          <i class="fas fa-sign-in-alt"></i>
-        </span>
-        <span>Entrar</span>
-      </button>
-    `;
 
-    // Posicionar antes do seletor de mundos ou no início do container
-    if (worldSelector) {
-      worldSelector.parentNode.insertBefore(authButtonContainer, worldSelector);
-    } else {
-      container.insertBefore(authButtonContainer, container.firstChild);
-    }
 
-    // Configurar evento de clique
-    const authButton = authButtonContainer.querySelector('.auth-button');
-    authButton.onclick = () => {
-      if (this.authSystem.isUserAuthenticated()) {
-        this.authSystem.showUserMenu();
-      } else {
-        window.location.href = 'login.html';
-      }
-    };
 
-    // Adicionar estilos para o botão
-    this.addAuthButtonStyles();
-  }
+
 
   /**
-   * Adiciona estilos para o botão de autenticação
-   */
-  addAuthButtonStyles() {
-    const styleId = 'auth-button-styles';
-    if (document.getElementById(styleId)) return;
-
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-      .auth-button-container {
-        text-align: center;
-        margin: 1rem 0;
-        padding: 1rem;
-      }
-
-      .auth-button {
-        background: linear-gradient(135deg, var(--primary-color, #d4af37), var(--accent-color, #b8941f)) !important;
-        border: none !important;
-        color: #1a1a1a !important;
-        font-weight: bold;
-        border-radius: 8px !important;
-        padding: 0.75rem 1.5rem !important;
-        transition: all 0.3s ease;
-        min-width: 140px;
-      }
-
-      .auth-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
-      }
-
-      .auth-button.user-logged {
-        background: linear-gradient(135deg, #4caf50, #45a049) !important;
-      }
-
-      @media (max-width: 768px) {
-        .auth-button-container {
-          margin: 0.5rem 0;
-          padding: 0.5rem;
-        }
-        
-        .auth-button {
-          width: 100%;
-          max-width: 200px;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  /**
-   * Executado quando usuário faz login
+   * Executado quando usuário faz login via Supabase
    */
   onUserLogin(user) {
+    // Extrair username do email ou metadata
+    const username = user.user_metadata?.username || user.email?.split('@')[0] || 'Aventureiro';
+    
     // Atualizar visual do botão
     const authButton = document.querySelector('.auth-button');
     if (authButton) {
@@ -417,7 +348,7 @@ class ForjadorApp {
         <span class="icon">
           <i class="fas fa-user-circle"></i>
         </span>
-        <span>${user.username}</span>
+        <span>${username}</span>
       `;
     }
 
@@ -425,11 +356,42 @@ class ForjadorApp {
     this.loadCharacters();
 
     // Mostrar mensagem de boas-vindas
-    showMessage(`🏰 Bem-vindo ao Reino, ${user.username}!`, 'is-success');
+    showMessage(`🏰 Bem-vindo ao Reino, ${username}!`, 'is-success');
   }
 
   /**
-   * Executado quando usuário faz logout
+   * Mostra confirmação de logout
+   */
+  showLogoutConfirm() {
+    const confirmed = confirm('Deseja realmente sair do Reino dos Aventureiros?');
+    if (confirmed) {
+      this.performLogout();
+    }
+  }
+
+  /**
+   * Executa logout via Supabase
+   */
+  async performLogout() {
+    try {
+      console.log('🚪 Realizando logout via Supabase...');
+      const result = await this.authSystem.signOut();
+      
+      if (result.success) {
+        console.log('✅ Logout Supabase bem-sucedido');
+        showMessage('👋 Logout realizado com sucesso!', 'is-success');
+      } else {
+        console.error('❌ Erro no logout Supabase:', result.error);
+        showMessage('❌ Erro ao fazer logout', 'is-danger');
+      }
+    } catch (error) {
+      console.error('❌ Erro inesperado no logout:', error);
+      showMessage('❌ Erro inesperado ao fazer logout', 'is-danger');
+    }
+  }
+
+  /**
+   * Executado quando usuário faz logout via Supabase
    */
   onUserLogout() {
     // Atualizar visual do botão
@@ -444,11 +406,10 @@ class ForjadorApp {
       `;
     }
 
-    // Limpar dados locais se necessário
-    // (o authSystem já limpa o localStorage)
-    
     // Mostrar mensagem de despedida
     showMessage('👋 Até logo, aventureiro!', 'is-info');
+    
+    // O redirecionamento será feito automaticamente pelo Supabase
   }
 }
 

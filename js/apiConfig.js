@@ -3,6 +3,8 @@
  * Centraliza URLs e configurações para comunicação com o servidor Flask
  */
 
+import { backendCircuitBreaker } from '../circuit-breaker.js';
+
 const API_CONFIG = {
     // URL base do backend - muda conforme o ambiente
     BASE_URL: window.location.hostname === 'localhost' 
@@ -32,20 +34,31 @@ const API_CONFIG = {
      */
     async testConnection() {
         try {
-            const response = await fetch(`${this.BASE_URL}${this.ENDPOINTS.PING}`, {
-                method: 'GET',
-                signal: AbortSignal.timeout(5000) // 5 segundos para teste
+            // Usar circuit breaker para evitar loops de tentativas
+            const result = await backendCircuitBreaker.execute(async () => {
+                const response = await fetch(`${this.BASE_URL}${this.ENDPOINTS.PING}`, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(5000) // 5 segundos para teste
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.status === 'alive';
+                }
+                
+                throw new Error(`HTTP ${response.status}`);
             });
             
-            if (response.ok) {
-                const data = await response.json();
-                this.isOnline = data.status === 'alive';
-                return this.isOnline;
+            this.isOnline = result;
+            return this.isOnline;
+            
+        } catch (error) {
+            if (error.circuitBreakerOpen) {
+                console.log('⚡ Circuit breaker ativo para backend, assumindo offline');
+                this.isOnline = false;
+                return false;
             }
             
-            this.isOnline = false;
-            return false;
-        } catch (error) {
             console.log('Backend não disponível:', error.message);
             this.isOnline = false;
             return false;
@@ -108,13 +121,19 @@ const API_CONFIG = {
 // Exporta a configuração para uso global
 window.API_CONFIG = API_CONFIG;
 
-// Testa a conexão na inicialização (não bloqueia o carregamento)
+// Testa a conexão na inicialização (com circuit breaker)
 API_CONFIG.testConnection().then(isOnline => {
     console.log(`Backend status: ${isOnline ? 'Online' : 'Offline'}`);
     if (isOnline) {
         console.log('✅ Geração de histórias com IA disponível');
     } else {
         console.log('⚠️ Usando geração local de histórias');
+    }
+}).catch(error => {
+    if (error.circuitBreakerOpen) {
+        console.log('⚡ Backend circuit breaker ativo na inicialização');
+    } else {
+        console.log('❌ Erro na inicialização do backend:', error.message);
     }
 });
 

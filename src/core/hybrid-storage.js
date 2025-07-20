@@ -7,6 +7,7 @@
 import { supabaseAuth } from './supabase.js';
 import { supabaseDB } from './supabase-db.js';
 import { CharacterStorage } from './storage.js';
+import { supabaseCircuitBreaker, backendCircuitBreaker } from '../../circuit-breaker.js';
 
 export class HybridStorage {
     constructor() {
@@ -14,6 +15,7 @@ export class HybridStorage {
         this.supabaseStorage = supabaseDB;
         this.authService = supabaseAuth;
         this.isOnline = false;
+        this.listenersAdded = false;
         this.init();
     }
 
@@ -21,23 +23,43 @@ export class HybridStorage {
      * Inicializar sistema híbrido
      */
     async init() {
-        // Testar conexão com Supabase
-        const connectionTest = await this.supabaseStorage.testConnection();
-        this.isOnline = connectionTest.success;
+        // Testar conexão com Supabase usando circuit breaker
+        try {
+            const connectionTest = await supabaseCircuitBreaker.execute(async () => {
+                return await this.supabaseStorage.testConnection();
+            });
+            this.isOnline = connectionTest.success;
+        } catch (error) {
+            // Se circuit breaker está aberto, assumir modo offline
+            if (error.circuitBreakerOpen) {
+                console.log('⚡ Circuit breaker ativo, iniciando em modo offline');
+                this.isOnline = false;
+            } else {
+                console.error('❌ Erro no teste de conexão:', error);
+                this.isOnline = false;
+            }
+        }
         
         console.log(`🔄 Storage Mode: ${this.isOnline ? 'Supabase + Local' : 'Local Only'}`);
 
-        // Configurar eventos de autenticação
-        document.addEventListener('supabaseSignIn', (event) => {
-            this.onUserLogin(event.detail.user);
-        });
+        // Configurar eventos de autenticação (apenas uma vez)
+        if (!this.listenersAdded) {
+            document.addEventListener('supabaseSignIn', (event) => {
+                console.log('📥 HybridStorage: Evento SignIn recebido para:', event.detail?.user?.email);
+                this.onUserLogin(event.detail.user);
+            });
 
-        document.addEventListener('supabaseSignOut', () => {
-            this.onUserLogout();
-        });
+            document.addEventListener('supabaseSignOut', () => {
+                console.log('📤 HybridStorage: Evento SignOut recebido');
+                this.onUserLogout();
+            });
+            
+            this.listenersAdded = true;
+            console.log('✅ Event listeners do HybridStorage registrados');
+        }
 
-        // Se já estiver logado, sincronizar
-        if (this.authService.isAuthenticated()) {
+        // Se já estiver logado, sincronizar (mas só se online)
+        if (this.authService.isAuthenticated() && this.isOnline) {
             const user = this.authService.getCurrentUser();
             await this.onUserLogin(user);
         }
@@ -87,7 +109,10 @@ export class HybridStorage {
                 favorite_world: localStorage.getItem('selectedWorld') || 'tormenta'
             };
 
-            const result = await this.supabaseStorage.upsertProfile(user.id, profileData);
+            // Usar circuit breaker para operações Supabase
+            const result = await supabaseCircuitBreaker.execute(async () => {
+                return await this.supabaseStorage.upsertProfile(user.id, profileData);
+            });
             
             if (result.success) {
                 console.log('✅ Perfil sincronizado:', result.data.username);
@@ -97,6 +122,12 @@ export class HybridStorage {
 
             return result;
         } catch (error) {
+            // Se circuit breaker está aberto, usar dados locais silenciosamente
+            if (error.circuitBreakerOpen) {
+                console.log('⚡ Circuit breaker ativo, usando perfil local');
+                return { success: true, fromCache: true };
+            }
+            
             console.error('❌ Erro ao sincronizar perfil:', error);
             return { success: false, error: error.message };
         }
@@ -136,7 +167,10 @@ export class HybridStorage {
      */
     async syncCharactersFromCloud(userId) {
         try {
-            const result = await this.supabaseStorage.getUserCharacters(userId);
+            // Usar circuit breaker para evitar loops de tentativas
+            const result = await supabaseCircuitBreaker.execute(async () => {
+                return await this.supabaseStorage.getUserCharacters(userId);
+            });
             
             if (result.success && result.data.length > 0) {
                 // Converter formato Supabase para formato local
@@ -162,6 +196,12 @@ export class HybridStorage {
 
             return result;
         } catch (error) {
+            // Se circuit breaker está aberto, usar dados locais
+            if (error.circuitBreakerOpen) {
+                console.log('⚡ Circuit breaker ativo para sync, usando dados locais');
+                return { success: true, fromCache: true, data: [] };
+            }
+            
             console.error('❌ Erro ao sincronizar da nuvem:', error);
             return { success: false, error: error.message };
         }

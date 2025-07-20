@@ -302,6 +302,19 @@
     <!-- Scripts -->
     <script type="module" src="js/config.js"></script>
     <script type="module" src="src/core/supabase.js"></script>
+    <script type="module" src="pure-supabase-fix.js"></script> <!-- Fix 100% Supabase -->
+    
+    <!-- Aplicar fix automaticamente -->
+    <script type="module">
+        import { PureSupabaseFix } from './pure-supabase-fix.js';
+        
+        // Aplicar fix assim que a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔧 Aplicando auto-fix para 100% Supabase Auth (Login)...');
+            PureSupabaseFix.applyFix();
+        });
+    </script>
+    
     <script type="module" src="js/login-manager.js"></script> <!-- Ativado - Sistema Supabase -->
     <!-- Script antigo comentado - agora usando Supabase -->
     <!--<script type="module">

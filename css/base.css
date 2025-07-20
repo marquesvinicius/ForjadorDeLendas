@@ -13,7 +13,8 @@ body {
     overflow-y: hidden !important; /* Adicionado !important para maior precedência */
     overflow-x: hidden !important; /* Adicionado !important para maior precedência */
     /* Imagem de fundo e configurações */
-    background-image: url('./assets/img/fog-overlay.webp');
+    /* ⭐ BACKGROUND PADRÃO PARA EVITAR TELA BRANCA */
+    background-image: url('/assets/img/dnd/background.webp'); /* Fallback padrão D&D com path absoluto */
     background-size: cover;
     background-position: center;
     background-repeat: repeat-y;
@@ -40,7 +41,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('./assets/img/fog-overlay.webp');
+    background-image: url('/assets/img/fog-overlay.webp'); /* Path absoluto para fog overlay */
     background-size: cover;
     opacity: 0.1;
     pointer-events: none; /* Não interfere com cliques */

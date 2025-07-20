@@ -565,6 +565,48 @@
     <script type="module" src="js/worldSelector.js"></script>
     <script type="module" src="src/logic/worldManager.js"></script>
     <!-- <script type="module" src="js/app.js"></script> Sistema antigo comentado --></script>
+    <script type="module" src="pure-supabase-fix.js"></script> <!-- Fix 100% Supabase -->
+    
+    <!-- Aplicar fix automaticamente -->
+    <script type="module">
+        import { PureSupabaseFix } from './pure-supabase-fix.js';
+        
+        // Aplicar fix assim que a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔧 Aplicando auto-fix para 100% Supabase Auth...');
+            PureSupabaseFix.applyFix();
+        });
+    </script>
+    
+    <!-- ⭐ APLICAÇÃO AUTOMÁTICA DE TEMA - FIX BACKGROUND BRANCO -->
+    <script type="module">
+        import { applyWorldTheme } from './src/ui/themeManager.js';
+        
+        // 🎨 Aplicar tema IMEDIATAMENTE ao carregar a página
+        function initializeTheme() {
+            const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+            console.log('🎨 Aplicando tema automaticamente:', currentWorld);
+            applyWorldTheme(currentWorld);
+        }
+        
+        // Aplicar tema o mais cedo possível
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeTheme);
+        } else {
+            // Se DOM já carregou, aplicar imediatamente
+            initializeTheme();
+        }
+        
+        // Backup: aplicar tema após Auth Guard também
+        document.addEventListener('supabaseSignIn', () => {
+            setTimeout(() => {
+                const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+                console.log('🎨 Re-aplicando tema após login:', currentWorld);
+                applyWorldTheme(currentWorld);
+            }, 100);
+        });
+    </script>
+    
     <script type="module" src="src/main.js"></script>
     <script type="module" src="src/core/supabase-auth-helper.js"></script>
     <script type="module" src="src/core/profile-migration.js"></script>
@@ -670,35 +712,36 @@
                 logoutModal.classList.remove('is-active');
             }
             
-            // Função para fazer logout com Supabase
+            // Função para fazer logout APENAS via Supabase
             async function performLogout() {
                 try {
-                    console.log('🚪 Fazendo logout...');
+                    console.log('🚪 Fazendo logout via Supabase...');
                     
                     // Fechar modal antes do logout
                     hideLogoutModal();
                     
-                    // Logout no Supabase
+                    // ⭐ LOGOUT EXCLUSIVAMENTE VIA SUPABASE
                     const result = await supabaseAuth.signOut();
-                    console.log('✅ Logout realizado:', result);
+                    console.log('✅ Logout Supabase realizado:', result);
                     
-                    // Limpar dados locais também (compatibilidade)
-                    localStorage.removeItem('forjador_auth_token');
-                    localStorage.removeItem('forjador_user_data');
-                    localStorage.removeItem('forjador_remember_me');
-                    localStorage.removeItem('forjador_characters');
-                    localStorage.removeItem('forjador_settings');
+                    // ⭐ NÃO LIMPAR localStorage MANUALMENTE - Deixar o Supabase controlar
+                    // ⭐ NÃO FORÇAR REDIRECIONAMENTO - Deixar o Supabase callback controlar
                     
-                    // Redirecionar explicitamente para a tela de login
-                    console.log('🔄 Redirecionando para login...');
-                    window.location.href = 'login.html';
+                    if (!result.success) {
+                        console.error('❌ Falha no logout Supabase:', result.error);
+                        // Apenas em caso de falha, tentar redirecionamento manual
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    }
                     
                 } catch (error) {
                     console.error('❌ Erro no logout:', error);
-                    // Fechar modal em caso de erro também
                     hideLogoutModal();
-                    // Fallback: redirecionar mesmo se houver erro
-                    window.location.href = 'login.html';
+                    // Fallback apenas em caso de erro crítico
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
                 }
             }
             
