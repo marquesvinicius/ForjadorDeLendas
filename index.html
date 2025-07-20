@@ -565,16 +565,20 @@
     <script type="module" src="js/worldSelector.js"></script>
     <script type="module" src="src/logic/worldManager.js"></script>
     <!-- <script type="module" src="js/app.js"></script> Sistema antigo comentado --></script>
-    <script type="module" src="pure-supabase-fix.js"></script> <!-- Fix 100% Supabase -->
-    
-    <!-- Aplicar fix automaticamente -->
-    <script type="module">
-        import { PureSupabaseFix } from './pure-supabase-fix.js';
-        
-        // Aplicar fix assim que a página carregar
+    <!-- Fix integrado para 100% Supabase Auth -->
+    <script>
+        // Limpeza de sistemas de auth legados
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🔧 Aplicando auto-fix para 100% Supabase Auth...');
-            PureSupabaseFix.applyFix();
+            // Limpar localStorage de sistemas legados
+            const legacyKeys = ['forjador_auth_token', 'forjador_user_data', 'forjador_remember_me'];
+            legacyKeys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            // Marcar modo Supabase-only
+            window.SUPABASE_ONLY_MODE = true;
         });
     </script>
     
