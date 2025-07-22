@@ -68,12 +68,6 @@ export class HybridStorage {
             // 1. Criar/atualizar perfil no Supabase
             await this.syncUserProfile(user);
 
-            // 2. Migrar personagens locais se existirem
-            await this.migrateLocalCharactersIfNeeded(user.id);
-
-            // 3. Baixar personagens do Supabase
-            await this.syncCharactersFromCloud(user.id);
-
         } catch (error) {
             console.error('❌ Erro na sincronização:', error);
         }
@@ -115,86 +109,17 @@ export class HybridStorage {
         }
     }
 
-    /**
-     * Migrar personagens do localStorage para Supabase (apenas uma vez)
-     */
-    async migrateLocalCharactersIfNeeded(userId) {
-        const migrationKey = `forjador_migrated_${userId}`;
-        const alreadyMigrated = localStorage.getItem(migrationKey);
-
-        if (alreadyMigrated) {
-            console.log('✅ Personagens já migrados anteriormente');
-            return { success: true, migrated: 0 };
-        }
-
-        console.log('🔄 Migrando personagens locais para nuvem...');
-        const result = await this.supabaseStorage.migrateLocalCharacters(userId);
-
-        if (result.success && result.migrated > 0) {
-            console.log(`✅ ${result.migrated} personagens migrados para nuvem`);
-            localStorage.setItem(migrationKey, 'true');
-            
-            // Backup dos dados locais antes de limpar
-            const localData = localStorage.getItem('rpg_characters');
-            if (localData) {
-                localStorage.setItem('rpg_characters_backup', localData);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Sincronizar personagens da nuvem para local
-     */
-    async syncCharactersFromCloud(userId) {
-        try {
-            const result = await this.supabaseStorage.getUserCharacters(userId);
-            
-            if (result.success && result.data.length > 0) {
-                // Converter formato Supabase para formato local
-                const localFormat = result.data.map(char => ({
-                    id: char.id,
-                    name: char.name,
-                    race: char.race,
-                    class: char.class,
-                    alignment: char.alignment,
-                    world: char.world,
-                    attributes: char.attributes,
-                    background: char.background,
-                    createdAt: char.created_at,
-                    updatedAt: char.updated_at
-                }));
-
-                // Salvar no localStorage como backup/cache
-                localStorage.setItem('rpg_characters', JSON.stringify(localFormat));
-                localStorage.setItem('forjador_last_sync', new Date().toISOString());
-                
-                console.log(`✅ ${localFormat.length} personagens sincronizados da nuvem`);
-            }
-
-            return result;
-        } catch (error) {
-            console.error('❌ Erro ao sincronizar da nuvem:', error);
-            return { success: false, error: error.message };
-        }
-    }
-
     // ==================== MÉTODOS PÚBLICOS ====================
 
     /**
-     * Salvar personagem (híbrido)
+     * Salvar personagem (apenas Supabase)
      */
     async saveCharacter(characterData) {
         const user = this.authService.getCurrentUser();
-        
         if (this.isOnline && user) {
-            // Modo online: salvar no Supabase + local
             try {
                 const result = await this.supabaseStorage.saveCharacter(user.id, characterData);
-                
                 if (result.success) {
-                    // Atualizar cache local também
                     const localChar = {
                         id: result.data.id,
                         name: result.data.name,
@@ -207,35 +132,24 @@ export class HybridStorage {
                         createdAt: result.data.created_at,
                         updatedAt: result.data.updated_at
                     };
-                    
-                    this.localStorage.saveCharacter(localChar);
-                    
-                    console.log('✅ Personagem salvo na nuvem e localmente');
                     return localChar;
                 }
             } catch (error) {
-                console.warn('⚠️ Erro ao salvar na nuvem, salvando apenas localmente:', error);
+                console.warn('⚠️ Erro ao salvar na nuvem:', error);
             }
         }
-
-        // Modo offline: salvar apenas local
-        console.log('💾 Salvando personagem apenas localmente');
-        return this.localStorage.saveCharacter(characterData);
+        throw new Error('Usuário não autenticado ou offline. Não é possível salvar personagem.');
     }
 
     /**
-     * Obter todos os personagens
+     * Obter todos os personagens (apenas Supabase)
      */
-    async getAllCharacters() {
+    async getAllCharacters(world = null) {
         const user = this.authService.getCurrentUser();
-        
         if (this.isOnline && user) {
-            // Modo online: buscar do Supabase
             try {
-                const result = await this.supabaseStorage.getUserCharacters(user.id);
-                
+                const result = await this.supabaseStorage.getUserCharacters(user.id, world);
                 if (result.success) {
-                    // Converter formato
                     const characters = result.data.map(char => ({
                         id: char.id,
                         name: char.name,
@@ -248,31 +162,23 @@ export class HybridStorage {
                         createdAt: char.created_at,
                         updatedAt: char.updated_at
                     }));
-                    
-                    // Atualizar cache local
-                    localStorage.setItem('rpg_characters', JSON.stringify(characters));
-                    
                     return characters;
                 }
             } catch (error) {
-                console.warn('⚠️ Erro ao buscar da nuvem, usando dados locais:', error);
+                console.warn('⚠️ Erro ao buscar da nuvem:', error);
             }
         }
-
-        // Modo offline: usar dados locais
-        return this.localStorage.getAllCharacters();
+        throw new Error('Usuário não autenticado ou offline. Não é possível buscar personagens.');
     }
 
     /**
-     * Obter personagem por ID
+     * Obter personagem por ID (apenas Supabase)
      */
     async getCharacterById(id) {
         const user = this.authService.getCurrentUser();
-        
         if (this.isOnline && user) {
             try {
                 const result = await this.supabaseStorage.getCharacter(user.id, id);
-                
                 if (result.success) {
                     const char = result.data;
                     return {
@@ -289,36 +195,28 @@ export class HybridStorage {
                     };
                 }
             } catch (error) {
-                console.warn('⚠️ Erro ao buscar da nuvem, usando dados locais:', error);
+                console.warn('⚠️ Erro ao buscar da nuvem:', error);
             }
         }
-
-        return this.localStorage.getCharacterById(id);
+        throw new Error('Usuário não autenticado ou offline. Não é possível buscar personagem.');
     }
 
     /**
-     * Deletar personagem
+     * Deletar personagem (apenas Supabase)
      */
     async deleteCharacter(id) {
         const user = this.authService.getCurrentUser();
-        
         if (this.isOnline && user) {
             try {
                 const result = await this.supabaseStorage.deleteCharacter(user.id, id);
-                
                 if (result.success) {
-                    // Remover do cache local também
-                    this.localStorage.deleteCharacter(id);
-                    console.log('✅ Personagem deletado da nuvem e localmente');
                     return true;
                 }
             } catch (error) {
-                console.warn('⚠️ Erro ao deletar da nuvem, deletando apenas localmente:', error);
+                console.warn('⚠️ Erro ao deletar da nuvem:', error);
             }
         }
-
-        // Modo offline
-        return this.localStorage.deleteCharacter(id);
+        throw new Error('Usuário não autenticado ou offline. Não é possível deletar personagem.');
     }
 
     /**
@@ -346,7 +244,7 @@ export class HybridStorage {
             throw new Error('Sincronização requer conexão e autenticação');
         }
 
-        await this.syncCharactersFromCloud(user.id);
+        // Remover métodos: syncCharactersFromCloud, migrateLocalCharactersIfNeeded, onUserLogin, e qualquer outro relacionado ao localStorage de personagens.
         
         return {
             success: true,

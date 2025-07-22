@@ -6,7 +6,7 @@
 // Importações dos módulos core
 import { characterStorage } from './core/storage.js';
 import { hybridStorage } from './core/hybrid-storage.js';
-
+import { initWorldManager } from './logic/worldManager.js';
 // Importações dos módulos de lógica
 import { 
   rollAllAttributes, 
@@ -150,16 +150,11 @@ class ForjadorApp {
     if (!savedCharactersList) return;
 
     try {
-      const characters = await this.storage.getAllCharacters();
-    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+      const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+      const characters = await this.storage.getAllCharacters(currentWorld);
     
     // Filtrar por mundo atual
-    const filteredCharacters = characters.filter(character => {
-      if (!character.world && currentWorld === 'dnd') {
-        return true;
-      }
-      return character.world === currentWorld;
-    });
+    const filteredCharacters = characters; // Já filtrado pelo backend
 
     if (filteredCharacters.length === 0) {
       savedCharactersList.innerHTML = '<p class="empty-list-message">Nenhum herói criado para este mundo ainda. Comece a forjar sua lenda!</p>';
@@ -230,9 +225,14 @@ class ForjadorApp {
    * Limpa o formulário
    */
   clearForm() {
-    const form = document.querySelector('.character-form');
+    const form = document.querySelector('#characterForm');
     if (form) {
       form.reset();
+    }
+    // Limpar manualmente a textarea de história de fundo
+    const backgroundTextarea = document.getElementById('charBackground');
+    if (backgroundTextarea) {
+      backgroundTextarea.value = '';
     }
     
     this.currentCharacterId = null;
@@ -314,3 +314,15 @@ class ForjadorApp {
     }
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  initWorldManager();
+  window.forjadorAppInstance = new ForjadorApp();
+  // Outras inicializações que dependam do DOM podem ser colocadas aqui.
+});
+
+document.addEventListener('worldChanged', () => {
+  if (window.forjadorAppInstance) {
+    window.forjadorAppInstance.loadCharacters();
+  }
+});

@@ -187,6 +187,7 @@ export class SupabaseDatabase {
      * Obter todos os personagens do usuário
      */
     async getUserCharacters(userId, world = null) {
+        console.log('[SupabaseDB] Buscando personagens para user:', userId, 'world:', world);
         try {
             let query = this.client
                 .from('characters')
@@ -194,7 +195,7 @@ export class SupabaseDatabase {
                 .eq('user_id', userId)
                 .order('created_at', { ascending: false });
 
-            if (world) {
+            if (world && typeof world === 'string' && world.trim() !== '') {
                 query = query.eq('world', world);
             }
 
