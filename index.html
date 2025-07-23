@@ -17,187 +17,8 @@
     <!-- CSS personalizado -->
     <link rel="stylesheet" href="css/main.css">
     
-    <style>
-        /* Botão de logout sutil */
-        .logout-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(35, 25, 15, 0.8);
-            border: 1px solid var(--panel-border);
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-color);
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            opacity: 0.8;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
-
-        .logout-btn:hover {
-            background: rgba(35, 25, 15, 0.95);
-            border-color: var(--accent-color);
-            transform: scale(1.05);
-            opacity: 1;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-        }
-
-        .logout-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Touch feedback para mobile */
-        .logout-btn:focus {
-            outline: 2px solid var(--accent-color);
-            outline-offset: 2px;
-        }
-
-        /* Modal de logout customizado */
-        #logoutModal .modal-card {
-            border: 2px solid var(--panel-border);
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-        }
-
-        #logoutModal .modal-card-body strong {
-            color: var(--accent-color) !important;
-            font-weight: 700;
-        }
-
-        #logoutModal .modal-card-body em {
-            color: var(--text-color) !important;
-            font-style: italic;
-        }
-
-        #logoutModal .modal-card-body .fas.fa-scroll {
-            color: var(--accent-color) !important;
-        }
-
-        /* Responsividade otimizada para mobile */
-        @media (max-width: 768px) {
-            .logout-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-                top: 1rem;
-                right: 1rem;
-                opacity: 0.9;
-                /* Aumenta a área clicável com padding invisível */
-                padding: 5px;
-                margin: -5px;
-                /* Melhora a acessibilidade touch */
-                touch-action: manipulation;
-                -webkit-touch-callout: none;
-                user-select: none;
-            }
-            
-            .logout-btn:hover {
-                /* Remove hover em touch devices */
-                transform: none;
-                box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-            }
-            
-            .logout-btn:active {
-                transform: scale(0.9);
-                background: rgba(35, 25, 15, 1);
-                box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
-            }
-            
-            /* Adiciona espaçamento ao título para evitar sobreposição */
-            .hero .hero-body {
-                padding-top: 2rem;
-                padding-left: 4rem;
-                padding-right: 4rem;
-            }
-            
-            .title.is-1.medieval-title {
-                margin-top: 1rem;
-                line-height: 1.2;
-            }
-        }
-
-        /* Para telas muito pequenas (smartphones em retrato) */
-        @media (max-width: 480px) {
-            .logout-btn {
-                width: 55px;
-                height: 55px;
-                font-size: 1.3rem;
-                top: 0.75rem;
-                right: 0.75rem;
-                border-width: 2px;
-            }
-            
-            /* Espaçamento extra para smartphones */
-            .hero .hero-body {
-                padding-top: 2rem !important;
-                padding-left: 2rem !important;
-                padding-right: 2rem !important;
-            }
-            
-            .title.is-1.medieval-title {
-                font-size: 2.5rem !important;
-                margin-top: 1.5rem !important;
-                line-height: 1.1 !important;
-            }
-            
-            .subtitle.medieval-title {
-                margin-top: 0.5rem;
-                font-size: 1.1rem !important;
-            }
-        }
-
-        /* Para touch devices - aumenta área clicável */
-        @media (hover: none) and (pointer: coarse) {
-            .logout-btn {
-                min-width: 48px; /* Padrão recomendado pela Apple/Google */
-                min-height: 48px;
-                width: 55px;
-                height: 55px;
-                font-size: 1.3rem;
-            }
-            
-            /* Remove efeitos hover em dispositivos touch */
-            .logout-btn:hover {
-                transform: none;
-                opacity: 0.9;
-            }
-            
-            /* Garante espaçamento adequado em todos os dispositivos touch */
-            .hero .hero-body {
-                padding-top: 2rem;
-                padding-left: 3rem;
-                padding-right: 3rem;
-            }
-        }
-
-        /* Media query adicional para evitar conflitos de altura em landscape */
-        @media (max-width: 768px) and (orientation: landscape) {
-            .logout-btn {
-                top: 0.5rem;
-                right: 0.5rem;
-                width: 45px;
-                height: 45px;
-                font-size: 1.1rem;
-            }
-            
-            .hero .hero-body {
-                padding-top: 1.5rem !important;
-                padding-bottom: 1rem !important;
-            }
-            
-            .title.is-1.medieval-title {
-                font-size: 2rem !important;
-                margin-top: 0.5rem !important;
-            }
-        }
-    </style>
+    <!-- Dependências externas críticas -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="no-js">
@@ -552,227 +373,38 @@
     </footer>
     </div>
 
-    <!-- Scripts -->
-    <script type="module" src="js/config.js"></script>
-    <script type="module" src="js/apiConfig.js"></script>
+    <!-- Scripts da aplicação -->
+    <!-- Dependências externas -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Auth Guard - Sistema modular sem JavaScript inline -->
-    <script type="module" src="js/auth-guard.js"></script>
+    <!-- Scripts core -->
+    <script type="module" src="src/core/app-initializer.js"></script>
     <script type="module" src="src/core/storage.js"></script>
-    <script type="module" src="js/worldsConfig.js"></script>
-    <script type="module" src="src/ui/companion.js"></script>
-    <script type="module" src="src/ui/themeManager.js"></script>
-    <script type="module" src="js/worldSelector.js"></script>
-    <script type="module" src="src/logic/worldManager.js"></script>
-    <script type="module" src="src/main.js"></script>
-    <!-- <script type="module" src="js/app.js"></script> Sistema antigo comentado --></script>
-    <!-- Fix integrado para 100% Supabase Auth -->
-    <script>
-        // Limpeza de sistemas de auth legados
-        document.addEventListener('DOMContentLoaded', () => {
-            // Limpar localStorage de sistemas legados
-            const legacyKeys = ['forjador_auth_token', 'forjador_user_data', 'forjador_remember_me'];
-            legacyKeys.forEach(key => {
-                if (localStorage.getItem(key)) {
-                    localStorage.removeItem(key);
-                }
-            });
-            
-            // Marcar modo Supabase-only
-            window.SUPABASE_ONLY_MODE = true;
-        });
-    </script>
-    
-    <!-- ⭐ APLICAÇÃO AUTOMÁTICA DE TEMA - FIX BACKGROUND BRANCO -->
-    <script type="module">
-        import { applyWorldTheme } from './src/ui/themeManager.js';
-        
-        // 🎨 Aplicar tema IMEDIATAMENTE ao carregar a página
-        function initializeTheme() {
-            const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
-            console.log('🎨 Aplicando tema automaticamente:', currentWorld);
-            applyWorldTheme(currentWorld);
-        }
-        
-        // Aplicar tema o mais cedo possível
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeTheme);
-        } else {
-            // Se DOM já carregou, aplicar imediatamente
-            initializeTheme();
-        }
-        
-        // Backup: aplicar tema após Auth Guard também
-        document.addEventListener('supabaseSignIn', () => {
-            setTimeout(() => {
-                const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
-                console.log('🎨 Re-aplicando tema após login:', currentWorld);
-                applyWorldTheme(currentWorld);
-            }, 100);
-        });
-    </script>
-    
-    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/core/supabase.js"></script>
     <script type="module" src="src/core/supabase-auth-helper.js"></script>
     <script type="module" src="src/core/profile-migration.js"></script>
-
-    <!-- Script para garantir inicialização do companion -->
-    <script>
-        // Fallback para garantir que o companion seja criado mesmo com problemas de módulo
-        document.addEventListener('DOMContentLoaded', () => {
-            // Aguardar um pouco para outros scripts carregarem
-            setTimeout(() => {
-                if (!window.magoCompanion) {
-                    console.log('Companion não encontrado, tentando inicializar fallback...');
-                    // Se o companion não estiver disponível, criar uma versão simples
-                    window.magoCompanion = {
-                        speak: function(text) {
-                            const speechBubble = document.querySelector('.companion-speech-bubble');
-                            const companionText = document.getElementById('companionText');
-                            if (speechBubble && companionText) {
-                                speechBubble.classList.remove('hidden');
-                                companionText.textContent = text;
-                            }
-                        },
-                        greet: function() {
-                            const currentWorld = localStorage.getItem('selectedWorld') || 'tormenta';
-                            const greetings = currentWorld === 'dnd' 
-                                ? ["Bem-vindo ao Forjador de Lendas! Sou seu guia pelos Reinos Esquecidos!"]
-                                : ["Bem-vindo ao Forjador de Lendas! Sou Merlin, seu guia em Arton!"];
-                            this.speak(greetings[0]);
-                        }
-                    };
-                    window.magoCompanion.greet();
-                }
-            }, 500);
-        });
-    </script>
     
-    <!-- Script para logout - Sistema antigo comentado -->
-    <!--<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const logoutButton = document.getElementById('logoutButton');
-            const logoutModal = document.getElementById('logoutModal');
-            const confirmLogout = document.getElementById('confirmLogout');
-            const cancelLogout = document.getElementById('cancelLogout');
-            const closeLogoutModal = document.getElementById('closeLogoutModal');
-            
-            // Função para mostrar modal
-            function showLogoutModal() {
-                logoutModal.classList.add('is-active');
-            }
-            
-            // Função para esconder modal
-            function hideLogoutModal() {
-                logoutModal.classList.remove('is-active');
-            }
-            
-            // Função para fazer logout
-            function performLogout() {
-                // Limpar dados de autenticação
-                localStorage.removeItem('forjador_auth_token');
-                localStorage.removeItem('forjador_user_data');
-                localStorage.removeItem('forjador_remember_me');
-                
-                // Redirecionar para página de login
-                window.location.href = 'login.html';
-            }
-            
-            // Event listeners
-            logoutButton.addEventListener('click', showLogoutModal);
-            confirmLogout.addEventListener('click', performLogout);
-            cancelLogout.addEventListener('click', hideLogoutModal);
-            closeLogoutModal.addEventListener('click', hideLogoutModal);
-            
-            // Fechar modal ao clicar no background
-            logoutModal.querySelector('.modal-background').addEventListener('click', hideLogoutModal);
-            
-            // Fechar modal com ESC
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && logoutModal.classList.contains('is-active')) {
-                    hideLogoutModal();
-                }
-            });
-        });
-    </script>-->
-
-    <!-- Script para logout - Sistema Supabase -->
+    <!-- Scripts de configuração -->
+    <script type="module" src="src/config/apiConfig.js"></script>
+    <script type="module" src="src/config/config.js"></script>
+    <script type="module" src="src/config/themes.js"></script>
+    <script type="module" src="src/config/worldsConfig.js"></script>
+    
+    <!-- Scripts de lógica -->
+    <script type="module" src="src/logic/worldManager.js"></script>
+    
+    <!-- Scripts de UI -->
+    <script type="module" src="src/ui/companion.js"></script>
+    <script type="module" src="src/ui/themeManager.js"></script>
+    <script type="module" src="src/ui/worldSelector.js"></script>
+    
+    <!-- Script principal -->
+    <script type="module" src="src/main.js"></script>
+    
+    <!-- Inicializador central -->
     <script type="module">
-        import { supabaseAuth } from './src/core/supabase.js';
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const logoutButton = document.getElementById('logoutButton');
-            const logoutModal = document.getElementById('logoutModal');
-            const confirmLogout = document.getElementById('confirmLogout');
-            const cancelLogout = document.getElementById('cancelLogout');
-            const closeLogoutModal = document.getElementById('closeLogoutModal');
-            
-            // Função para mostrar modal
-            function showLogoutModal() {
-                logoutModal.classList.add('is-active');
-            }
-            
-            // Função para esconder modal
-            function hideLogoutModal() {
-                logoutModal.classList.remove('is-active');
-            }
-            
-            // Função para fazer logout APENAS via Supabase
-            async function performLogout() {
-                try {
-                    console.log('🚪 Fazendo logout via Supabase...');
-                    
-                    // Fechar modal antes do logout
-                    hideLogoutModal();
-                    
-                    // ⭐ LOGOUT EXCLUSIVAMENTE VIA SUPABASE
-                    const result = await supabaseAuth.signOut();
-                    console.log('✅ Logout Supabase realizado:', result);
-                    
-                    // ⭐ NÃO LIMPAR localStorage MANUALMENTE - Deixar o Supabase controlar
-                    // ⭐ NÃO FORÇAR REDIRECIONAMENTO - Deixar o Supabase callback controlar
-                    
-                    if (!result.success) {
-                        console.error('❌ Falha no logout Supabase:', result.error);
-                        // Apenas em caso de falha, tentar redirecionamento manual
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 2000);
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Erro no logout:', error);
-                    hideLogoutModal();
-                    // Fallback apenas em caso de erro crítico
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                }
-            }
-            
-            // Event listeners
-            if (logoutButton) logoutButton.addEventListener('click', showLogoutModal);
-            if (confirmLogout) confirmLogout.addEventListener('click', performLogout);
-            if (cancelLogout) cancelLogout.addEventListener('click', hideLogoutModal);
-            if (closeLogoutModal) closeLogoutModal.addEventListener('click', hideLogoutModal);
-            
-            // Fechar modal ao clicar no background
-            if (logoutModal) {
-                const modalBackground = logoutModal.querySelector('.modal-background');
-                if (modalBackground) {
-                    modalBackground.addEventListener('click', hideLogoutModal);
-                }
-            }
-            
-            // Fechar modal com ESC
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && logoutModal && logoutModal.classList.contains('is-active')) {
-                    hideLogoutModal();
-                }
-            });
-        });
+        import { initializeApp } from './src/core/app-initializer.js';
+        initializeApp();
     </script>
-
 </body>
-
 </html>

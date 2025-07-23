@@ -2,7 +2,7 @@
  * Gerenciador de mundos - atualiza formulário baseado no mundo selecionado
  */
 
-import { getCurrentWorldConfig, getWorldConfig } from '../../js/worldsConfig.js';
+import { getCurrentWorldConfig, getWorldConfig } from '../config/worldsConfig.js';
 
 /**
  * Atualiza as opções de raça baseadas no mundo atual
@@ -134,34 +134,7 @@ export function updateAttributeLabels() {
     });
 }
 
-/**
- * Atualiza os ícones das classes nos cards de personagens
- */
-export function updateClassIcons() {
-    const config = getCurrentWorldConfig();
-    
-    // Atualizar ícones nos cards existentes
-    const characterCards = document.querySelectorAll('.character-card');
-    characterCards.forEach(card => {
-        const characterId = card.dataset.id;
-        if (characterId) {
-            // Buscar dados do personagem no storage
-            const characters = JSON.parse(localStorage.getItem('rpg_characters') || '[]');
-            const character = characters.find(c => c.id === characterId);
-            
-            if (character && character.class) {
-                const iconElement = card.querySelector('.character-avatar i');
-                if (iconElement) {
-                    // Remover classes de ícone antigas
-                    iconElement.className = iconElement.className.replace(/fa-[\w-]+/g, '');
-                    // Adicionar nova classe de ícone
-                    const newIcon = config.classIcons[character.class] || 'fa-user';
-                    iconElement.classList.add('fas', newIcon);
-                }
-            }
-        }
-    });
-}
+
 
 /**
  * Atualiza todo o formulário para o mundo atual
@@ -170,8 +143,12 @@ export function updateFormForCurrentWorld() {
     updateRaceOptions();
     updateClassOptions();
     updateAttributeLabels();
-    updateClassIcons();
     updateFieldLabels();
+    
+    // Recarregar lista de personagens para atualizar ícones
+    if (window.forjadorAppInstance) {
+        window.forjadorAppInstance.loadCharacters();
+    }
 }
 
 /**

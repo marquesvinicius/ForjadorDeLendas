@@ -20,6 +20,8 @@ __pycache__/
 ehthumbs.db
 Thumbs.db
 
+.vscode/
+
 # Node.js
 node_modules/
 npm-debug.log*
@@ -62,6 +64,7 @@ debug-*.html
 
 # Documentação temporária e arquivos internos
 docs/
+src/legacy/
 SETUP-*.md
 CONTEXTUALIZACAO_*.md
 *-setup.md

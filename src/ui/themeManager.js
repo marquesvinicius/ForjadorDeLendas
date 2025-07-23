@@ -108,5 +108,36 @@ export function applyWorldTheme(worldId) {
   // Por exemplo, se precisarmos mostrar/ocultar campos específicos de cada sistema
 }
 
+/**
+ * Inicializa o tema automaticamente
+ */
+export function initializeTheme() {
+    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+    console.log('🎨 Aplicando tema automaticamente:', currentWorld);
+    applyWorldTheme(currentWorld);
+}
+
+/**
+ * Configura os listeners de tema
+ */
+export function setupThemeListeners() {
+    // Aplicar tema o mais cedo possível
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+    } else {
+        // Se DOM já carregou, aplicar imediatamente
+        initializeTheme();
+    }
+    
+    // Backup: aplicar tema após Auth Guard também
+    document.addEventListener('supabaseSignIn', () => {
+        setTimeout(() => {
+            const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+            console.log('🎨 Re-aplicando tema após login:', currentWorld);
+            applyWorldTheme(currentWorld);
+        }, 100);
+    });
+}
+
 // Tornar a função disponível globalmente para compatibilidade com scripts não-module
 window.applyWorldTheme = applyWorldTheme; 

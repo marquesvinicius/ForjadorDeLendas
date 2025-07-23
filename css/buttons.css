@@ -26,3 +26,182 @@
 .button.is-info:hover {
     background-color: #3a5a8c;
 }
+/* Botão de logout sutil */
+.logout-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(35, 25, 15, 0.8);
+    border: 1px solid var(--panel-border);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    opacity: 0.8;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.logout-btn:hover {
+    background: rgba(35, 25, 15, 0.95);
+    border-color: var(--accent-color);
+    transform: scale(1.05);
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.logout-btn:active {
+    transform: scale(0.95);
+}
+
+/* Touch feedback para mobile */
+.logout-btn:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Modal de logout customizado */
+#logoutModal .modal-card {
+    border: 2px solid var(--panel-border);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+#logoutModal .modal-card-body strong {
+    color: var(--accent-color) !important;
+    font-weight: 700;
+}
+
+#logoutModal .modal-card-body em {
+    color: var(--text-color) !important;
+    font-style: italic;
+}
+
+#logoutModal .modal-card-body .fas.fa-scroll {
+    color: var(--accent-color) !important;
+}
+
+/* Responsividade otimizada para mobile */
+@media (max-width: 768px) {
+    .logout-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+        top: 1rem;
+        right: 1rem;
+        opacity: 0.9;
+        /* Aumenta a área clicável com padding invisível */
+        padding: 5px;
+        margin: -5px;
+        /* Melhora a acessibilidade touch */
+        touch-action: manipulation;
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+    
+    .logout-btn:hover {
+        /* Remove hover em touch devices */
+        transform: none;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+    
+    .logout-btn:active {
+        transform: scale(0.9);
+        background: rgba(35, 25, 15, 1);
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+    }
+    
+    /* Adiciona espaçamento ao título para evitar sobreposição */
+    .hero .hero-body {
+        padding-top: 2rem;
+        padding-left: 4rem;
+        padding-right: 4rem;
+    }
+    
+    .title.is-1.medieval-title {
+        margin-top: 1rem;
+        line-height: 1.2;
+    }
+}
+
+/* Para telas muito pequenas (smartphones em retrato) */
+@media (max-width: 480px) {
+    .logout-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 1.3rem;
+        top: 0.75rem;
+        right: 0.75rem;
+        border-width: 2px;
+    }
+    
+    /* Espaçamento extra para smartphones */
+    .hero .hero-body {
+        padding-top: 2rem !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+    
+    .title.is-1.medieval-title {
+        font-size: 2.5rem !important;
+        margin-top: 1.5rem !important;
+        line-height: 1.1 !important;
+    }
+    
+    .subtitle.medieval-title {
+        margin-top: 0.5rem;
+        font-size: 1.1rem !important;
+    }
+}
+
+/* Para touch devices - aumenta área clicável */
+@media (hover: none) and (pointer: coarse) {
+    .logout-btn {
+        min-width: 48px; /* Padrão recomendado pela Apple/Google */
+        min-height: 48px;
+        width: 55px;
+        height: 55px;
+        font-size: 1.3rem;
+    }
+    
+    /* Remove efeitos hover em dispositivos touch */
+    .logout-btn:hover {
+        transform: none;
+        opacity: 0.9;
+    }
+    
+    /* Garante espaçamento adequado em todos os dispositivos touch */
+    .hero .hero-body {
+        padding-top: 2rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+}
+
+/* Media query adicional para evitar conflitos de altura em landscape */
+@media (max-width: 768px) and (orientation: landscape) {
+    .logout-btn {
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+    
+    .hero .hero-body {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1rem !important;
+    }
+    
+    .title.is-1.medieval-title {
+        font-size: 2rem !important;
+        margin-top: 0.5rem !important;
+    }
+}

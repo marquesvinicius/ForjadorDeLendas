@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="css/login-page.css">
     <link rel="stylesheet" href="css/login-guards.css">
     
+    <!-- Dependências externas críticas -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="no-js">
     <script>document.body.classList.remove('no-js');</script>
@@ -60,7 +62,7 @@
                 </p>
             </div>
 
-            <form id="recognitionForm" class="recognition-form">
+            <form id="recognitionForm" class="recognition-form" onsubmit="event.preventDefault();">
                 <div class="field-group">
                     <label class="field-label" for="username">
                         <i class="fas fa-user"></i>
@@ -68,11 +70,11 @@
                     </label>
                     <div class="input-container">
                         <input 
-                            type="text" 
+                            type="email" 
                             id="username" 
                             name="username"
                             class="field-input"
-                            placeholder="Digite seu email ou nome de aventureiro"
+                            placeholder="Digite seu email"
                             required
                             autocomplete="username email"
                         >

@@ -3,30 +3,61 @@
  * Sistema de autenticação robusto e escalável
  */
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
 // Configurações do Supabase
 const SUPABASE_URL = 'https://zeiemqbillfiwlecjdtl.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplaWVtcWJpbGxmaXdsZWNqZHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MjkzMDUsImV4cCI6MjA2NTAwNTMwNX0.LPDa6NT4LK09wV2TonjiXoE-KSrLzFW9Dx4wVluKPDQ'
 
-// Inicializar cliente Supabase
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-    }
-})
+// Função para aguardar o carregamento do Supabase
+function waitForSupabase() {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 50;
+        
+        const checkSupabase = () => {
+            if (window.supabase) {
+                console.log('✅ Supabase CDN carregado');
+                resolve(window.supabase);
+            } else {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    reject(new Error('❌ Timeout aguardando Supabase CDN'));
+                } else {
+                    setTimeout(checkSupabase, 100);
+                }
+            }
+        };
+        
+        checkSupabase();
+    });
+}
+
+// Inicializar cliente Supabase de forma segura
+let supabase = null;
+
+waitForSupabase()
+    .then(supabaseClient => {
+        supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            }
+        });
+        console.log('✅ Cliente Supabase inicializado');
+    })
+    .catch(error => {
+        console.error('❌ Erro ao inicializar Supabase:', error);
+    });
 
 export class SupabaseAuth {
     constructor() {
-        this.client = supabase
-        this.currentUser = null
-        this.initialized = false
-        this.lastEventTime = 0
-        this.eventDebounceTime = 1000 // 1 segundo
-        this.authStateSubscription = null
-        this.init()
+        this.client = null;
+        this.currentUser = null;
+        this.initialized = false;
+        this.lastEventTime = 0;
+        this.eventDebounceTime = 1000; // 1 segundo
+        this.authStateSubscription = null;
+        this.init();
     }
 
     /**
@@ -34,60 +65,64 @@ export class SupabaseAuth {
      */
     async init() {
         try {
+            // Aguardar Supabase estar disponível
+            await waitForSupabase();
+            this.client = supabase;
+            
             // Verificar sessão atual
-            const { data: { session } } = await this.client.auth.getSession()
+            const { data: { session } } = await this.client.auth.getSession();
             
             if (session?.user) {
-                this.currentUser = session.user
-                console.log('🔐 Usuário autenticado:', session.user.email)
+                this.currentUser = session.user;
+                console.log('🔐 Usuário autenticado:', session.user.email);
             } else {
-                console.log('👤 Nenhum usuário autenticado')
+                console.log('👤 Nenhum usuário autenticado');
             }
 
             // Marcar como inicializado
-            this.initialized = true
-            console.log('✅ Supabase inicializado')
+            this.initialized = true;
+            console.log('✅ Supabase Auth inicializado');
 
         } catch (error) {
-            console.error('❌ Erro ao inicializar Supabase:', error)
-            this.initialized = true // Marcar como inicializado mesmo com erro
+            console.error('❌ Erro ao inicializar Supabase Auth:', error);
+            this.initialized = true; // Marcar como inicializado mesmo com erro
         }
 
         // Escutar mudanças de autenticação (com proteção contra duplicatas)
         if (this.authStateSubscription) {
-            this.authStateSubscription.unsubscribe()
+            this.authStateSubscription.unsubscribe();
         }
         
         this.authStateSubscription = this.client.auth.onAuthStateChange((event, session) => {
-            const now = Date.now()
-            console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email || 'none')
+            const now = Date.now();
+            console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email || 'none');
             
             // Debouncing para evitar eventos duplicados
             if (event === 'SIGNED_IN' && now - this.lastEventTime < this.eventDebounceTime) {
-                console.log('⚡ Evento SIGNED_IN ignorado (debounce ativo)')
-                return
+                console.log('⚡ Evento SIGNED_IN ignorado (debounce ativo)');
+                return;
             }
             
             switch (event) {
                 case 'SIGNED_IN':
-                    this.lastEventTime = now
-                    this.currentUser = session?.user || null
-                    this.onSignIn(session?.user)
-                    break
+                    this.lastEventTime = now;
+                    this.currentUser = session?.user || null;
+                    this.onSignIn(session?.user);
+                    break;
                 case 'SIGNED_OUT':
-                    this.currentUser = null
-                    this.onSignOut()
-                    break
+                    this.currentUser = null;
+                    this.onSignOut();
+                    break;
                 case 'TOKEN_REFRESHED':
-                    console.log('🔄 Token refreshed')
-                    break
+                    console.log('🔄 Token refreshed');
+                    break;
                 case 'INITIAL_SESSION':
                     // Não disparar eventos para sessão inicial
-                    this.currentUser = session?.user || null
-                    console.log('📋 Sessão inicial carregada')
-                    break
+                    this.currentUser = session?.user || null;
+                    console.log('📋 Sessão inicial carregada');
+                    break;
             }
-        })
+        });
     }
 
     /**
