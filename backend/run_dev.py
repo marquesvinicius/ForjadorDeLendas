@@ -17,26 +17,26 @@ env_file = backend_dir / '.env'
 if env_file.exists():
     from dotenv import load_dotenv
     load_dotenv(env_file)
-    print(f"✅ Variáveis de ambiente carregadas de {env_file}")
+    print(f"[OK] Variaveis de ambiente carregadas de {env_file}")
 else:
-    print("⚠️ Arquivo .env não encontrado. Crie um baseado no .env.example")
+    print("⚠️ Arquivo .env nao encontrado. Crie um baseado no .env.example")
     
 # Verifica se a API key está definida
 if not os.getenv('GEMINI_API_KEY'):
-    print("❌ GEMINI_API_KEY não está definida!")
-    print("   Configure-a no arquivo .env ou como variável de ambiente")
+    print("[ERROR] GEMINI_API_KEY nao esta definida!")
+    print("   Configure-a no arquivo .env ou como variavel de ambiente")
     sys.exit(1)
 
 # Importa e executa a aplicação
 if __name__ == '__main__':
     from generate_story import app
     
-    print("🚀 Iniciando servidor de desenvolvimento...")
-    print("📍 Backend disponível em: http://localhost:5000")
-    print("🔗 Endpoints:")
+    print("Iniciando servidor de desenvolvimento...")
+    print("Backend disponivel em: http://localhost:5000")
+    print("Endpoints:")
     print("   GET  /ping     - Verificar status")
-    print("   POST /generate - Gerar história")
-    print("\n💡 Pressione Ctrl+C para parar o servidor")
+    print("   POST /generate - Gerar historia")
+    print("\n[INFO] Pressione Ctrl+C para parar o servidor")
     
     # Executa em modo debug para desenvolvimento
     app.run(

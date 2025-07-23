@@ -42,7 +42,7 @@ Endpoint para verificar se o servidor está ativo.
 ```json
 {
   "status": "alive",
-  "message": "Servidor está ativo"
+  "message": "Servidor esta ativo"
 }
 ```
 
@@ -52,7 +52,7 @@ Gera uma backstory para um personagem baseada no prompt fornecido.
 **Corpo da requisição:**
 ```json
 {
-  "prompt": "Seu prompt para geração da backstory"
+  "prompt": "Seu prompt para geracao da backstory"
 }
 ```
 
