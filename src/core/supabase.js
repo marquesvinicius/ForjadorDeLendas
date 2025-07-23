@@ -3,50 +3,16 @@
  * Sistema de autenticação robusto e escalável
  */
 
-// Configurações do Supabase
-const SUPABASE_URL = 'https://zeiemqbillfiwlecjdtl.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplaWVtcWJpbGxmaXdsZWNqZHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MjkzMDUsImV4cCI6MjA2NTAwNTMwNX0.LPDa6NT4LK09wV2TonjiXoE-KSrLzFW9Dx4wVluKPDQ'
+// src/core/supabase.js
 
-// Função para aguardar o carregamento do Supabase
-function waitForSupabase() {
-    return new Promise((resolve, reject) => {
-        let attempts = 0;
-        const maxAttempts = 50;
-        
-        const checkSupabase = () => {
-            if (window.supabase) {
-                resolve(window.supabase);
-            } else {
-                attempts++;
-                if (attempts >= maxAttempts) {
-                    reject(new Error('❌ Timeout aguardando Supabase CDN'));
-                } else {
-                    setTimeout(checkSupabase, 100);
-                }
-            }
-        };
-        
-        checkSupabase();
-    });
-}
+import { createClient } from '@supabase/supabase-js'
 
-// Inicializar cliente Supabase de forma segura
-let supabase = null;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-waitForSupabase()
-    .then(supabaseClient => {
-        supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                autoRefreshToken: true,
-                persistSession: true,
-                detectSessionInUrl: true
-            }
-        });
-    })
-    .catch(error => {
-        console.error('❌ Erro ao inicializar Supabase:', error);
-    });
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Classe de autenticação (se quiser manter)
 export class SupabaseAuth {
     constructor() {
         this.client = null;
@@ -64,12 +30,12 @@ export class SupabaseAuth {
     async init() {
         try {
             // Aguardar Supabase estar disponível
-            await waitForSupabase();
+            // await waitForSupabase(); // Removido
             this.client = supabase;
-            
+
             // Verificar sessão atual
             const { data: { session } } = await this.client.auth.getSession();
-            
+
             if (session?.user) {
                 this.currentUser = session.user;
             }
@@ -86,15 +52,15 @@ export class SupabaseAuth {
         if (this.authStateSubscription) {
             this.authStateSubscription.unsubscribe();
         }
-        
+
         this.authStateSubscription = this.client.auth.onAuthStateChange((event, session) => {
             const now = Date.now();
-            
+
             // Debouncing para evitar eventos duplicados
             if (event === 'SIGNED_IN' && now - this.lastEventTime < this.eventDebounceTime) {
                 return;
             }
-            
+
             switch (event) {
                 case 'SIGNED_IN':
                     this.lastEventTime = now;
@@ -233,7 +199,7 @@ export class SupabaseAuth {
     async signOut() {
         try {
             const { error } = await this.client.auth.signOut()
-            
+
             if (error) {
                 throw error
             }
@@ -363,32 +329,32 @@ export class SupabaseAuth {
         const now = Date.now();
         const eventKey = `signin_${user.email}`;
         const lastEventTime = window.lastSignInEvents?.[eventKey] || 0;
-        
+
         // Bloquear eventos duplicados em uma janela maior (5 segundos)
         if (now - lastEventTime < 5000) {
             return
         }
-        
+
         // Salvar timestamp do evento
         if (!window.lastSignInEvents) window.lastSignInEvents = {};
         window.lastSignInEvents[eventKey] = now;
-        
+
         // Verificar se há muitos eventos em sequência
         if (!window.signInEventCount) window.signInEventCount = 0;
         window.signInEventCount++;
-        
+
         if (window.signInEventCount > 10) {
             console.error('🚨 MUITOS EVENTOS SIGNIN - PARANDO PARA PREVENIR LOOP!');
             return;
         }
-        
+
         // Reset contador após um tempo
         setTimeout(() => {
             if (window.signInEventCount > 0) {
                 window.signInEventCount = Math.max(0, window.signInEventCount - 1);
             }
         }, 10000);
-        
+
         // Dispatch evento customizado
         const event = new CustomEvent('supabaseSignIn', {
             detail: { user }
@@ -434,5 +400,4 @@ export class SupabaseAuth {
 }
 
 // Exportar instância única
-export const supabaseAuth = new SupabaseAuth()
-export { supabase } 
+export const supabaseAuth = new SupabaseAuth() 
