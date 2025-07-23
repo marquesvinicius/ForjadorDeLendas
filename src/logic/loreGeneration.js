@@ -26,16 +26,9 @@ export async function generateCharacterLore(characterData, backgroundTextArea, s
     companionEvents.onStoryGenerationStart();
 
     const prompt = generatePrompt(characterData);
-    console.log('Prompt enviado:', prompt);
     
     try {
-        const startTime = Date.now();
-        console.log('🔮 Iniciando geração de backstory via API...');
-
         const backstory = await window.API_CONFIG.generateStory(prompt);
-        const duration = Date.now() - startTime;
-        
-        console.log(`✅ Backstory gerada em ${duration}ms`);
         
         updateBackgroundWithLore(backstory, backgroundTextArea, storage, currentCharacterId, characterData);
         companionEvents.onStoryGenerationSuccess();
@@ -44,7 +37,6 @@ export async function generateCharacterLore(characterData, backgroundTextArea, s
         console.error('❌ Erro ao gerar história via API:', error.message);
         
         // Usar fallback
-        console.log('Usando sistema de fallback...');
         const fallbackLore = generateSimpleLore(characterData);
         updateBackgroundWithLore(fallbackLore, backgroundTextArea, storage, currentCharacterId, characterData);
         

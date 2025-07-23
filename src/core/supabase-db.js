@@ -281,11 +281,17 @@ export class SupabaseDatabase {
      */
     async testConnection() {
         try {
+            // Teste mais rápido usando apenas uma query simples
             const { data, error } = await this.client
                 .from('profiles')
-                .select('count', { count: 'exact', head: true });
+                .select('id')
+                .limit(1)
+                .single();
 
-            if (error) throw error;
+            // Não importa se não há dados, só se a query funciona
+            if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+                throw error;
+            }
 
             return {
                 success: true,

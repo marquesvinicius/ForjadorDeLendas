@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     .catch(err => {
                         console.error('Erro ao carregar o gerenciador de temas:', err);
                         // Fallback: aplicar tema básico manualmente
-                        console.log('Aplicando tema básico como fallback...');
+                
                         // Pelo menos salvar a seleção
                         localStorage.setItem('selectedWorld', selectedWorld.id);
                         document.dispatchEvent(new CustomEvent('worldChanged'));

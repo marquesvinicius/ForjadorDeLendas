@@ -20,31 +20,20 @@ export class SupabaseOnlyStorage {
      * Inicializar sistema exclusivo do Supabase
      */
     async init() {
-        // Testar conexão com Supabase
-        try {
-            const connectionTest = await this.supabaseStorage.testConnection();
-            this.isOnline = connectionTest.success;
-        } catch (error) {
-            console.error('❌ Erro no teste de conexão:', error);
-            this.isOnline = false;
-        }
-        
-        console.log(`🔄 Storage Mode: ${this.isOnline ? 'Supabase Only' : 'Offline'}`);
+        // Testar conexão com Supabase (com retry)
+        this.isOnline = await this.testConnectionWithRetry();
 
         // Configurar eventos de autenticação (apenas uma vez)
         if (!this.listenersAdded) {
             document.addEventListener('supabaseSignIn', (event) => {
-                console.log('📥 SupabaseOnlyStorage: Evento SignIn recebido para:', event.detail?.user?.email);
                 this.onUserLogin(event.detail.user);
             });
 
             document.addEventListener('supabaseSignOut', () => {
-                console.log('📤 SupabaseOnlyStorage: Evento SignOut recebido');
                 this.onUserLogout();
             });
 
             this.listenersAdded = true;
-            console.log('✅ Event listeners do SupabaseOnlyStorage registrados');
         }
 
         // Se já estiver logado, sincronizar (mas só se online)
@@ -55,14 +44,45 @@ export class SupabaseOnlyStorage {
     }
 
     /**
+     * Testa conexão com retry e aguarda estabilização
+     */
+    async testConnectionWithRetry(maxAttempts = 3, delayMs = 500) {
+        console.log('🔍 Testando conexão com Supabase...');
+        
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                console.log(`🔄 Tentativa ${attempt}/${maxAttempts} de conexão...`);
+                
+                const connectionTest = await this.supabaseStorage.testConnection();
+                
+                if (connectionTest.success) {
+                    console.log('✅ Conexão com Supabase estabelecida!');
+                    return true;
+                }
+                
+                console.log(`⚠️ Tentativa ${attempt} falhou:`, connectionTest.message);
+                
+            } catch (error) {
+                console.log(`❌ Erro na tentativa ${attempt}:`, error.message);
+            }
+            
+            // Aguardar antes da próxima tentativa (exceto na última)
+            if (attempt < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+        }
+        
+        console.log('❌ Não foi possível estabelecer conexão após todas as tentativas');
+        return false;
+    }
+
+    /**
      * Quando usuário faz login - sincronizar dados
      */
     async onUserLogin(user) {
         if (!this.isOnline) return;
 
         try {
-            console.log('🔄 Sincronizando dados do usuário...');
-
             // 1. Criar/atualizar perfil no Supabase
             await this.syncUserProfile(user);
 
@@ -75,7 +95,6 @@ export class SupabaseOnlyStorage {
      * Quando usuário faz logout - limpar apenas dados temporários
      */
     onUserLogout() {
-        console.log('🧹 Limpando dados temporários...');
         // Manter apenas configurações de UI no localStorage (tema, mundo)
         // Personagens são sempre do Supabase - não precisa limpar
     }
@@ -146,8 +165,23 @@ export class SupabaseOnlyStorage {
      */
     async getAllCharacters(world = null) {
         const user = this.authService.getCurrentUser();
-        if (!this.isOnline || !user) {
-            throw new Error('Usuário não autenticado ou sem conexão. Faça login para ver seus personagens.');
+        console.log('🔍 SupabaseOnlyStorage.getAllCharacters - User:', user?.email || 'null', 'Online:', this.isOnline);
+        
+        // Se não há usuário, falhar imediatamente
+        if (!user) {
+            console.log('❌ getAllCharacters falhou: não autenticado');
+            throw new Error('Usuário não autenticado. Faça login para ver seus personagens.');
+        }
+        
+        // Se offline, tentar reestabelecer conexão uma vez
+        if (!this.isOnline) {
+            console.log('🔄 Tentando reestabelecer conexão...');
+            this.isOnline = await this.testConnectionWithRetry(1, 0); // Uma tentativa rápida
+            
+            if (!this.isOnline) {
+                console.log('❌ getAllCharacters falhou: sem conexão');
+                throw new Error('Sem conexão com o servidor. Verifique sua internet e tente novamente.');
+            }
         }
 
         try {

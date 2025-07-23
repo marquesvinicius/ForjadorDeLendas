@@ -35,7 +35,6 @@ export class LoginManager {
 
         // Verificar se já está logado APÓS Supabase carregar
         if (supabaseAuth.isAuthenticated()) {
-            console.log('🔄 Usuário já autenticado, redirecionando...');
             // Se já estiver logado e estiver na página de login, redirecionar
             if (window.location.pathname.includes('login.html')) {
                 // Incrementar contador de redirecionamento
@@ -52,7 +51,6 @@ export class LoginManager {
 
         // Reset contador se chegou aqui sem problemas
         sessionStorage.removeItem('loginRedirectCount');
-        console.log('🎯 Usuário não autenticado, mostrando login');
 
         // Configurar event listeners
         this.setupEventListeners();
@@ -77,15 +75,11 @@ export class LoginManager {
                 attempts++;
                 
                 if (supabaseAuth.initialized) {
-                    console.log('✅ Supabase pronto, continuando...');
                     resolve();
                 } else if (attempts >= maxAttempts) {
                     console.warn('⚠️ Timeout aguardando Supabase, continuando mesmo assim...');
                     resolve();
                 } else {
-                    if (attempts % 10 === 0) {
-                        console.log(`⏳ Aguardando Supabase inicializar... (${attempts}/${maxAttempts})`);
-                    }
                     setTimeout(checkAuth, 50);
                 }
             };
@@ -101,9 +95,8 @@ export class LoginManager {
         const loginForm = document.getElementById('recognitionForm');
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
-            console.log('✅ Event listener adicionado: formulário de login');
         } else {
-            console.error('❌ Formulário de login não encontrado: #recognitionForm');
+            console.error('❌ Formulário de loginnão encontrado: #recognitionForm');
         }
 
         // Botão de registro
@@ -134,7 +127,6 @@ export class LoginManager {
                     console.log(`🔄 Clicado: ${selector} - Voltando ao login`);
                     this.showLoginForm();
                 });
-                console.log(`✅ Event listener adicionado: ${selector}`);
             } else {
                 console.warn(`⚠️ Botão não encontrado: ${selector}`);
             }
@@ -180,12 +172,10 @@ export class LoginManager {
     setupAuthHandlers() {
         // Escutar eventos do Supabase
         document.addEventListener('supabaseSignIn', (event) => {
-            console.log('🎉 Login bem-sucedido!', event.detail.user);
             this.onLoginSuccess(event.detail.user);
         });
 
         document.addEventListener('supabaseSignOut', () => {
-            console.log('👋 Logout realizado');
             this.onLogoutSuccess();
         });
     }
@@ -260,7 +250,6 @@ export class LoginManager {
      * Mostrar formulário de registro
      */
     showRegisterForm() {
-        console.log('🔄 Mostrando formulário de registro');
         
         // Esconder todos os cards
         this.hideAllCards();
@@ -284,7 +273,6 @@ export class LoginManager {
      * Mostrar formulário de esqueci senha
      */
     showForgotPasswordForm() {
-        console.log('🔄 Mostrando formulário de esqueci senha');
         
         // Esconder todos os cards
         this.hideAllCards();
@@ -308,7 +296,6 @@ export class LoginManager {
      * Mostrar formulário de login
      */
     showLoginForm() {
-        console.log('🔄 Voltando ao formulário de login');
         
         // Esconder todos os cards
         this.hideAllCards();
@@ -341,7 +328,6 @@ export class LoginManager {
         if (registerForm && !registerForm.dataset.listenerAdded) {
             registerForm.addEventListener('submit', (e) => this.handleRegister(e));
             registerForm.dataset.listenerAdded = 'true';
-            console.log('✅ Event listener adicionado: form de registro');
         }
     }
 
@@ -353,7 +339,6 @@ export class LoginManager {
         if (forgotForm && !forgotForm.dataset.listenerAdded) {
             forgotForm.addEventListener('submit', (e) => this.handleForgotPassword(e));
             forgotForm.dataset.listenerAdded = 'true';
-            console.log('✅ Event listener adicionado: form de forgot password');
         }
     }
 
@@ -577,8 +562,6 @@ export class LoginManager {
      * Callback de login bem-sucedido
      */
     onLoginSuccess(user) {
-        console.log('🎉 Bem-vindo,', user.email);
-        
         // Mostrar mensagem de boas-vindas
         this.showMessage(`Bem-vindo de volta, ${user.email}!`, 'success');
         

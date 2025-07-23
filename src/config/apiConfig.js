@@ -13,11 +13,6 @@ const isLocalEnvironment = () => {
     const localHostnames = ['localhost', '127.0.0.1', '::1', 'local'];
     const isLocal = localHostnames.includes(hostname) || hostname.startsWith('192.168.') || hostname.startsWith('10.');
     
-    console.log('🔍 Detectando ambiente:');
-    console.log('   Hostname atual:', hostname);
-    console.log('   É ambiente local?', isLocal);
-    console.log('   Usando servidor:', isLocal ? 'Local' : 'Render');
-    
     // Forçar uso do Render sempre
     return false;
 };
@@ -50,7 +45,6 @@ export const API_CONFIG = {
      * @returns {Promise<boolean>} True se o backend estiver online
      */
     async testConnection() {
-        console.log('🔗 Testando conexão com:', `${this.BASE_URL}${this.ENDPOINTS.PING}`);
         try {
             const response = await fetch(`${this.BASE_URL}${this.ENDPOINTS.PING}`, {
                 method: 'GET',
@@ -60,7 +54,6 @@ export const API_CONFIG = {
             if (response.ok) {
                 const data = await response.json();
                 this.isOnline = data.status === 'alive';
-                console.log('✅ Backend respondeu:', data);
                 return this.isOnline;
             }
 
@@ -79,7 +72,6 @@ export const API_CONFIG = {
      * @returns {Promise<string>} História gerada ou fallback
      */
     async generateStory(prompt) {
-        console.log('🎯 Enviando requisição para:', `${this.BASE_URL}${this.ENDPOINTS.GENERATE_STORY}`);
         try {
             const response = await fetch(`${this.BASE_URL}${this.ENDPOINTS.GENERATE_STORY}`, {
                 method: 'POST',
@@ -88,8 +80,6 @@ export const API_CONFIG = {
                 signal: AbortSignal.timeout(this.REQUEST_CONFIG.timeout)
             });
 
-            console.log('📡 Response status:', response.status);
-
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('❌ Erro do servidor:', errorText);
@@ -97,7 +87,6 @@ export const API_CONFIG = {
             }
 
             const data = await response.json();
-            console.log('✅ Resposta recebida do Render');
 
             if (data.error) {
                 throw new Error(data.error);
@@ -109,7 +98,6 @@ export const API_CONFIG = {
             console.error('❌ Erro ao gerar história via API:', error);
 
             // Fallback para histórias locais se a API falhar
-            console.log('🔄 Usando geração local como fallback...');
             return this.generateLocalFallback(prompt);
         }
     },
@@ -136,15 +124,11 @@ export const API_CONFIG = {
 window.API_CONFIG = API_CONFIG;
 
 // Testa a conexão na inicialização
-console.log('🚀 Inicializando API_CONFIG...');
-console.log('🔗 URL do backend:', API_CONFIG.BASE_URL);
-
 API_CONFIG.testConnection().then(isOnline => {
-    console.log(`📊 Backend status: ${isOnline ? 'Online' : 'Offline'}`);
     if (isOnline) {
-        console.log('✅ Geração de histórias com IA disponível no Render');
+        console.log('✅ Backend online - IA disponível');
     } else {
-        console.log('⚠️ Render offline - usando geração local de histórias');
+        console.log('⚠️ Backend offline - usando fallback local');
     }
 }).catch(error => {
     console.log('❌ Erro na inicialização do backend:', error.message);

@@ -98,12 +98,10 @@ export class LoginManager {
     setupAuthHandlers() {
         // Escutar eventos do Supabase
         document.addEventListener('supabaseSignIn', (event) => {
-            console.log('🎉 Login bem-sucedido!', event.detail.user);
             this.onLoginSuccess(event.detail.user);
         });
 
         document.addEventListener('supabaseSignOut', () => {
-            console.log('👋 Logout realizado');
             this.onLogoutSuccess();
         });
     }
@@ -489,8 +487,6 @@ export class LoginManager {
      * Callback de login bem-sucedido
      */
     onLoginSuccess(user) {
-        console.log('🎉 Bem-vindo,', user.email);
-        
         // Mostrar mensagem de boas-vindas
         this.showMessage(`Bem-vindo de volta, ${user.email}!`, 'success');
         

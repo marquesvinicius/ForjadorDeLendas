@@ -19,7 +19,6 @@
     "backend:setup": "python backend/run_dev.py",
     "backend:dev": "cd backend && python run_dev.py",
     "backend:install": "cd backend && pip install -r requirements.txt",
-    "backend:ping": "curl -s http://localhost:5000/ping || echo 'Backend não está rodando'",
     "fullstack": "concurrently \"npm run serve\" \"npm run backend:dev\"",
     "postinstall": "echo '\n🔧 Para configurar o backend: npm run backend:install\n📚 Veja backend/README.md para mais detalhes'"
   },

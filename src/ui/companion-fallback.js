@@ -9,7 +9,7 @@ export function initializeCompanionFallback() {
     // Aguardar um pouco para outros scripts carregarem
     setTimeout(() => {
         if (!window.magoCompanion) {
-            console.log('Companion não encontrado, tentando inicializar fallback...');
+    
             // Se o companion não estiver disponível, criar uma versão simples
             window.magoCompanion = {
                 speak: function(text) {

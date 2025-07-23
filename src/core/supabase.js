@@ -15,7 +15,6 @@ function waitForSupabase() {
         
         const checkSupabase = () => {
             if (window.supabase) {
-                console.log('✅ Supabase CDN carregado');
                 resolve(window.supabase);
             } else {
                 attempts++;
@@ -43,7 +42,6 @@ waitForSupabase()
                 detectSessionInUrl: true
             }
         });
-        console.log('✅ Cliente Supabase inicializado');
     })
     .catch(error => {
         console.error('❌ Erro ao inicializar Supabase:', error);
@@ -74,14 +72,10 @@ export class SupabaseAuth {
             
             if (session?.user) {
                 this.currentUser = session.user;
-                console.log('🔐 Usuário autenticado:', session.user.email);
-            } else {
-                console.log('👤 Nenhum usuário autenticado');
             }
 
             // Marcar como inicializado
             this.initialized = true;
-            console.log('✅ Supabase Auth inicializado');
 
         } catch (error) {
             console.error('❌ Erro ao inicializar Supabase Auth:', error);
@@ -95,11 +89,9 @@ export class SupabaseAuth {
         
         this.authStateSubscription = this.client.auth.onAuthStateChange((event, session) => {
             const now = Date.now();
-            console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email || 'none');
             
             // Debouncing para evitar eventos duplicados
             if (event === 'SIGNED_IN' && now - this.lastEventTime < this.eventDebounceTime) {
-                console.log('⚡ Evento SIGNED_IN ignorado (debounce ativo)');
                 return;
             }
             
@@ -114,12 +106,13 @@ export class SupabaseAuth {
                     this.onSignOut();
                     break;
                 case 'TOKEN_REFRESHED':
-                    console.log('🔄 Token refreshed');
                     break;
                 case 'INITIAL_SESSION':
-                    // Não disparar eventos para sessão inicial
                     this.currentUser = session?.user || null;
-                    console.log('📋 Sessão inicial carregada');
+                    // Se há um usuário na sessão inicial, disparar evento de sign in
+                    if (session?.user) {
+                        this.onSignIn(session.user);
+                    }
                     break;
             }
         });
@@ -366,8 +359,6 @@ export class SupabaseAuth {
      * Callback quando usuário faz login
      */
     onSignIn(user) {
-        console.log('🎉 Usuário logado:', user.email)
-        
         // Verificar se já há um evento recente para este usuário (mais agressivo)
         const now = Date.now();
         const eventKey = `signin_${user.email}`;
@@ -375,7 +366,6 @@ export class SupabaseAuth {
         
         // Bloquear eventos duplicados em uma janela maior (5 segundos)
         if (now - lastEventTime < 5000) {
-            console.log('⚡ Evento SignIn duplicado ignorado para:', user.email, `(${now - lastEventTime}ms ago)`)
             return
         }
         
@@ -404,16 +394,12 @@ export class SupabaseAuth {
             detail: { user }
         })
         document.dispatchEvent(event)
-
-        console.log('🔄 Evento de login disparado para:', user.email, `(#${window.signInEventCount})`)
     }
 
     /**
      * Callback quando usuário faz logout
      */
     onSignOut() {
-        console.log('👋 Usuário deslogado')
-        
         // Dispatch evento customizado
         const event = new CustomEvent('supabaseSignOut')
         document.dispatchEvent(event)
@@ -421,7 +407,6 @@ export class SupabaseAuth {
         // ⭐ REDIRECIONAMENTO EXPLÍCITO PARA LOGIN
         // Se estiver em qualquer página que não seja login, redirecionar
         if (!window.location.pathname.includes('login.html')) {
-            console.log('🔄 Redirecionando para login após logout...');
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 500); // Pequeno delay para garantir que o evento seja processado

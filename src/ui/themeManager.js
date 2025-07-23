@@ -1,19 +1,14 @@
 import { worldThemes } from '../../js/themes.js';
 
 export function applyWorldTheme(worldId) {
-  console.log('🎨 ThemeManager: Aplicando tema para mundo:', worldId);
-  
   const theme = worldThemes[worldId];
   if (!theme) {
     console.error('❌ ThemeManager: Tema não encontrado para mundo:', worldId);
     return;
   }
 
-  console.log('🎨 ThemeManager: Tema encontrado:', theme);
-
   // Se o mundo for D&D, redefina as variáveis CSS para os valores padrão
   if (worldId === 'dnd') {
-    console.log('🎨 ThemeManager: Aplicando tema D&D (padrão)');
     document.documentElement.style.setProperty('--primary-color', '#8B5A2B');
     document.documentElement.style.setProperty('--secondary-color', '#4A2511');
     document.documentElement.style.setProperty('--accent-color', '#D4AF37');
@@ -22,7 +17,6 @@ export function applyWorldTheme(worldId) {
     document.documentElement.style.setProperty('--panel-bg', 'rgba(35, 25, 15, 0.85)');
     document.documentElement.style.setProperty('--panel-border', '#8B5A2B');
   } else {
-    console.log('🎨 ThemeManager: Aplicando tema personalizado para:', worldId);
     // Para outros mundos, aplique as propriedades CSS personalizadas, se definidas
     if (theme.primaryColor) {
       document.documentElement.style.setProperty('--primary-color', theme.primaryColor);
@@ -43,8 +37,6 @@ export function applyWorldTheme(worldId) {
 
   // Aplicar imagem de fundo
   if (theme.bgImage) {
-    console.log('🖼️ ThemeManager: Aplicando background:', theme.bgImage);
-    
     // ⭐ MÚLTIPLAS TENTATIVAS DE APLICAÇÃO
     const backgroundUrl = `url('${theme.bgImage}')`;
     
@@ -61,8 +53,6 @@ export function applyWorldTheme(worldId) {
     setTimeout(() => {
       const computedStyle = window.getComputedStyle(document.body);
       const appliedBg = computedStyle.backgroundImage;
-      console.log('🔍 ThemeManager: Background aplicado?', appliedBg !== 'none' ? '✅' : '❌');
-      console.log('🔍 ThemeManager: Background atual:', appliedBg);
       
       if (appliedBg === 'none') {
         console.warn('⚠️ ThemeManager: Background não aplicado, tentando força bruta...');
@@ -79,7 +69,6 @@ export function applyWorldTheme(worldId) {
   // Atualizar imagem do companion
   const companion = document.querySelector('.companion-avatar');
   if (companion && theme.companionImage) {
-    console.log('🧙 ThemeManager: Atualizando companion:', theme.companionImage);
     companion.src = theme.companionImage;
   }
   
@@ -92,7 +81,6 @@ export function applyWorldTheme(worldId) {
   // Atualizar apenas os subtítulos específicos de cada mundo
   const subtitle = document.querySelector('.subtitle.medieval-title');
   if (subtitle && theme.subtitle) {
-    console.log('📝 ThemeManager: Atualizando subtítulo:', theme.subtitle);
     subtitle.textContent = theme.subtitle;
   } else if (subtitle && worldId === 'tormenta') {
     subtitle.textContent = 'Crie heróis épicos para Arton';
@@ -101,8 +89,6 @@ export function applyWorldTheme(worldId) {
   } else if (subtitle && worldId === 'ordem-paranormal') {
     subtitle.textContent = 'Investigue o Desconhecido';
   }
-  
-  console.log('✅ ThemeManager: Tema aplicado com sucesso para:', worldId);
   
   // Atualizar elementos específicos de cada mundo (se necessário)
   // Por exemplo, se precisarmos mostrar/ocultar campos específicos de cada sistema
@@ -113,7 +99,6 @@ export function applyWorldTheme(worldId) {
  */
 export function initializeTheme() {
     const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
-    console.log('🎨 Aplicando tema automaticamente:', currentWorld);
     applyWorldTheme(currentWorld);
 }
 
@@ -133,7 +118,6 @@ export function setupThemeListeners() {
     document.addEventListener('supabaseSignIn', () => {
         setTimeout(() => {
             const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
-            console.log('🎨 Re-aplicando tema após login:', currentWorld);
             applyWorldTheme(currentWorld);
         }, 100);
     });

@@ -3,15 +3,11 @@
  * Importa e inicializa todos os módulos
  */
 
-console.log('📦 Carregando módulos...');
-
 // Importações dos módulos core
 import { supabaseOnlyStorage } from './core/hybrid-storage.js';
 import { initWorldManager } from './logic/worldManager.js';
 import { supabaseAuth } from './core/supabase.js';
 import { companionEvents } from './core/companionBridge.js';
-
-console.log('✅ Módulos core carregados');
 
 // Importações dos módulos de lógica
 import { 
@@ -21,8 +17,6 @@ import {
 } from './logic/attributes.js';
 
 import { generateCharacterLore } from './logic/loreGeneration.js';
-
-console.log('✅ Módulos de lógica carregados');
 
 // Importações dos módulos de UI
 import { 
@@ -35,8 +29,6 @@ import {
 import { renderCharactersList, highlightNewCard } from './ui/characterCards.js';
 import { openCharacterModal, getCurrentCharacterId, setCurrentCharacterId } from './ui/characterModal.js';
 
-console.log('✅ Módulos de UI carregados');
-
 /**
  * Classe principal da aplicação
  */
@@ -46,6 +38,7 @@ class ForjadorApp {
     this.authSystem = supabaseAuth;
     this.currentCharacterId = null;
     this.authListenersAdded = false;
+    this.storageReady = false;
     this.init();
   }
 
@@ -53,17 +46,127 @@ class ForjadorApp {
    * Inicializa a aplicação
    */
   async init() {
-    console.log('🧙‍♂️ Inicializando ForjadorApp...');
-    
     // Aguardar um pouco para garantir que o DOM esteja completamente carregado
     await this.waitForElements();
     
     this.setupEventListeners();
     this.setupAuthUI();
+    
+    // Aguardar que o storage esteja pronto
+    await this.waitForStorage();
+    
+    // Aguardar a verificação inicial da sessão antes de carregar personagens
+    await this.waitForAuthCheck();
+    
     await this.loadCharacters();
     this.setupModals();
-    
-    console.log('🧙‍♂️ Forjador de Lendas inicializado!');
+  }
+
+  /**
+   * Aguarda que o storage esteja pronto
+   */
+  async waitForStorage() {
+    return new Promise((resolve) => {
+      let resolved = false;
+      const resolveOnce = (reason) => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
+        }
+      };
+
+      // Verificar se o storage já está pronto
+      const checkStorage = () => {
+        if (this.storage && this.storage.isOnline !== undefined) {
+          this.storageReady = true;
+          resolveOnce('storage inicializado');
+          return true;
+        }
+        return false;
+      };
+
+      // Se já está pronto, resolver imediatamente
+      if (checkStorage()) return;
+
+      // Verificar periodicamente (a cada 50ms por até 2 segundos)
+      let attempts = 0;
+      const maxAttempts = 40;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (checkStorage() || attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          clearTimeout(timeoutId);
+          if (attempts >= maxAttempts) {
+            resolveOnce('timeout');
+          }
+        }
+      }, 50);
+
+      // Timeout de segurança (2 segundos)
+      const timeoutId = setTimeout(() => {
+        clearInterval(checkInterval);
+        resolveOnce('timeout de segurança');
+      }, 2000);
+    });
+  }
+
+  /**
+   * Aguarda a verificação inicial da autenticação
+   */
+  async waitForAuthCheck() {
+    return new Promise((resolve) => {
+      let resolved = false;
+      const resolveOnce = (reason) => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
+        }
+      };
+
+      // Verificar imediatamente se já há usuário
+      const checkCurrentUser = () => {
+        if (this.storage?.authService?.getCurrentUser()) {
+          resolveOnce('usuário já autenticado');
+          return true;
+        }
+        return false;
+      };
+
+      // Se já tem usuário, resolver imediatamente
+      if (checkCurrentUser()) return;
+
+      // Handlers para eventos
+      const authHandler = () => {
+        document.removeEventListener('supabaseSignIn', authHandler);
+        clearTimeout(timeoutId);
+        resolveOnce('evento supabaseSignIn');
+      };
+
+      // Escutar evento de login
+      document.addEventListener('supabaseSignIn', authHandler);
+
+      // Verificar periodicamente (a cada 100ms por até 3 segundos)
+      let attempts = 0;
+      const maxAttempts = 30;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (checkCurrentUser() || attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          clearTimeout(timeoutId);
+          document.removeEventListener('supabaseSignIn', authHandler);
+          if (attempts >= maxAttempts) {
+            resolveOnce('timeout após verificações periódicas');
+          }
+        }
+      }, 100);
+
+      // Timeout de segurança final (3 segundos)
+      const timeoutId = setTimeout(() => {
+        clearInterval(checkInterval);
+        document.removeEventListener('supabaseSignIn', authHandler);
+        resolveOnce('timeout de segurança');
+      }, 3000);
+    });
   }
 
   /**
@@ -77,18 +180,13 @@ class ForjadorApp {
       'generateLore'
     ];
     
-    console.log('⏳ Aguardando elementos essenciais...');
-    
     return new Promise((resolve) => {
       const checkElements = () => {
         const missingElements = requiredElements.filter(id => !document.getElementById(id));
         
         if (missingElements.length === 0) {
-          console.log('✅ Todos os elementos encontrados!');
           resolve();
         } else {
-          console.log('⏳ Elementos faltando:', missingElements);
-          console.log('🔍 Tentando novamente em 100ms...');
           setTimeout(checkElements, 100);
         }
       };
@@ -101,63 +199,48 @@ class ForjadorApp {
    * Configura os event listeners
    */
   setupEventListeners() {
-    console.log('🔍 Configurando event listeners...');
-    
     // Botão de rolar atributos
     const rollAttributesBtn = document.getElementById('rollAttributes');
-    console.log('🎲 Botão rollAttributes:', rollAttributesBtn);
     if (rollAttributesBtn) {
       rollAttributesBtn.addEventListener('click', () => {
-        console.log('🎲 Botão rollAttributes clicado!');
         this.rollAttributes();
       });
-      console.log('✅ Event listener adicionado: rollAttributes');
     } else {
       console.error('❌ Botão rollAttributes não encontrado!');
     }
 
     // Botão de salvar personagem
     const saveCharacterBtn = document.getElementById('saveCharacter');
-    console.log('💾 Botão saveCharacter:', saveCharacterBtn);
     if (saveCharacterBtn) {
       saveCharacterBtn.addEventListener('click', (e) => {
-        console.log('💾 Botão saveCharacter clicado!');
         this.saveCharacter(e);
       });
-      console.log('✅ Event listener adicionado: saveCharacter');
     } else {
       console.error('❌ Botão saveCharacter não encontrado!');
     }
 
     // Botão de limpar formulário
     const clearFormBtn = document.getElementById('clearForm');
-    console.log('🧹 Botão clearForm:', clearFormBtn);
     if (clearFormBtn) {
       clearFormBtn.addEventListener('click', () => {
-        console.log('🧹 Botão clearForm clicado!');
         this.clearForm();
       });
-      console.log('✅ Event listener adicionado: clearForm');
     } else {
       console.error('❌ Botão clearForm não encontrado!');
     }
 
     // Botão de gerar história
     const generateLoreBtn = document.getElementById('generateLore');
-    console.log('📖 Botão generateLore:', generateLoreBtn);
     if (generateLoreBtn) {
       generateLoreBtn.addEventListener('click', () => {
-        console.log('📖 Botão generateLore clicado!');
         this.generateCharacterLore();
       });
-      console.log('✅ Event listener adicionado: generateLore');
     } else {
       console.error('❌ Botão generateLore não encontrado!');
     }
 
     // Evento de exclusão de personagem
     document.addEventListener('characterDeleted', () => this.loadCharacters());
-    console.log('✅ Event listener adicionado: characterDeleted');
     
     // Teste adicional: adicionar listeners diretamente nos elementos
     this.addDirectListeners();
@@ -167,21 +250,15 @@ class ForjadorApp {
    * Adiciona listeners diretos como fallback
    */
   addDirectListeners() {
-    console.log('🔄 Adicionando listeners diretos como fallback...');
-    
     // Tentar adicionar listeners diretamente
     const buttons = document.querySelectorAll('#rollAttributes, #saveCharacter, #clearForm, #generateLore');
-    console.log('🔍 Botões encontrados:', buttons.length);
     
     buttons.forEach(button => {
-      console.log('🔗 Adicionando listener direto para:', button.id);
-      
       // Remover listeners existentes para evitar duplicação
       const newButton = button.cloneNode(true);
       button.parentNode.replaceChild(newButton, button);
       
       newButton.addEventListener('click', (e) => {
-        console.log('🎯 Clique direto detectado em:', newButton.id);
         e.preventDefault();
         e.stopPropagation();
         
@@ -207,13 +284,11 @@ class ForjadorApp {
    * Rola todos os atributos
    */
   rollAttributes() {
-    console.log('🎲 Função rollAttributes chamada!');
     try {
       const attributes = rollAllAttributes();
       updateAttributeFields(attributes);
       
       showMessage('Atributos rolados com sucesso!', 'is-success');
-      console.log('✅ Atributos rolados:', attributes);
     } catch (error) {
       console.error('❌ Erro ao rolar atributos:', error);
       showMessage('Erro ao rolar atributos!', 'is-danger');
@@ -384,61 +459,32 @@ class ForjadorApp {
     // Configurar listeners de eventos Supabase (apenas uma vez)
     if (!this.authListenersAdded) {
       document.addEventListener('supabaseSignIn', (e) => {
-        console.log('🎉 ForjadorApp: Usuário logado via Supabase:', e.detail.user.email);
         this.onUserLogin(e.detail.user);
       });
 
       document.addEventListener('supabaseSignOut', () => {
-        console.log('👋 ForjadorApp: Usuário deslogado via Supabase');
         this.onUserLogout();
       });
       
       this.authListenersAdded = true;
-      console.log('✅ Supabase listeners do ForjadorApp registrados');
     }
   }
 
   onUserLogin(user) {
-    console.log('✅ Usuário autenticado:', user.email);
     this.loadCharacters();
   }
 
   onUserLogout() {
-    console.log('👋 Usuário deslogado');
     this.loadCharacters(); // Vai mostrar mensagem de login
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 DOM carregado, inicializando ForjadorApp...');
-  
-  // Teste simples para verificar se os elementos existem
-  const testElements = ['rollAttributes', 'saveCharacter', 'clearForm', 'generateLore'];
-  testElements.forEach(id => {
-    const element = document.getElementById(id);
-    console.log(`🔍 Teste elemento ${id}:`, element ? '✅ Encontrado' : '❌ Não encontrado');
-  });
-  
-  // Teste adicional: verificar se os elementos estão no DOM
-  console.log('🔍 Verificando estrutura do DOM...');
-  const characterPanel = document.querySelector('.character-panel');
-  console.log('📦 Character panel:', characterPanel);
-  
-  if (characterPanel) {
-    const buttons = characterPanel.querySelectorAll('button');
-    console.log('🔘 Botões encontrados no character-panel:', buttons.length);
-    buttons.forEach(btn => {
-      console.log('  -', btn.id, btn.textContent.trim());
-    });
-  }
-  
   initWorldManager();
   window.forjadorAppInstance = new ForjadorApp();
-  console.log('✅ ForjadorApp inicializado:', window.forjadorAppInstance);
 });
 
 document.addEventListener('worldChanged', () => {
-  console.log('🌍 Mundo alterado, recarregando personagens...');
   if (window.forjadorAppInstance) {
     window.forjadorAppInstance.loadCharacters();
   }

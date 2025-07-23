@@ -155,7 +155,6 @@ function rollAttributes() {
 
 function renderCharactersList() {
     const characters = storage.getAllCharacters();
-    console.log('Personagens carregados:', characters); // Debug
 
     const currentSelectedWorld = localStorage.getItem('selectedWorld') || 'dnd';
     const filteredCharacters = characters.filter(character => {
@@ -542,23 +541,13 @@ async function fetchBackstoryFromLocal(prompt) {
     const startTime = Date.now();
     
     try {
-        // Log do início da requisição
-        console.log('🔮 Iniciando geração de backstory via API...');
-
         // Usar a nova configuração centralizada da API
         const backstory = await window.API_CONFIG.generateStory(prompt);
-        const duration = Date.now() - startTime;
-        
-        // Log de sucesso com métricas
-            console.log(`✅ Backstory gerada em ${duration}ms`);
         return backstory;
         
     } catch (error) {
-        const duration = Date.now() - startTime;
-        
         // Log detalhado do erro
         console.error('❌ Erro ao gerar história via API:', error.message);
-        console.log(`Tempo decorrido: ${duration}ms`);
 
         // Retorna null para fallback
         return null;
@@ -986,7 +975,6 @@ async function generateCharacterLore() {
     if (companion) companion.reactToStoryGeneration();
 
     const prompt = generatePrompt(characterData);
-    console.log('Prompt enviado:', prompt);
     const backstoryFromLocal = await fetchBackstoryFromLocal(prompt);
 
     let finalBackstory;
@@ -995,7 +983,6 @@ async function generateCharacterLore() {
         const companion = getCompanion();
         if (companion) companion.reactToStorySuccess();
     } else {
-        console.log('Servidor local falhou, usando fallback...');
         finalBackstory = generateSimpleLore(characterData);
         const companion = getCompanion();
         if (companion) companion.reactToStoryFallback();

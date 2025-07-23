@@ -22,7 +22,7 @@ export default defineConfig({
           if (!existsSync(assetsPublic)) {
             mkdirSync(assetsPublic, { recursive: true });
           }
-          console.log('🖼️ Assets sincronizados entre raiz e public');
+          
         }
       }
     }
