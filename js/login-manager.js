@@ -271,6 +271,11 @@ export class LoginManager {
                 this.showMessage(result.message, 'success');
                 // O redirecionamento será feito pelo evento supabaseSignIn
             } else {
+                // Chamar guardas para erro do login
+                if (window.loginGuards) {
+                    window.loginGuards.onLoginError();
+                }
+                
                 this.showMessage(result.message, 'error');
             }
         } catch (error) {
@@ -327,6 +332,11 @@ export class LoginManager {
             }, 300);
         }
         
+        // Chamar guardas para comentar sobre registro
+        if (window.loginGuards) {
+            window.loginGuards.onSwitchToRegister();
+        }
+        
         // Event listeners já configurados no init
     }
 
@@ -350,6 +360,11 @@ export class LoginManager {
             }, 300);
         }
         
+        // Chamar guardas para comentário místico sobre esquecimento
+        if (window.loginGuards) {
+            window.loginGuards.onSwitchToForgotPassword();
+        }
+        
         // Event listeners já configurados no init
     }
 
@@ -365,6 +380,11 @@ export class LoginManager {
         const loginCard = document.getElementById('loginCard');
         if (loginCard) {
             loginCard.classList.remove('hidden');
+        }
+        
+        // Chamar guardas para comentar sobre retorno ao login
+        if (window.loginGuards) {
+            window.loginGuards.onSwitchToLogin();
         }
     }
 
@@ -449,6 +469,11 @@ export class LoginManager {
 
             if (result.success) {
                 if (result.needsConfirmation) {
+                    // Chamar guardas para sucesso do registro
+                    if (window.loginGuards) {
+                        window.loginGuards.onRegisterSuccess(username);
+                    }
+                    
                     this.showMessage('Conta criada! Verifique seu email para confirmar e depois faça login.', 'success');
                     
                     // Aguardar um pouco e voltar ao login com email preenchido
@@ -461,6 +486,11 @@ export class LoginManager {
                         this.showMessage('Após confirmar seu email, faça login aqui.', 'info');
                     }, 3000);
                 } else {
+                    // Chamar guardas para sucesso do registro
+                    if (window.loginGuards) {
+                        window.loginGuards.onRegisterSuccess(username);
+                    }
+                    
                     this.showMessage(`Conta criada com sucesso! Bem-vindo, ${username}!`, 'success');
                     
                     // Se não precisar confirmar email, redirecionar para o index
@@ -469,6 +499,11 @@ export class LoginManager {
                     }, 2000);
                 }
             } else {
+                // Chamar guardas para erro do registro
+                if (window.loginGuards) {
+                    window.loginGuards.onRegisterError();
+                }
+                
                 this.showMessage(result.message, 'error');
             }
         } catch (error) {
@@ -507,6 +542,11 @@ export class LoginManager {
             const result = await supabaseAuth.resetPassword(email);
 
             if (result.success) {
+                // Chamar guardas para sucesso do forgot password
+                if (window.loginGuards) {
+                    window.loginGuards.onForgotPasswordSuccess(email);
+                }
+                
                 this.showMessage('Email de recuperação enviado! Verifique sua caixa de entrada.', 'success');
                 
                 // Voltar ao login após alguns segundos
@@ -514,6 +554,11 @@ export class LoginManager {
                     this.showLoginForm();
                 }, 3000);
             } else {
+                // Chamar guardas para erro do forgot password
+                if (window.loginGuards) {
+                    window.loginGuards.onForgotPasswordError();
+                }
+                
                 this.showMessage(result.message, 'error');
             }
         } catch (error) {
@@ -623,6 +668,11 @@ export class LoginManager {
      * Callback de login bem-sucedido
      */
     onLoginSuccess(user) {
+        // Chamar guardas para comentar sobre sucesso do login
+        if (window.loginGuards) {
+            window.loginGuards.onLoginSuccess();
+        }
+        
         // Mostrar mensagem de boas-vindas
         this.showMessage(`Bem-vindo de volta, ${user.email}!`, 'success');
         
