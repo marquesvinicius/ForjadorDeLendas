@@ -88,6 +88,11 @@
     color: var(--accent-color) !important;
 }
 
+#logoutModal .fa-shield {
+    animation: none !important;
+    transform: none !important;
+}
+
 /* Responsividade otimizada para mobile */
 @media (max-width: 768px) {
     .logout-btn {

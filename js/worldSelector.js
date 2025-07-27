@@ -109,7 +109,16 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     `;
     document.body.appendChild(loadingModal);
-
+    
+    // ⭐ PREVENIR FECHAMENTO DE MODAIS PERSISTENTES
+    loadingModal.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal-background')) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+    });
+    
     // Criar a notificação de "Já está neste mundo"
     const worldNotification = document.createElement('div');
     worldNotification.className = 'notification is-info world-notification';
@@ -265,6 +274,19 @@ document.addEventListener('DOMContentLoaded', function () {
         // Ativar o modal
         const modal = document.getElementById('worldLoadingModal');
         modal.classList.add('is-active');
+        document.body.classList.add('modal-open');
+        
+        // ⭐ BLOQUEAR INTERAÇÕES FORA DO MODAL
+        blockBackgroundInteractions();
+        
+        // ⭐ PREVENIR FECHAMENTO AO CLICAR FORA (MODAL PERSISTENTE)
+        const modalBackground = modal.querySelector('.modal-background');
+        if (modalBackground) {
+            // Remover listeners antigos
+            modalBackground.removeEventListener('click', preventModalClose);
+            // Adicionar listener para prevenir fechamento
+            modalBackground.addEventListener('click', preventModalClose);
+        }
         
         // Aplicar o tema com atraso para permitir animação
         setTimeout(() => {
@@ -302,7 +324,58 @@ document.addEventListener('DOMContentLoaded', function () {
             // Fechar o modal após carregar o tema
             setTimeout(() => {
                 modal.classList.remove('is-active');
+                document.body.classList.remove('modal-open');
+                
+                // ⭐ RESTAURAR INTERAÇÕES APÓS FECHAR MODAL
+                unblockBackgroundInteractions();
             }, 1200);
         }, 2000); // Tempo suficiente para mostrar a animação de carregamento
     });
 });
+
+/**
+ * Bloqueia interações com o conteúdo de fundo
+ */
+function blockBackgroundInteractions() {
+    // Adicionar classe para bloquear interações
+    document.body.classList.add('modal-background-blocked');
+    
+    // Bloquear scroll do body
+    document.body.style.overflow = 'hidden';
+    
+    // Bloquear interações com elementos fora do modal
+    const elements = document.querySelectorAll('body > *:not(.modal)');
+    elements.forEach(element => {
+        if (!element.classList.contains('modal')) {
+            element.style.pointerEvents = 'none';
+            element.setAttribute('aria-hidden', 'true');
+        }
+    });
+}
+
+/**
+ * Restaura interações com o conteúdo de fundo
+ */
+function unblockBackgroundInteractions() {
+    // Remover classe de bloqueio
+    document.body.classList.remove('modal-background-blocked');
+    
+    // Restaurar scroll do body
+    document.body.style.overflow = '';
+    
+    // Restaurar interações com elementos
+    const elements = document.querySelectorAll('body > *');
+    elements.forEach(element => {
+        element.style.pointerEvents = '';
+        element.removeAttribute('aria-hidden');
+    });
+}
+
+/**
+ * Previne o fechamento do modal ao clicar fora
+ */
+function preventModalClose(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+}

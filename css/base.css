@@ -100,12 +100,15 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background-image: url('/assets/img/bg-login.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     z-index: 9999;
-    backdrop-filter: blur(10px);
 }
 
 .auth-loading-content {
@@ -124,6 +127,11 @@ body {
     color: var(--accent-color, #ffd700);
     margin-bottom: 1rem;
     animation: pulse 2s infinite;
+}
+
+/* Garantir que o escudo com fa-spin gire corretamente */
+.loading-spinner .fa-spin {
+    animation: spin 1s ease-in-out infinite !important;
 }
 
 .loading-text {
@@ -210,5 +218,10 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* Animação spin para o escudo girar corretamente */
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 

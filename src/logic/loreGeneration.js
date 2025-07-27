@@ -84,6 +84,10 @@ function openLoadingModal() {
 
     loadingModal.style.display = 'flex';
     loadingModal.classList.add('is-active');
+    document.body.classList.add('modal-open');
+    
+    // ⭐ BLOQUEAR INTERAÇÕES FORA DO MODAL
+    blockBackgroundInteractions();
 
     const modalContent = loadingModal.querySelector('.modal-content');
     if (modalContent) {
@@ -101,8 +105,51 @@ function closeLoadingModal() {
 
     setTimeout(() => {
         loadingModal.classList.remove('is-active');
+        document.body.classList.remove('modal-open');
+        
+        // ⭐ RESTAURAR INTERAÇÕES APÓS FECHAR MODAL
+        unblockBackgroundInteractions();
+        
         setTimeout(() => {
             loadingModal.style.display = 'none';
         }, 300);
     }, 2000);
+}
+
+/**
+ * Bloqueia interações com o conteúdo de fundo
+ */
+function blockBackgroundInteractions() {
+    // Adicionar classe para bloquear interações
+    document.body.classList.add('modal-background-blocked');
+    
+    // Bloquear scroll do body
+    document.body.style.overflow = 'hidden';
+    
+    // Bloquear interações com elementos fora do modal
+    const elements = document.querySelectorAll('body > *:not(.modal)');
+    elements.forEach(element => {
+        if (!element.classList.contains('modal')) {
+            element.style.pointerEvents = 'none';
+            element.setAttribute('aria-hidden', 'true');
+        }
+    });
+}
+
+/**
+ * Restaura interações com o conteúdo de fundo
+ */
+function unblockBackgroundInteractions() {
+    // Remover classe de bloqueio
+    document.body.classList.remove('modal-background-blocked');
+    
+    // Restaurar scroll do body
+    document.body.style.overflow = '';
+    
+    // Restaurar interações com elementos
+    const elements = document.querySelectorAll('body > *');
+    elements.forEach(element => {
+        element.style.pointerEvents = '';
+        element.removeAttribute('aria-hidden');
+    });
 } 

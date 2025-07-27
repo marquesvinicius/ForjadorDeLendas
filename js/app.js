@@ -358,6 +358,10 @@ function openLoadingModal() {
     // Força o modal a aparecer
     loadingModal.style.display = 'flex';
     loadingModal.classList.add('is-active');
+    document.body.classList.add('modal-open');
+    
+    // ⭐ BLOQUEAR INTERAÇÕES FORA DO MODAL
+    blockBackgroundInteractions();
 
     // Garante que o conteúdo do modal seja visível
     const modalContent = loadingModal.querySelector('.modal-content');
@@ -365,6 +369,7 @@ function openLoadingModal() {
         modalContent.style.opacity = '1';
         modalContent.style.transform = 'translateY(0)';
     }
+    // Removido: event listeners preventModalClose
 }
 
 // Função para fechar o modal de carregamento
@@ -375,6 +380,10 @@ function closeLoadingModal() {
     setTimeout(() => {
         // Remove a classe ativa
         loadingModal.classList.remove('is-active');
+        document.body.classList.remove('modal-open');
+        
+        // ⭐ RESTAURAR INTERAÇÕES APÓS FECHAR MODAL
+        unblockBackgroundInteractions();
 
         // Esconde o modal após a transição
         setTimeout(() => {
@@ -1011,6 +1020,17 @@ function openModal(modal) {
         return;
     }
     modal.classList.add('is-active');
+    document.body.classList.add('modal-open');
+    
+    // ⭐ BLOQUEAR INTERAÇÕES FORA DO MODAL
+    blockBackgroundInteractions();
+    
+    // ⭐ FOCUS NO MODAL PARA ACESSIBILIDADE
+    const modalContent = modal.querySelector('.modal-card, .modal-content');
+    if (modalContent) {
+        modalContent.focus();
+    }
+    
     const modalCard = modal.querySelector('.modal-card');
     if (modalCard) {
         modalCard.style.opacity = '0';
@@ -1020,6 +1040,48 @@ function openModal(modal) {
 
 function closeModal(modal) {
     modal.classList.remove('is-active');
+    document.body.classList.remove('modal-open');
+    
+    // ⭐ RESTAURAR INTERAÇÕES APÓS FECHAR MODAL
+    unblockBackgroundInteractions();
+}
+
+/**
+ * Bloqueia interações com o conteúdo de fundo
+ */
+function blockBackgroundInteractions() {
+    // Adicionar classe para bloquear interações
+    document.body.classList.add('modal-background-blocked');
+    
+    // Bloquear scroll do body
+    document.body.style.overflow = 'hidden';
+    
+    // Bloquear interações com elementos fora do modal
+    const elements = document.querySelectorAll('body > *:not(.modal)');
+    elements.forEach(element => {
+        if (!element.classList.contains('modal')) {
+            element.style.pointerEvents = 'none';
+            element.setAttribute('aria-hidden', 'true');
+        }
+    });
+}
+
+/**
+ * Restaura interações com o conteúdo de fundo
+ */
+function unblockBackgroundInteractions() {
+    // Remover classe de bloqueio
+    document.body.classList.remove('modal-background-blocked');
+    
+    // Restaurar scroll do body
+    document.body.style.overflow = '';
+    
+    // Restaurar interações com elementos
+    const elements = document.querySelectorAll('body > *');
+    elements.forEach(element => {
+        element.style.pointerEvents = '';
+        element.removeAttribute('aria-hidden');
+    });
 }
 
 function showMessage(message, type = 'is-info') {

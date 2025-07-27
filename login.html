@@ -332,6 +332,32 @@
         });
     </script>
     
+    <!-- Detectar logout e ocultar loading de autenticação -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar se veio de um logout
+            const isLogout = sessionStorage.getItem('logout_redirect');
+            
+            if (isLogout) {
+                // Limpar a flag
+                sessionStorage.removeItem('logout_redirect');
+                
+                // Ocultar loading de autenticação imediatamente
+                const authLoading = document.getElementById('authLoading');
+                const loginContainer = document.querySelector('.login-container');
+                
+                if (authLoading) {
+                    authLoading.style.display = 'none';
+                }
+                
+                if (loginContainer) {
+                    loginContainer.classList.remove('auth-hidden');
+                    loginContainer.classList.add('visible');
+                }
+            }
+        });
+    </script>
+    
     <script type="module" src="js/login-manager.js"></script> <!-- Ativado - Sistema Supabase -->
 
     <!-- Sistema de guardas interativos - Baseado no companion -->

@@ -4,6 +4,122 @@
     border-color: var(--panel-border);
 }
 
+/* ⭐ BLOQUEIO DE INTERAÇÕES FORA DO MODAL */
+.modal-background-blocked {
+    overflow: hidden !important;
+}
+
+.modal-background-blocked > *:not(.modal) {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.modal-background-blocked .modal {
+    pointer-events: auto !important;
+}
+
+/* ⭐ BLOQUEIO MAIS AGGRESSIVO PARA GARANTIR FUNCIONAMENTO */
+.modal-background-blocked .container,
+.modal-background-blocked .main-container,
+.modal-background-blocked .initial-section,
+.modal-background-blocked .left-section,
+.modal-background-blocked .right-section,
+.modal-background-blocked .character-creation-section,
+.modal-background-blocked .saved-characters-section,
+.modal-background-blocked .companion-container,
+.modal-background-blocked .world-selector,
+.modal-background-blocked .logout-btn,
+.modal-background-blocked .fog-overlay {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* ⭐ GARANTIR QUE MODAIS NÃO SEJAM AFETADOS */
+.modal-background-blocked .modal,
+.modal-background-blocked .modal * {
+    pointer-events: auto !important;
+    user-select: auto !important;
+}
+
+/* ⭐ BLOQUEIO MAIS AGGRESSIVO PARA GARANTIR FUNCIONAMENTO */
+.modal-background-blocked .container,
+.modal-background-blocked .main-container,
+.modal-background-blocked .initial-section,
+.modal-background-blocked .left-section,
+.modal-background-blocked .right-section,
+.modal-background-blocked .character-creation-section,
+.modal-background-blocked .saved-characters-section,
+.modal-background-blocked .companion-container,
+.modal-background-blocked .world-selector,
+.modal-background-blocked .logout-btn,
+.modal-background-blocked .fog-overlay {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* ⭐ GARANTIR QUE MODAIS NÃO SEJAM AFETADOS */
+.modal-background-blocked .modal,
+.modal-background-blocked .modal * {
+    pointer-events: auto !important;
+    user-select: auto !important;
+}
+
+/* ⭐ MELHORAR BACKDROP DOS MODAIS */
+.modal-background {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* ⭐ PREVENIR CLICKS ACIDENTAIS */
+.modal.is-active {
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+}
+
+.modal.is-active .modal-card,
+.modal.is-active .modal-content {
+    pointer-events: auto !important;
+    user-select: auto !important;
+}
+
+/* ⭐ GARANTIR QUE MODAIS NÃO SEJAM AFETADOS PELO BLOQUEIO */
+.modal-background-blocked .modal {
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+}
+
+.modal-background-blocked .modal * {
+    pointer-events: auto !important;
+}
+
+/* ⭐ MELHORAR BACKDROP DOS MODAIS */
+.modal-background {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    pointer-events: auto !important;
+}
+
+/* ⭐ SCROLLBAR PERSONALIZADA PARA MODAIS */
+.modal.is-active .modal-card-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal.is-active .modal-card-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.modal.is-active .modal-card-body::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+.modal.is-active .modal-card-body::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
 .modal-card-body {
     background-color: var(--panel-bg);
     color: var(--text-color);
@@ -106,6 +222,87 @@
 #loadingModal .medieval-title {
     color: var(--accent-color);
     font-size: 1.5rem;
+}
+
+/* Modal de Loading para Logout - com escudo girando corretamente */
+#logoutLoadingModal {
+    z-index: 9999;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 2vw;
+    box-sizing: border-box;
+}
+
+#logoutLoadingModal.is-active {
+    display: flex;
+}
+
+#logoutLoadingModal .modal-content {
+    background-color: var(--panel-bg);
+    border: 3px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 2rem;
+    width: auto;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    margin: 0 auto;
+}
+
+#logoutLoadingModal.is-active .modal-content {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#logoutLoadingModal .box {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 1.5rem !important;
+}
+
+/* Garantir que o escudo gire corretamente no próprio eixo */
+#logoutLoadingModal .logout-loading-spinner {
+    font-size: 3rem;
+    color: var(--accent-color, #ffd700);
+    margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+}
+
+#logoutLoadingModal .logout-loading-spinner .fa-shield-alt {
+    animation: spin 1s ease-in-out infinite;
+}
+
+#logoutLoadingModal .loading-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#logoutLoadingModal .loading-subtext {
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    opacity: 0.9;
+}
+
+/* Animação spin para o escudo girar corretamente */
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* Estilos para o modal de personagem */
@@ -285,4 +482,16 @@
 
 .world-notification button.delete:hover {
     background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ⭐ BLOQUEIO UNIVERSAL - TODOS OS ELEMENTOS FORA DE MODAIS */
+.modal-background-blocked *:not(.modal):not(.modal *) {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* ⭐ PREVENIR QUALQUER INTERAÇÃO COM BACKGROUND */
+.modal.is-active .modal-background {
+    pointer-events: none !important;
+    cursor: default !important;
 }
