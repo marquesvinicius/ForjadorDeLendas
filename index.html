@@ -27,8 +27,19 @@
     <!-- Overlay de névoa -->
     <div class="fog-overlay"></div>
 
+    <!-- Loading inicial - oculta conteúdo até autenticação ser verificada -->
+    <div id="authLoading" class="auth-loading-overlay">
+        <div class="auth-loading-content">
+            <div class="loading-spinner">
+                <i class="fas fa-shield-alt fa-spin"></i>
+            </div>
+            <p class="loading-text">Verificando acesso ao Reino...</p>
+            <p class="loading-subtext">Aguarde enquanto nossos guardas verificam suas credenciais</p>
+        </div>
+    </div>
+
     <!-- Container principal -->
-    <div class="container is-fluid main-container">
+    <div id="mainContent" class="container is-fluid main-container auth-hidden">
         <div class="initial-section">
             <!-- Seção esquerda -->
             <div class="left-section">
@@ -376,9 +387,10 @@
     <!-- Dependências externas -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- Sistema de autenticação integrado -->
+    
     <!-- Scripts core -->
     <script type="module" src="src/core/app-initializer.js"></script>
-    <script type="module" src="src/core/storage.js"></script>
     <script type="module" src="src/core/supabase.js"></script>
     <script type="module" src="src/core/supabase-auth-helper.js"></script>
     <script type="module" src="src/core/profile-migration.js"></script>

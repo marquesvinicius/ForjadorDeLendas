@@ -15,6 +15,8 @@ export class LoginManager {
      * Inicializar o gerenciador de login
      */
     async init() {
+        console.log('🔐 LoginManager: Inicializando...');
+        
         // ⭐ PROTEÇÃO CONTRA LOOP INFINITO
         const redirectCount = sessionStorage.getItem('loginRedirectCount') || '0';
         if (parseInt(redirectCount) > 3) {
@@ -35,22 +37,42 @@ export class LoginManager {
 
         // Verificar se já está logado APÓS Supabase carregar
         if (supabaseAuth.isAuthenticated()) {
+            console.log('✅ LoginManager: Usuário já autenticado');
+            
             // Se já estiver logado e estiver na página de login, redirecionar
             if (window.location.pathname.includes('login.html')) {
+                console.log('🔄 LoginManager: Redirecionando usuário logado para index.html');
+                
                 // Incrementar contador de redirecionamento
                 const currentCount = parseInt(redirectCount) + 1;
                 sessionStorage.setItem('loginRedirectCount', currentCount.toString());
                 
                 // Delay antes do redirecionamento para evitar loops rápidos
                 setTimeout(() => {
-                window.location.href = 'index.html';
+                    window.location.href = 'index.html';
                 }, 1000);
+                return;
+            }
+        } else {
+            console.log('❌ LoginManager: Usuário não autenticado');
+            
+            // Se não estiver logado e estiver na página principal, redirecionar para login
+            if (!window.location.pathname.includes('login.html')) {
+                console.log('🔄 LoginManager: Redirecionando usuário não autenticado para login.html');
+                window.location.href = 'login.html';
                 return;
             }
         }
 
         // Reset contador se chegou aqui sem problemas
         sessionStorage.removeItem('loginRedirectCount');
+
+        // ⭐ DELAY MÍNIMO PARA FEEDBACK VISUAL
+        await this.minimumLoadingDelay();
+
+        // Se chegou aqui, usuário está na página correta
+        // Mostrar conteúdo da página de login
+        this.showLoginContent();
 
         // Configurar event listeners
         this.setupEventListeners();
@@ -60,6 +82,45 @@ export class LoginManager {
         
         // Verificar se há processo de reset de senha
         this.checkPasswordReset();
+    }
+
+    /**
+     * Delay mínimo para feedback visual adequado
+     */
+    async minimumLoadingDelay() {
+        return new Promise((resolve) => {
+            // Delay mínimo de 1.5 segundos para feedback visual
+            setTimeout(() => {
+                console.log('⏱️ LoginManager: Delay mínimo concluído');
+                resolve();
+            }, 1500);
+        });
+    }
+
+    /**
+     * Mostrar conteúdo da página de login após verificação
+     */
+    showLoginContent() {
+        const loadingOverlay = document.getElementById('authLoading');
+        const loginContent = document.querySelector('.login-container');
+        
+        if (loadingOverlay && loginContent) {
+            // Ocultar loading com transição suave
+            loadingOverlay.classList.add('hidden');
+            
+            // Mostrar conteúdo de login
+            loginContent.classList.remove('auth-hidden');
+            loginContent.classList.add('visible');
+            
+            // Remover loading do DOM após transição
+            setTimeout(() => {
+                if (loadingOverlay.parentNode) {
+                    loadingOverlay.parentNode.removeChild(loadingOverlay);
+                }
+            }, 300);
+            
+            console.log('✅ LoginManager: Conteúdo de login exibido');
+        }
     }
 
     /**

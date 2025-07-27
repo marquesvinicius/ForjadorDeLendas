@@ -29,6 +29,17 @@
     <!-- Overlay de névoa mais sutil para login -->
     <div class="fog-overlay" style="opacity: 0.05;"></div>
 
+    <!-- Loading inicial - oculta conteúdo até autenticação ser verificada -->
+    <div id="authLoading" class="auth-loading-overlay">
+        <div class="auth-loading-content">
+            <div class="loading-spinner">
+                <i class="fas fa-shield-alt fa-spin"></i>
+            </div>
+            <p class="loading-text">Verificando acesso ao Reino...</p>
+            <p class="loading-subtext">Aguarde enquanto nossos guardas verificam suas credenciais</p>
+        </div>
+    </div>
+
     <!-- Guardas laterais -->
     <div class="left-guard">
         <div class="guard-speech-bubble hidden">
@@ -43,7 +54,7 @@
         <img src="assets/img/guarda-2.png" alt="Guarda Direito" class="guard-image" id="rightGuardAvatar">
     </div>
 
-    <div class="login-container">
+    <div class="login-container auth-hidden">
         <div class="guard-castle">
             <!-- Login Card -->
             <div id="loginCard" class="auth-card">

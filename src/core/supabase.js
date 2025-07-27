@@ -366,6 +366,8 @@ export class SupabaseAuth {
      * Callback quando usuário faz logout
      */
     onSignOut() {
+        console.log('🚪 Supabase: Usuário fez logout');
+        
         // Dispatch evento customizado
         const event = new CustomEvent('supabaseSignOut')
         document.dispatchEvent(event)
@@ -373,6 +375,7 @@ export class SupabaseAuth {
         // ⭐ REDIRECIONAMENTO EXPLÍCITO PARA LOGIN
         // Se estiver em qualquer página que não seja login, redirecionar
         if (!window.location.pathname.includes('login.html')) {
+            console.log('🔄 Supabase: Redirecionando para login após logout');
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 500); // Pequeno delay para garantir que o evento seja processado

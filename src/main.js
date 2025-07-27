@@ -119,13 +119,19 @@ class ForjadorApp {
       const resolveOnce = (reason) => {
         if (!resolved) {
           resolved = true;
+          console.log('🔐 Main: Verificação de auth concluída:', reason);
           resolve();
         }
       };
 
       // Verificar imediatamente se já há usuário
       const checkCurrentUser = () => {
-        if (this.storage?.authService?.getCurrentUser()) {
+        // Verificar múltiplas fontes de autenticação
+        const supabaseUser = this.authSystem?.getCurrentUser();
+        const storageUser = this.storage?.authService?.getCurrentUser();
+        
+        if (supabaseUser || storageUser) {
+          console.log('✅ Main: Usuário autenticado encontrado');
           resolveOnce('usuário já autenticado');
           return true;
         }
@@ -155,6 +161,7 @@ class ForjadorApp {
           clearTimeout(timeoutId);
           document.removeEventListener('supabaseSignIn', authHandler);
           if (attempts >= maxAttempts) {
+            console.warn('⚠️ Main: Timeout na verificação de auth');
             resolveOnce('timeout após verificações periódicas');
           }
         }
@@ -164,6 +171,7 @@ class ForjadorApp {
       const timeoutId = setTimeout(() => {
         clearInterval(checkInterval);
         document.removeEventListener('supabaseSignIn', authHandler);
+        console.warn('⚠️ Main: Timeout de segurança na verificação de auth');
         resolveOnce('timeout de segurança');
       }, 3000);
     });

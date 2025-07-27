@@ -19,6 +19,20 @@ body {
     z-index: 10; /* Bem acima dos guardas */
 }
 
+/* Ocultar conteúdo até autenticação ser verificada */
+.login-container.auth-hidden {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Mostrar conteúdo após verificação */
+.login-container.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
 .guard-castle {
     background-color: var(--panel-bg);
     border: 2px solid var(--panel-border);
