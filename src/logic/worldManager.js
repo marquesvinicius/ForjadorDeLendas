@@ -159,12 +159,24 @@ export function initWorldManager() {
     updateFormForCurrentWorld();
     
     // Escutar mudanças de mundo
-    document.addEventListener('worldChanged', () => {
+    document.addEventListener('worldChanged', (event) => {
+        const oldWorld = event.detail?.oldWorld;
+        const newWorld = event.detail?.newWorld || localStorage.getItem('selectedWorld') || 'tormenta';
+        
         updateFormForCurrentWorld();
         
         // Recarregar companion para usar novas falas
         if (window.magoCompanion) {
-            window.magoCompanion.greet();
+            // Usar as novas interações de mudança de mundo
+            if (window.magoCompanion.reactToWorldChange) {
+                // Delay para dar tempo da saudação inicial terminar
+                setTimeout(() => {
+                    window.magoCompanion.reactToWorldChange(newWorld, oldWorld);
+                }, 3000); // 3 segundos de delay
+            } else {
+                // Fallback para o método antigo
+                window.magoCompanion.greet();
+            }
         }
     });
 }

@@ -33,6 +33,9 @@ export async function generateCharacterLore(characterData, backgroundTextArea, s
         updateBackgroundWithLore(backstory, backgroundTextArea, storage, currentCharacterId, characterData);
         companionEvents.onStoryGenerationSuccess();
         
+        // 🎭 NOVA INTERAÇÃO: Feedback sobre o conteúdo da história
+        companionEvents.onStoryContentFeedback(backstory, characterData);
+        
     } catch (error) {
         console.error('❌ Erro ao gerar história via API:', error.message);
         

@@ -80,5 +80,32 @@ export const companionEvents = {
     onStoryGenerationFallback: () => {
         const companion = getCompanion();
         if (companion) companion.reactToStoryFallback();
+    },
+
+    /**
+     * Notifica sobre mudança de mundo
+     * @param {string} newWorld - Novo mundo selecionado
+     * @param {string} oldWorld - Mundo anterior (opcional)
+     */
+    onWorldChange: (newWorld, oldWorld = null) => {
+        const companion = getCompanion();
+        if (companion && companion.reactToWorldChange) {
+            companion.reactToWorldChange(newWorld, oldWorld);
+        }
+    },
+
+    /**
+     * Notifica sobre feedback de conteúdo da história
+     * @param {string} story - História gerada
+     * @param {Object} characterData - Dados do personagem
+     */
+    onStoryContentFeedback: (story, characterData) => {
+        const companion = getCompanion();
+        if (companion && companion.reactToStoryContent) {
+            // Delay para não sobrecarregar o usuário
+            setTimeout(() => {
+                companion.reactToStoryContent(story, characterData);
+            }, 2000);
+        }
     }
 }; 

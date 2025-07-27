@@ -288,15 +288,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             // Salvar a seleção no localStorage
+            const oldWorld = localStorage.getItem('selectedWorld') || 'dnd';
             localStorage.setItem('selectedWorld', selectedWorld.id);
-            document.dispatchEvent(new CustomEvent('worldChanged'));
+            
+            // Disparar evento com dados do mundo anterior e novo
+            document.dispatchEvent(new CustomEvent('worldChanged', {
+                detail: {
+                    oldWorld: oldWorld,
+                    newWorld: selectedWorld.id
+                }
+            }));
 
             // Notificar pelo companion com saudação específica do mundo
             if (window.magoCompanion && window.magoCompanion.greet) {
                 // Aguardar um pouco para o tema carregar antes da saudação
                 setTimeout(() => {
                     window.magoCompanion.greet();
-                }, 300);
+                }, 500); // Aumentado para 500ms
             }
 
             // Fechar o modal após carregar o tema

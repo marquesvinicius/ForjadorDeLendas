@@ -602,6 +602,361 @@ class MagoCompanion {
         const response = responses[Math.floor(Math.random() * responses.length)];
         this.speak(response, 3000);
     }
+
+    // 🎭 NOVAS INTERAÇÕES COM SISTEMA DE TEMAS
+    
+    /**
+     * Reage à mudança de mundo
+     * @param {string} newWorld - Novo mundo selecionado
+     * @param {string} oldWorld - Mundo anterior (opcional)
+     */
+    reactToWorldChange(newWorld, oldWorld = null) {
+        const worldChangeResponses = {
+            'dnd': {
+                fromTormenta: [
+                    "Ah! Dos reinos de Arton para os Reinos Esquecidos! Que jornada épica!",
+                    "De Tormenta para Faerûn? *ajusta as vestes* Bem-vindo aos Reinos Esquecidos!",
+                    "Pelos deuses! De Arton para Waterdeep? Que mudança de ares!"
+                ],
+                fromOrdem: [
+                    "Do paranormal para o fantástico! Os Reinos Esquecidos te aguardam!",
+                    "De investigador para aventureiro? Faerûn precisa de sua coragem!",
+                    "Por Mystra! Dos horrores do Outro Lado para as maravilhas de Faerûn!"
+                ],
+                default: [
+                    "Bem-vindo aos Reinos Esquecidos! Que os deuses te guiem!",
+                    "Pelos deuses! Os Reinos Esquecidos te aguardam, aventureiro!",
+                    "Que Tymora sorria para você em Faerûn!"
+                ]
+            },
+            'tormenta': {
+                fromDnd: [
+                    "De Faerûn para Arton? Que viagem dimensional!",
+                    "Pelos deuses! Dos Reinos Esquecidos para o Reinado? Que aventura!",
+                    "De Waterdeep para Valkaria? Que mudança de cenário!"
+                ],
+                fromOrdem: [
+                    "Do paranormal para o fantástico! Arton te aguarda, herói!",
+                    "De investigador para aventureiro? O Reinado precisa de você!",
+                    "Por Khalmyr! Dos horrores para as maravilhas de Arton!"
+                ],
+                default: [
+                    "Bem-vindo a Arton! Que Tanna-Toh te abençoe!",
+                    "Por minhas barbas mágicas! O Reinado te aguarda!",
+                    "Que os deuses do Pantheon te guiem em Arton!"
+                ]
+            },
+            'ordem-paranormal': {
+                fromDnd: [
+                    "De Faerûn para a realidade? Que mudança... sobrenatural!",
+                    "Pelos deuses! Dos Reinos Esquecidos para o paranormal?",
+                    "De Waterdeep para São Paulo? Que viagem... dimensional!"
+                ],
+                fromTormenta: [
+                    "De Arton para a realidade? Que transição... estranha!",
+                    "Por Khalmyr! Do Reinado para o paranormal?",
+                    "De Valkaria para São Paulo? Que mudança de... realidade!"
+                ],
+                default: [
+                    "Bem-vindo à Ordo Realitas! Que Veríssimo te proteja!",
+                    "Por Veríssimo! A Membrana está frágil, agente!",
+                    "Que os elementos não te corrompam nesta nova missão!"
+                ]
+            }
+        };
+
+        let responses;
+        if (oldWorld && worldChangeResponses[newWorld] && worldChangeResponses[newWorld][`from${oldWorld.charAt(0).toUpperCase() + oldWorld.slice(1)}`]) {
+            responses = worldChangeResponses[newWorld][`from${oldWorld.charAt(0).toUpperCase() + oldWorld.slice(1)}`];
+        } else if (worldChangeResponses[newWorld]) {
+            responses = worldChangeResponses[newWorld].default;
+        } else {
+            responses = ["Que mudança interessante de cenário!"];
+        }
+
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.speak(response, 5000); // Aumentado para 5 segundos
+
+        // Comentário adicional sobre as mudanças visuais
+        setTimeout(() => {
+            this.commentOnVisualChanges(newWorld);
+        }, 3500); // Aumentado para 3.5 segundos
+    }
+
+    /**
+     * Comenta sobre as mudanças visuais do tema
+     * @param {string} world - Mundo atual
+     */
+    commentOnVisualChanges(world) {
+        const visualComments = {
+            'dnd': [
+                "Observe como os pergaminhos agora brilham com a luz de Mystra!",
+                "As cores mudaram para refletir a magia dos Reinos Esquecidos!",
+                "Veja como a interface agora ecoa a grandiosidade de Faerûn!"
+            ],
+            'tormenta': [
+                "As cores agora refletem a diversidade de Arton!",
+                "Observe como a interface brilha com a luz de Tanna-Toh!",
+                "Veja como os elementos mudaram para honrar o Pantheon!"
+            ],
+            'ordem-paranormal': [
+                "A interface agora tem um toque... sobrenatural!",
+                "Observe como as cores refletem a fragilidade da Membrana!",
+                "Veja como tudo mudou para o estilo da Ordo Realitas!"
+            ]
+        };
+
+        if (visualComments[world]) {
+            const comment = visualComments[world][Math.floor(Math.random() * visualComments[world].length)];
+            this.speak(comment, 4000); // Aumentado para 4 segundos
+        }
+    }
+
+    /**
+     * Adapta o discurso conforme o mundo selecionado
+     * @param {string} world - Mundo atual
+     */
+    adaptSpeechToWorld(world) {
+        const speechAdaptations = {
+            'dnd': {
+                greeting: "Pelos deuses!",
+                approval: "Mystra aprova!",
+                concern: "Os deuses observam...",
+                excitement: "Que aventura épica!"
+            },
+            'tormenta': {
+                greeting: "Por minhas barbas mágicas!",
+                approval: "Tanna-Toh aprova!",
+                concern: "A Tormenta observa...",
+                excitement: "Que lenda em Arton!"
+            },
+            'ordem-paranormal': {
+                greeting: "Por Veríssimo!",
+                approval: "A Ordo aprova!",
+                concern: "O Outro Lado observa...",
+                excitement: "Que missão paranormal!"
+            }
+        };
+
+        this.currentSpeechStyle = speechAdaptations[world] || speechAdaptations['tormenta'];
+    }
+
+    // 📚 FEEDBACK SOBRE HISTÓRIAS GERADAS
+    
+    /**
+     * Analisa e comenta sobre o conteúdo específico da história
+     * @param {string} story - História gerada
+     * @param {Object} characterData - Dados do personagem
+     */
+    reactToStoryContent(story, characterData) {
+        const currentWorld = localStorage.getItem('selectedWorld') || 'tormenta';
+        
+        // Análise de elementos específicos na história
+        const storyElements = this.analyzeStoryElements(story, characterData);
+        
+        // Comentários baseados nos elementos encontrados
+        this.commentOnStoryElements(storyElements, currentWorld);
+        
+        // Sugestões de desenvolvimento
+        setTimeout(() => {
+            this.suggestCharacterDevelopment(characterData, currentWorld);
+        }, 3000);
+    }
+
+    /**
+     * Analisa elementos específicos na história
+     * @param {string} story - História gerada
+     * @param {Object} characterData - Dados do personagem
+     * @returns {Object} Elementos encontrados
+     */
+    analyzeStoryElements(story, characterData) {
+        const elements = {
+            hasFamily: story.toLowerCase().includes('família') || story.toLowerCase().includes('pais') || story.toLowerCase().includes('mãe') || story.toLowerCase().includes('pai'),
+            hasTragedy: story.toLowerCase().includes('morte') || story.toLowerCase().includes('perda') || story.toLowerCase().includes('tragédia'),
+            hasAdventure: story.toLowerCase().includes('aventura') || story.toLowerCase().includes('viagem') || story.toLowerCase().includes('jornada'),
+            hasMagic: story.toLowerCase().includes('magia') || story.toLowerCase().includes('mágico') || story.toLowerCase().includes('encantamento'),
+            hasConflict: story.toLowerCase().includes('guerra') || story.toLowerCase().includes('batalha') || story.toLowerCase().includes('conflito'),
+            hasMystery: story.toLowerCase().includes('mistério') || story.toLowerCase().includes('segredo') || story.toLowerCase().includes('enigma'),
+            hasRomance: story.toLowerCase().includes('amor') || story.toLowerCase().includes('romance') || story.toLowerCase().includes('paixão'),
+            hasTraining: story.toLowerCase().includes('treinamento') || story.toLowerCase().includes('estudo') || story.toLowerCase().includes('aprendizado'),
+            hasVillage: story.toLowerCase().includes('vila') || story.toLowerCase().includes('aldeia') || story.toLowerCase().includes('cidade pequena'),
+            hasCity: story.toLowerCase().includes('cidade') || story.toLowerCase().includes('metrópole') || story.toLowerCase().includes('capital'),
+            hasForest: story.toLowerCase().includes('floresta') || story.toLowerCase().includes('selva') || story.toLowerCase().includes('bosque'),
+            hasMountain: story.toLowerCase().includes('montanha') || story.toLowerCase().includes('montanhas') || story.toLowerCase().includes('pico'),
+            hasSea: story.toLowerCase().includes('mar') || story.toLowerCase().includes('oceano') || story.toLowerCase().includes('porto'),
+            hasDungeon: story.toLowerCase().includes('masmorra') || story.toLowerCase().includes('dungeon') || story.toLowerCase().includes('ruínas'),
+            hasTemple: story.toLowerCase().includes('templo') || story.toLowerCase().includes('igreja') || story.toLowerCase().includes('santuário'),
+            hasAcademy: story.toLowerCase().includes('academia') || story.toLowerCase().includes('escola') || story.toLowerCase().includes('universidade'),
+            hasGuild: story.toLowerCase().includes('guilda') || story.toLowerCase().includes('guild') || story.toLowerCase().includes('corporação'),
+            hasNobility: story.toLowerCase().includes('nobre') || story.toLowerCase().includes('aristocracia') || story.toLowerCase().includes('realeza'),
+            hasPoverty: story.toLowerCase().includes('pobre') || story.toLowerCase().includes('miséria') || story.toLowerCase().includes('fome'),
+            hasWealth: story.toLowerCase().includes('rico') || story.toLowerCase().includes('riqueza') || story.toLowerCase().includes('fortuna')
+        };
+
+        return elements;
+    }
+
+    /**
+     * Comenta sobre elementos específicos encontrados na história
+     * @param {Object} elements - Elementos encontrados
+     * @param {string} world - Mundo atual
+     */
+    commentOnStoryElements(elements, world) {
+        const comments = [];
+        
+        // Comentários baseados em elementos específicos
+        if (elements.hasFamily) {
+            comments.push("Vejo que a família tem um papel importante nesta história...");
+        }
+        
+        if (elements.hasTragedy) {
+            comments.push("Uma tragédia no passado... isso explica muito sobre sua motivação.");
+        }
+        
+        if (elements.hasAdventure) {
+            comments.push("Uma vida de aventuras! Que espírito aventureiro!");
+        }
+        
+        if (elements.hasMagic) {
+            if (world === 'dnd') {
+                comments.push("A magia de Mystra flui em suas veias!");
+            } else if (world === 'tormenta') {
+                comments.push("A magia de Tanna-Toh te escolheu!");
+            } else {
+                comments.push("Há algo... sobrenatural em seu passado.");
+            }
+        }
+        
+        if (elements.hasConflict) {
+            comments.push("Um passado marcado por conflitos... isso forjou seu caráter.");
+        }
+        
+        if (elements.hasMystery) {
+            comments.push("Há mistérios em seu passado que ainda precisam ser revelados...");
+        }
+        
+        if (elements.hasRomance) {
+            comments.push("O amor também tem seu lugar em sua história...");
+        }
+        
+        if (elements.hasTraining) {
+            comments.push("Dedicação ao treinamento! Isso mostra disciplina.");
+        }
+        
+        // Comentários sobre locais
+        if (elements.hasVillage) {
+            comments.push("Uma origem humilde... isso te deu perspectiva.");
+        }
+        
+        if (elements.hasCity) {
+            comments.push("Criado na cidade grande... isso te deu experiência urbana.");
+        }
+        
+        if (elements.hasForest) {
+            comments.push("A natureza sempre foi sua aliada...");
+        }
+        
+        if (elements.hasMountain) {
+            comments.push("As montanhas te ensinaram resistência...");
+        }
+        
+        if (elements.hasSea) {
+            comments.push("O mar sempre te chamou... há algo de liberdade nisso.");
+        }
+        
+        if (elements.hasDungeon) {
+            comments.push("Masmorras e ruínas... que experiência perigosa!");
+        }
+        
+        if (elements.hasTemple) {
+            comments.push("A fé sempre foi importante em sua vida...");
+        }
+        
+        if (elements.hasAcademy) {
+            comments.push("Educação formal! Isso explica sua sabedoria.");
+        }
+        
+        if (elements.hasGuild) {
+            comments.push("Uma guilda! Isso te deu conexões importantes.");
+        }
+        
+        if (elements.hasNobility) {
+            comments.push("Sangue nobre! Isso explica sua presença.");
+        }
+        
+        if (elements.hasPoverty) {
+            comments.push("A pobreza te ensinou a valorizar cada oportunidade...");
+        }
+        
+        if (elements.hasWealth) {
+            comments.push("A riqueza te deu oportunidades únicas...");
+        }
+
+        // Escolher um comentário aleatório se houver algum
+        if (comments.length > 0) {
+            const comment = comments[Math.floor(Math.random() * comments.length)];
+            this.speak(comment, 4000);
+        }
+    }
+
+    /**
+     * Sugere desenvolvimento do personagem
+     * @param {Object} characterData - Dados do personagem
+     * @param {string} world - Mundo atual
+     */
+    suggestCharacterDevelopment(characterData, world) {
+        const suggestions = [];
+        
+        // Sugestões baseadas na classe
+        if (characterData.class) {
+            if (characterData.class.includes('Mago') || characterData.class.includes('Arcanista')) {
+                suggestions.push("Considere estudar magias de proteção para complementar seu arsenal.");
+            } else if (characterData.class.includes('Guerreiro') || characterData.class.includes('Cavaleiro')) {
+                suggestions.push("Treinar técnicas de combate defensivo pode salvar sua vida.");
+            } else if (characterData.class.includes('Ladino') || characterData.class.includes('Bucaneiro')) {
+                suggestions.push("Habilidades sociais podem ser tão úteis quanto suas técnicas furtivas.");
+            } else if (characterData.class.includes('Clérigo') || characterData.class.includes('Paladino')) {
+                suggestions.push("A fé é sua força, mas não negligencie o combate físico.");
+            }
+        }
+        
+        // Sugestões baseadas na raça
+        if (characterData.race) {
+            if (characterData.race.includes('Humano')) {
+                suggestions.push("Como humano, sua versatilidade é sua maior vantagem.");
+            } else if (characterData.race.includes('Elfo')) {
+                suggestions.push("A longevidade élfica te dá tempo para aperfeiçoar suas habilidades.");
+            } else if (characterData.race.includes('Anão')) {
+                suggestions.push("A resistência anã te serve bem, mas não negligencie a diplomacia.");
+            }
+        }
+        
+        // Sugestões baseadas no alinhamento
+        if (characterData.alignment) {
+            if (characterData.alignment.includes('Bom')) {
+                suggestions.push("Sua bondade é admirável, mas não seja ingênuo.");
+            } else if (characterData.alignment.includes('Mau')) {
+                suggestions.push("O poder tem seu preço... escolha sabiamente seus aliados.");
+            } else if (characterData.alignment.includes('Neutro')) {
+                suggestions.push("O equilíbrio é sábio, mas às vezes é preciso escolher um lado.");
+            }
+        }
+        
+        // Sugestões específicas por mundo
+        if (world === 'dnd') {
+            suggestions.push("Os Reinos Esquecidos são vastos. Considere especializar-se em uma região.");
+        } else if (world === 'tormenta') {
+            suggestions.push("Arton é diverso. Aprenda sobre as diferentes culturas do Reinado.");
+        } else if (world === 'ordem-paranormal') {
+            suggestions.push("O paranormal é imprevisível. Mantenha-se sempre preparado.");
+        }
+        
+        // Escolher uma sugestão aleatória
+        if (suggestions.length > 0) {
+            const suggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+            this.speak(suggestion, 5000);
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
