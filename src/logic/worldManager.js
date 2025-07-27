@@ -172,7 +172,7 @@ export function initWorldManager() {
                 // Delay para dar tempo da saudação inicial terminar
                 setTimeout(() => {
                     window.magoCompanion.reactToWorldChange(newWorld, oldWorld);
-                }, 3000); // 3 segundos de delay
+                }, 5000); // Aumentado para 5 segundos de delay
             } else {
                 // Fallback para o método antigo
                 window.magoCompanion.greet();

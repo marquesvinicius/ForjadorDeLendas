@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Aguardar um pouco para o tema carregar antes da saudação
                 setTimeout(() => {
                     window.magoCompanion.greet();
-                }, 500); // Aumentado para 500ms
+                }, 1000); // Aumentado para 1 segundo
             }
 
             // Fechar o modal após carregar o tema

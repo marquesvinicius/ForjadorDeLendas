@@ -254,6 +254,9 @@ class MagoCompanion {
         
         const defaultMessage = currentWorld === 'dnd' ? "Uma raça intrigante para os Reinos!" : "Uma raça intrigante para Arton!";
         this.speak(raceResponses[selectedRace] || defaultMessage);
+        
+        // Verificar combinações inesperadas após a mudança de raça
+        this.checkUnexpectedCombinations();
     }
 
     onClassChange(e) {
@@ -300,6 +303,477 @@ class MagoCompanion {
         
         const defaultMessage = currentWorld === 'dnd' ? "Uma classe formidável para os Reinos!" : "Uma classe fascinante para Arton!";
         this.speak(classResponses[selectedClass] || defaultMessage);
+        
+        // Verificar combinações inesperadas após a mudança de classe
+        this.checkUnexpectedCombinations();
+    }
+
+    /**
+     * Verifica e reage a combinações inesperadas de raça e classe
+     */
+    checkUnexpectedCombinations() {
+        const currentRace = document.getElementById('charRace')?.value;
+        const currentClass = document.getElementById('charClass')?.value;
+        const currentAlignment = document.getElementById('charAlignment')?.value;
+        const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+        
+        if (!currentRace || !currentClass) return;
+        
+        // Combinações inesperadas por mundo
+        const unexpectedCombinations = {
+            'dnd': {
+                'Halfling-Guerreiro': [
+                    "Um halfling guerreiro? *pisca* Que coragem! Pequeno mas destemido!",
+                    "Halfling guerreiro? *rindo* Vai precisar de uma escada para montar no cavalo!",
+                    "Um guerreiro halfling? *impressionado* Que determinação em um pacote pequeno!"
+                ],
+                'Draconato-Nobre': [
+                    "Um draconato nobre? *ajusta os óculos* Que elegância reptiliana!",
+                    "Draconato nobre? *curioso* Como você segura o chá com essas garras?",
+                    "Um nobre draconato? *admirado* Que presença real... e escamosa!"
+                ],
+                'Gnomo-Bárbaro': [
+                    "Um gnomo bárbaro? *surpreso* Que fúria em miniatura!",
+                    "Gnomo bárbaro? *rindo* Vai quebrar tudo com seu machado... de brinquedo!",
+                    "Um bárbaro gnomo? *impressionado* Pequeno mas feroz como um urso!"
+                ],
+                'Tiefling-Paladino': [
+                    "Um tiefling paladino? *curioso* Que ironia divina!",
+                    "Tiefling paladino? *impressionado* Redimindo sua linhagem com luz!",
+                    "Um paladino tiefling? *admirado* Que determinação em enfrentar preconceitos!"
+                ],
+                'Meio-Orc-Bardo': [
+                    "Um meio-orc bardo? *surpreso* Que melodia... robusta!",
+                    "Meio-orc bardo? *rindo* Sua harpa deve ser do tamanho de uma lira!",
+                    "Um bardo meio-orc? *curioso* Que voz poderosa para canções suaves!"
+                ],
+                'Anão-Monge': [
+                    "Um anão monge? *pisca* Que disciplina... baixa!",
+                    "Anão monge? *rindo* Como você faz as posições de meditação?",
+                    "Um monge anão? *impressionado* Que sabedoria em um corpo compacto!"
+                ],
+                'Elfo-Bárbaro': [
+                    "Um elfo bárbaro? *surpreso* Que fúria... elegante!",
+                    "Elfo bárbaro? *curioso* Como você mantém a graça na batalha?",
+                    "Um bárbaro elfo? *admirado* Que combinação de força e beleza!"
+                ],
+                'Halfling-Bárbaro': [
+                    "Um halfling bárbaro? *rindo* Que fúria... minúscula!",
+                    "Halfling bárbaro? *surpreso* Vai quebrar tudo com seu machado de brinquedo!",
+                    "Um bárbaro halfling? *impressionado* Pequeno mas feroz como um urso!"
+                ],
+                'Halfling-Ladino': [
+                    "Um halfling ladino? *pisca* Que ladrão... discreto!",
+                    "Halfling ladino? *curioso* Como você se esconde sendo tão pequeno?",
+                    "Um ladino halfling? *impressionado* Que habilidade em um pacote pequeno!"
+                ],
+                'Halfling-Druida': [
+                    "Um halfling druida? *surpreso* Que natureza... compacta!",
+                    "Halfling druida? *curioso* Como você se transforma em animais pequenos?",
+                    "Um druida halfling? *impressionado* Que conexão com a natureza em miniatura!"
+                ],
+                'Tiefling-Clérigo': [
+                    "Um tiefling clérigo? *confuso* Que ironia divina!",
+                    "Tiefling clérigo? *curioso* Que deus aceita sua linhagem?",
+                    "Um clérigo tiefling? *impressionado* Que determinação em servir a luz!"
+                ],
+                'Meio-Orc-Monge': [
+                    "Um meio-orc monge? *surpreso* Que disciplina... robusta!",
+                    "Meio-orc monge? *curioso* Como você medita com tanta força?",
+                    "Um monge meio-orc? *impressionado* Que sabedoria em um corpo poderoso!"
+                ]
+            },
+            'tormenta': {
+                'Minotauro-Arcanista': [
+                    "Um minotauro arcanista? *pisca* Que inteligência... bovina!",
+                    "Minotauro arcanista? *surpreso* Como você vira as páginas dos grimórios?",
+                    "Um arcanista minotauro? *impressionado* Que magia poderosa em um corpo forte!"
+                ],
+                'Hynne-Guerreiro': [
+                    "Um hynne guerreiro? *rindo* Que guerreiro... minúsculo!",
+                    "Hynne guerreiro? *curioso* Sua espada deve ser do tamanho de um palito!",
+                    "Um guerreiro hynne? *admirado* Pequeno mas corajoso como um leão!"
+                ],
+                'Osteon-Bucaneiro': [
+                    "Um osteon bucaneiro? *surpreso* Que pirata... esquelético!",
+                    "Osteon bucaneiro? *rindo* Como você segura o rum sem lábios?",
+                    "Um bucaneiro osteon? *curioso* Que navio fantasma você comanda?"
+                ],
+                'Lefou-Nobre': [
+                    "Um lefou nobre? *pisca* Que nobreza... corrompida!",
+                    "Lefou nobre? *curioso* Como você mantém a elegância com essas deformações?",
+                    "Um nobre lefou? *impressionado* Que determinação em manter a dignidade!"
+                ],
+                'Golem-Bardo': [
+                    "Um golem bardo? *surpreso* Que música... mecânica!",
+                    "Golem bardo? *rindo* Sua harpa deve ser de cordas de aço!",
+                    "Um bardo golem? *curioso* Que melodia robótica você canta?"
+                ],
+                'Sílfide-Guerreiro': [
+                    "Uma sílfide guerreira? *pisca* Que guerreira... etérea!",
+                    "Sílfide guerreira? *rindo* Sua espada deve ser do tamanho de uma agulha!",
+                    "Uma guerreira sílfide? *admirado* Que coragem em um corpo tão frágil!"
+                ],
+                'Qareen-Arcanista': [
+                    "Um qareen arcanista? *surpreso* Que magia... desejosa!",
+                    "Qareen arcanista? *curioso* Como você controla a magia e os desejos?",
+                    "Um arcanista qareen? *impressionado* Que poder místico e carnal!"
+                ],
+                'Medusa-Bardo': [
+                    "Uma medusa bardo? *pisca* Que música... petrificante!",
+                    "Medusa bardo? *rindo* Como você canta sem virar as pessoas em pedra?",
+                    "Uma bardo medusa? *curioso* Que melodia mortal você entoa?"
+                ],
+                'Trong-Nobre': [
+                    "Um trong nobre? *surpreso* Que nobreza... canibal!",
+                    "Trong nobre? *rindo* Como você mantém a elegância sem comer os convidados?",
+                    "Um nobre trong? *impressionado* Que refinamento em um corpo feroz!"
+                ],
+                'Trong-Clérigo': [
+                    "Um trong clérigo? *surpreso* Que padre... canibal!",
+                    "Trong clérigo? *rindo* Como você abençoa sem comer os fiéis?",
+                    "Um clérigo trong? *curioso* Que deus aceita um seguidor faminto?"
+                ],
+                'Trong-Arcanista': [
+                    "Um trong arcanista? *pisca* Que mago... faminto!",
+                    "Trong arcanista? *rindo* Como você lê grimórios sem comer as páginas?",
+                    "Um arcanista trong? *curioso* Que magia você pratica sem devorar os ingredientes?"
+                ],
+                'Trong-Bardo': [
+                    "Um trong bardo? *surpreso* Que músico... canibal!",
+                    "Trong bardo? *rindo* Como você canta sem comer o público?",
+                    "Um bardo trong? *curioso* Que melodia você entoa sem devorar os instrumentos?"
+                ],
+                'Trong-Druida': [
+                    "Um trong druida? *pisca* Que druida... faminto!",
+                    "Trong druida? *rindo* Como você se transforma sem comer os animais?",
+                    "Um druida trong? *curioso* Que natureza você respeita sem devorar a flora?"
+                ],
+                'Sereia/Tritão-Bárbaro': [
+                    "Uma sereia bárbara? *surpreso* Que fúria... aquática!",
+                    "Sereia bárbara? *rindo* Como você luta na terra sem secar?",
+                    "Uma bárbara sereia? *curioso* Que fúria você tem debaixo d'água?"
+                ],
+                'Sereia/Tritão-Guerreiro': [
+                    "Uma sereia guerreira? *pisca* Que guerreira... molhada!",
+                    "Sereia guerreira? *curioso* Como você usa armadura sem enferrujar?",
+                    "Uma guerreira sereia? *impressionado* Que combate você trava no mar?"
+                ],
+                'Sílfide-Bárbaro': [
+                    "Uma sílfide bárbara? *surpreso* Que fúria... etérea!",
+                    "Sílfide bárbara? *rindo* Como você fica furiosa sendo tão delicada?",
+                    "Uma bárbara sílfide? *curioso* Que fúria você tem sendo tão pequena?"
+                ],
+                'Sílfide-Guerreiro': [
+                    "Uma sílfide guerreira? *pisca* Que guerreira... etérea!",
+                    "Sílfide guerreira? *rindo* Sua espada deve ser do tamanho de uma agulha!",
+                    "Uma guerreira sílfide? *admirado* Que coragem em um corpo tão frágil!"
+                ],
+                'Minotauro-Druida': [
+                    "Um minotauro druida? *surpreso* Que natureza... bovina!",
+                    "Minotauro druida? *curioso* Como você se transforma em animais menores?",
+                    "Um druida minotauro? *impressionado* Que conexão com a natureza em um corpo forte!"
+                ],
+                'Minotauro-Bardo': [
+                    "Um minotauro bardo? *pisca* Que músico... robusto!",
+                    "Minotauro bardo? *curioso* Como você toca instrumentos com essas mãos?",
+                    "Um bardo minotauro? *impressionado* Que melodia você entoa com essa voz?"
+                ],
+                'Golem-Clérigo': [
+                    "Um golem clérigo? *surpreso* Que padre... mecânico!",
+                    "Golem clérigo? *curioso* Como você reza sendo feito de pedra?",
+                    "Um clérigo golem? *impressionado* Que deus aceita um seguidor inanimado?"
+                ],
+                'Golem-Druida': [
+                    "Um golem druida? *pisca* Que natureza... artificial!",
+                    "Golem druida? *curioso* Como você se conecta com a natureza sendo artificial?",
+                    "Um druida golem? *impressionado* Que equilíbrio entre artificial e natural!"
+                ]
+            },
+            'ordem-paranormal': {
+                'Agente de Saúde-Combatente': [
+                    "Um agente de saúde combatente? *pisca* Que médico... agressivo!",
+                    "Agente de saúde combatente? *curioso* Como você cura e machuca ao mesmo tempo?",
+                    "Um combatente agente de saúde? *impressionado* Que combinação de cura e destruição!"
+                ],
+                'Chef-Ocultista': [
+                    "Um chef ocultista? *surpreso* Que culinária... sobrenatural!",
+                    "Chef ocultista? *curioso* Como você mistura temperos e rituais?",
+                    "Um ocultista chef? *impressionado* Que pratos místicos você prepara?"
+                ],
+                'Acadêmico-Combatente': [
+                    "Um acadêmico combatente? *pisca* Que estudioso... violento!",
+                    "Acadêmico combatente? *curioso* Como você combina livros e punhos?",
+                    "Um combatente acadêmico? *impressionado* Que conhecimento aplicado na prática!"
+                ],
+                'Artista-Combatente': [
+                    "Um artista combatente? *surpreso* Que arte... sangrenta!",
+                    "Artista combatente? *curioso* Como você pinta com sangue e lágrimas?",
+                    "Um combatente artista? *impressionado* Que performance violenta você apresenta?"
+                ],
+                'Cultista Arrependido-Ocultista': [
+                    "Um cultista arrependido ocultista? *pisca* Que ocultismo... redimido!",
+                    "Cultista arrependido ocultista? *curioso* Como você usa magia sem cair na tentação?",
+                    "Um ocultista cultista arrependido? *impressionado* Que determinação em se redimir!"
+                ],
+                'Amnésico-Combatente': [
+                    "Um amnésico combatente? *surpreso* Que lutador... esquecido!",
+                    "Amnésico combatente? *curioso* Como você luta sem lembrar das técnicas?",
+                    "Um combatente amnésico? *impressionado* Que instinto de sobrevivência!"
+                ],
+                'Mercenário-Especialista': [
+                    "Um mercenário especialista? *pisca* Que mercenário... inteligente!",
+                    "Mercenário especialista? *curioso* Como você combina violência e investigação?",
+                    "Um especialista mercenário? *impressionado* Que combinação de força e astúcia!"
+                ],
+                'Lutador-Ocultista': [
+                    "Um lutador ocultista? *surpreso* Que ocultismo... violento!",
+                    "Lutador ocultista? *curioso* Como você combina punhos e rituais?",
+                    "Um ocultista lutador? *impressionado* Que combinação de força física e mística!"
+                ],
+                'Magnata-Combatente': [
+                    "Um magnata combatente? *surpreso* Que rico... violento!",
+                    "Magnata combatente? *curioso* Como você combina dinheiro e punhos?",
+                    "Um combatente magnata? *impressionado* Que aristocracia... agressiva!"
+                ],
+                'Trambiqueiro-Especialista': [
+                    "Um trambiqueiro especialista? *pisca* Que investigador... trapaceiro!",
+                    "Trambiqueiro especialista? *curioso* Como você investiga sem ser honesto?",
+                    "Um especialista trambiqueiro? *impressionado* Que combinação de astúcia e investigação!"
+                ],
+                'Vítima-Ocultista': [
+                    "Uma vítima ocultista? *surpreso* Que sobrevivente... místico!",
+                    "Vítima ocultista? *curioso* Como você usa magia após o trauma?",
+                    "Uma ocultista vítima? *impressionado* Que determinação em enfrentar o horror!"
+                ],
+                'Amnésico-Especialista': [
+                    "Um amnésico especialista? *surpreso* Que investigador... esquecido!",
+                    "Amnésico especialista? *curioso* Como você investiga sem lembrar de nada?",
+                    "Um especialista amnésico? *impressionado* Que instinto investigativo!"
+                ],
+                'Teórico da Conspiração-Combatente': [
+                    "Um teórico da conspiração combatente? *pisca* Que lutador... paranóico!",
+                    "Teórico da conspiração combatente? *curioso* Como você luta e teoriza ao mesmo tempo?",
+                    "Um combatente teórico da conspiração? *impressionado* Que combinação de força e paranoia!"
+                ],
+                'Trambiqueiro-Combatente': [
+                    "Um trambiqueiro combatente? *surpreso* Que lutador... trapaceiro!",
+                    "Trambiqueiro combatente? *curioso* Como você combina violência e artimanhas?",
+                    "Um combatente trambiqueiro? *impressionado* Que combinação de força e astúcia!"
+                ],
+                'Religioso-Ocultista': [
+                    "Um religioso ocultista? *pisca* Que fé... mística!",
+                    "Religioso ocultista? *curioso* Como você concilia religião e magia?",
+                    "Um ocultista religioso? *impressionado* Que combinação de fé e conhecimento!"
+                ],
+                'Policial-Ocultista': [
+                    "Um policial ocultista? *surpreso* Que investigador... místico!",
+                    "Policial ocultista? *curioso* Como você combina protocolos e rituais?",
+                    "Um ocultista policial? *impressionado* Que combinação de lei e magia!"
+                ],
+                'Universitário-Combatente': [
+                    "Um universitário combatente? *pisca* Que estudioso... violento!",
+                    "Universitário combatente? *curioso* Como você combina livros e punhos?",
+                    "Um combatente universitário? *impressionado* Que conhecimento aplicado na prática!"
+                ],
+                'T.I.-Ocultista': [
+                    "Um profissional de T.I. ocultista? *surpreso* Que programador... místico!",
+                    "T.I. ocultista? *curioso* Como você combina código e rituais?",
+                    "Um ocultista T.I.? *impressionado* Que combinação de tecnologia e magia!"
+                ],
+                'Ocultista': {
+                    'Caótico e Mau': [
+                        "Um ocultista caótico mau? *confuso* Que magia... perversa!",
+                        "Ocultista caótico mau? *surpreso* Que conhecimento maligno!",
+                        "Um ocultista caótico mau? *curioso* Que rituais sombrios você pratica?"
+                    ]
+                },
+                'Combatente': {
+                    'Caótico e Mau': [
+                        "Um combatente caótico mau? *confuso* Que guerreiro... perverso!",
+                        "Combatente caótico mau? *surpreso* Que violência sem controle!",
+                        "Um combatente caótico mau? *curioso* Que batalha você trava?"
+                    ]
+                },
+                'Especialista': {
+                    'Caótico e Mau': [
+                        "Um especialista caótico mau? *confuso* Que investigador... perverso!",
+                        "Especialista caótico mau? *surpreso* Que conhecimento maligno!",
+                        "Um especialista caótico mau? *curioso* Que mistérios você desvenda?"
+                    ]
+                }
+            }
+        };
+        
+        // Verificar combinações inesperadas
+        const combinationKey = `${currentRace}-${currentClass}`;
+        const worldCombinations = unexpectedCombinations[currentWorld];
+        
+        if (worldCombinations && worldCombinations[combinationKey]) {
+            const responses = worldCombinations[combinationKey];
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            
+            // Delay para não sobrecarregar após a reação da classe
+            setTimeout(() => {
+                this.speak(response, 5000);
+            }, 2000);
+        }
+        
+        // Verificar alinhamentos inesperados
+        this.checkUnexpectedAlignment(currentClass, currentAlignment, currentWorld);
+    }
+    
+    /**
+     * Verifica alinhamentos inesperados para certas classes
+     */
+    checkUnexpectedAlignment(className, alignment, world) {
+        const unexpectedAlignments = {
+            'dnd': {
+                'Paladino': {
+                    'Caótico e Mau': [
+                        "Um paladino caótico mau? *confuso* Como isso funciona?",
+                        "Paladino caótico mau? *surpreso* Que contradição divina!",
+                        "Um paladino caótico mau? *curioso* Que ordem você segue?"
+                    ],
+                    'Leal e Mau': [
+                        "Um paladino mau leal? *pisca* Que justiça... sombria!",
+                        "Paladino mau leal? *curioso* Que deus você serve?",
+                        "Um paladino mau leal? *impressionado* Que disciplina nas trevas!"
+                    ]
+                },
+                'Clérigo': {
+                    'Caótico e Mau': [
+                        "Um clérigo caótico mau? *confuso* Que deus aceita isso?",
+                        "Clérigo caótico mau? *surpreso* Que divindade você venera?",
+                        "Um clérigo caótico mau? *curioso* Que templo você frequenta?"
+                    ],
+                    'Leal e Mau': [
+                        "Um clérigo mau leal? *pisca* Que fé... sombria!",
+                        "Clérigo mau leal? *curioso* Que deus maligno você serve?",
+                        "Um clérigo mau leal? *impressionado* Que disciplina nas trevas!"
+                    ]
+                },
+                'Druida': {
+                    'Leal e Mau': [
+                        "Um druida mau leal? *confuso* Que natureza... perversa!",
+                        "Druida mau leal? *surpreso* Que equilíbrio sombrio!",
+                        "Um druida mau leal? *curioso* Que força natural maligna!"
+                    ],
+                    'Caótico e Mau': [
+                        "Um druida caótico mau? *surpreso* Que natureza... corrompida!",
+                        "Druida caótico mau? *curioso* Que equilíbrio você quebra?",
+                        "Um druida caótico mau? *confuso* Que força natural perversa!"
+                    ]
+                },
+                'Bardo': {
+                    'Leal e Mau': [
+                        "Um bardo mau leal? *pisca* Que música... sombria!",
+                        "Bardo mau leal? *curioso* Que canções malignas você canta?",
+                        "Um bardo mau leal? *impressionado* Que arte nas trevas!"
+                    ],
+                    'Caótico e Mau': [
+                        "Um bardo caótico mau? *surpreso* Que música... perversa!",
+                        "Bardo caótico mau? *curioso* Que canções malignas você entoa?",
+                        "Um bardo caótico mau? *confuso* Que arte nas trevas você pratica?"
+                    ]
+                },
+                'Paladino': {
+                    'Caótico e Mau': [
+                        "Um paladino caótico mau? *confuso* Como isso funciona em Arton?",
+                        "Paladino caótico mau? *surpreso* Que contradição divina!",
+                        "Um paladino caótico mau? *curioso* Que ordem você segue?"
+                    ],
+                    'Leal e Mau': [
+                        "Um paladino mau leal? *pisca* Que justiça... sombria!",
+                        "Paladino mau leal? *curioso* Que deus do Pantheon você serve?",
+                        "Um paladino mau leal? *impressionado* Que disciplina nas trevas!"
+                    ]
+                },
+                'Nobre': {
+                    'Caótico e Mau': [
+                        "Um nobre caótico mau? *confuso* Que aristocracia... perversa!",
+                        "Nobre caótico mau? *surpreso* Que família você representa?",
+                        "Um nobre caótico mau? *curioso* Que linhagem sombria!"
+                    ]
+                }
+            },
+            'tormenta': {
+                'Paladino': {
+                    'Caótico e Mau': [
+                        "Um paladino caótico mau? *confuso* Como isso funciona em Arton?",
+                        "Paladino caótico mau? *surpreso* Que contradição divina!",
+                        "Um paladino caótico mau? *curioso* Que ordem você segue?"
+                    ],
+                    'Leal e Mau': [
+                        "Um paladino mau leal? *pisca* Que justiça... sombria!",
+                        "Paladino mau leal? *curioso* Que deus do Pantheon você serve?",
+                        "Um paladino mau leal? *impressionado* Que disciplina nas trevas!"
+                    ]
+                },
+                'Clérigo': {
+                    'Caótico e Mau': [
+                        "Um clérigo caótico mau? *confuso* Que deus aceita isso?",
+                        "Clérigo caótico mau? *surpreso* Que divindade você venera?",
+                        "Um clérigo caótico mau? *curioso* Que templo você frequenta?"
+                    ]
+                },
+                'Druida': {
+                    'Leal e Mau': [
+                        "Um druida mau leal? *confuso* Que natureza... perversa!",
+                        "Druida mau leal? *surpreso* Que equilíbrio sombrio!",
+                        "Um druida mau leal? *curioso* Que força natural maligna!"
+                    ]
+                },
+                'Bardo': {
+                    'Leal e Mau': [
+                        "Um bardo mau leal? *pisca* Que música... sombria!",
+                        "Bardo mau leal? *curioso* Que canções malignas você canta?",
+                        "Um bardo mau leal? *impressionado* Que arte nas trevas!"
+                    ]
+                },
+                'Nobre': {
+                    'Caótico e Mau': [
+                        "Um nobre caótico mau? *confuso* Que aristocracia... perversa!",
+                        "Nobre caótico mau? *surpreso* Que família você representa?",
+                        "Um nobre caótico mau? *curioso* Que linhagem sombria!"
+                    ]
+                }
+            },
+            'ordem-paranormal': {
+                'Ocultista': {
+                    'Caótico e Mau': [
+                        "Um ocultista caótico mau? *confuso* Que magia... perversa!",
+                        "Ocultista caótico mau? *surpreso* Que conhecimento maligno!",
+                        "Um ocultista caótico mau? *curioso* Que rituais sombrios você pratica?"
+                    ]
+                },
+                'Combatente': {
+                    'Caótico e Mau': [
+                        "Um combatente caótico mau? *confuso* Que guerreiro... perverso!",
+                        "Combatente caótico mau? *surpreso* Que violência sem controle!",
+                        "Um combatente caótico mau? *curioso* Que batalha você trava?"
+                    ]
+                },
+                'Especialista': {
+                    'Caótico e Mau': [
+                        "Um especialista caótico mau? *confuso* Que investigador... perverso!",
+                        "Especialista caótico mau? *surpreso* Que conhecimento maligno!",
+                        "Um especialista caótico mau? *curioso* Que mistérios você desvenda?"
+                    ]
+                }
+            }
+        };
+        
+        const worldAlignments = unexpectedAlignments[world];
+        if (worldAlignments && worldAlignments[className] && worldAlignments[className][alignment]) {
+            const responses = worldAlignments[className][alignment];
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            
+            // Delay para não sobrecarregar
+            setTimeout(() => {
+                this.speak(response, 4000);
+            }, 3000);
+        }
     }
 
     onAlignmentChange(e) {
@@ -337,6 +811,12 @@ class MagoCompanion {
         }
         
         this.speak(response);
+        
+        // Verificar alinhamentos inesperados após a mudança de alinhamento
+        const currentClass = document.getElementById('charClass')?.value;
+        if (currentClass) {
+            this.checkUnexpectedAlignment(currentClass, alignment, currentWorld);
+        }
     }
 
     onRollAttributes() {
@@ -675,12 +1155,15 @@ class MagoCompanion {
         }
 
         const response = responses[Math.floor(Math.random() * responses.length)];
-        this.speak(response, 5000); // Aumentado para 5 segundos
+        this.speak(response, 6000); // Aumentado para 6 segundos
 
-        // Comentário adicional sobre as mudanças visuais
-        setTimeout(() => {
-            this.commentOnVisualChanges(newWorld);
-        }, 3500); // Aumentado para 3.5 segundos
+        // Comentário adicional sobre as mudanças visuais (OPCIONAL - reduzir frequência)
+        // Apenas 30% das vezes para não sobrecarregar
+        if (Math.random() < 0.3) {
+            setTimeout(() => {
+                this.commentOnVisualChanges(newWorld);
+            }, 8000); // Aumentado para 8 segundos
+        }
     }
 
     /**
