@@ -6,16 +6,19 @@ class MagoCompanion {
         this.speechBubble = document.querySelector('.companion-speech-bubble');
         this.companionText = document.getElementById('companionText');
         this.companionAvatar = document.querySelector('.companion-avatar');
-        this.lastMessage = '';
+        this.lastMessage = null;
+        this.speechTimeout = null;
+        this.isSpeaking = false;
+        this.triggeredEasterEggs = new Set(); // Para evitar repetição de Easter Eggs
+        this.setupEventListeners();
+        this.setupMobileEvents();
+        this.setupScrollListener();
         
         // Garantir que o mago comece visível
         if (this.companionContainer) {
             this.companionContainer.style.opacity = '1';
         }
         
-        this.setupEventListeners();
-        this.setupMobileEvents();
-        this.setupScrollListener();
         this.greet();
     }
 
@@ -175,6 +178,13 @@ class MagoCompanion {
         if (name.length > 2) {
             const currentWorld = localStorage.getItem('selectedWorld') || 'tormenta';
             
+            // Verificar Easter Eggs de nomes específicos
+            const easterEggResponse = this.checkNameEasterEggs(name, currentWorld);
+            if (easterEggResponse) {
+                this.speak(easterEggResponse, 30000); // 30 segundos para Easter Eggs
+                return;
+            }
+            
             let responses;
             
             // Tentar obter configuração do mundo atual
@@ -207,6 +217,213 @@ class MagoCompanion {
             }
             
             this.speak(responses[Math.floor(Math.random() * responses.length)]);
+        }
+    }
+
+    /**
+     * Verifica Easter Eggs de nomes específicos
+     */
+    checkNameEasterEggs(name, world) {
+        const normalizedName = name.toLowerCase().trim();
+        
+        // Easter Eggs especiais
+        if (normalizedName === 'merlin') {
+            if (!this.triggeredEasterEggs.has('merlin')) {
+                this.triggeredEasterEggs.add('merlin');
+                this.addMagicalEyeGlow('merlin');
+                return "*olhos brilham magicamente* Eu conheço alguém com esse nome... *sussurra arcano*";
+            }
+            return null;
+        }
+        
+        if (normalizedName === 'marques') {
+            if (!this.triggeredEasterEggs.has('marques')) {
+                this.triggeredEasterEggs.add('marques');
+                this.addMagicalEyeGlow('marques');
+                return "*olhos brilham intensamente* Foi ele quem me prendeu aqui pela eternidade... *sussurro sombrio* O deus criador deste universo...";
+            }
+            return null;
+        }
+        
+        // Verificar variações do nome Crequi
+        const crequiVariations = ['crequi', 'créqui', 'crequi lahk', 'créqui láhk', 'crequi lah', 'créqui lah'];
+        if (crequiVariations.includes(normalizedName)) {
+            const easterEggKey = `crequi-${world}`;
+            if (!this.triggeredEasterEggs.has(easterEggKey)) {
+                this.triggeredEasterEggs.add(easterEggKey);
+                this.addMagicalEyeGlow('crequi');
+                return this.getCrequiResponse(world);
+            }
+            return null;
+        }
+        
+        // Nomes dos Renegados - Easter Eggs multiverso
+        const renegados = {
+            'vorlan': {
+                'tormenta': [
+                    "Ah, sim… o ladino com olhos como rubis e segredos tão profundos quanto túmulos.",
+                    "Se for flanquear com um Nefarion, traga alguém pra tankar. Sério. Vai por mim."
+                ],
+                'ordem-paranormal': [
+                    "Esse nome me dá calafrios… alguém com ele já esfaqueou um ritualista nas costas. E sumiu na névoa.",
+                    "Vorlan? Não sei se é um agente do Ordo Realitas… ou uma anomalia que escapou da contenção."
+                ],
+                'dnd': [
+                    "Já ouvi esse nome nos becos de Baldur's Gate… falavam de um esqueleto com duas adagas e uma dívida com a Morte.",
+                    "Se for esse Vorlan que enfrentou um beholder sozinho… bom, ele não venceu, mas que estilo!"
+                ]
+            },
+            'igris': {
+                'tormenta': [
+                    "Olhos díspares, lâminas limpas e passado sujo. Os melhores guerreiros sempre vêm das arenas.",
+                    "Ele fala pouco, mas quando fala… é com a espada."
+                ],
+                'ordem-paranormal': [
+                    "Esse Igris aí… dizem que escapou de uma prisão do Sigma usando só uma katana e silêncio absoluto.",
+                    "Olhos diferentes, alma marcada. Talvez seja um host. Ou algo pior."
+                ],
+                'dnd': [
+                    "Katana em mãos, cicatrizes nas costas… se esse for o Igris que enfrentou Tiamat, entendo o clima sombrio.",
+                    "Elfo? Gladiador? Combinação letal. Principalmente se o bardo estiver por perto narrando."
+                ]
+            },
+            'malthas': {
+                'tormenta': [
+                    "Aqueles que têm antenas... escutam o que nenhum mortal deveria. Malthas aprendeu isso da pior forma.",
+                    "Cuidado. Se ele começar a extrair éter, prepare-se pra correr. Ou rezar."
+                ],
+                'ordem-paranormal': [
+                    "Lefou com antenas? Ah, claro. Código 17-Roxo. Não era pra ele estar aqui. Mas ninguém impediu.",
+                    "Você já sonhou com insetos? Se sim... talvez conheça Malthas."
+                ],
+                'dnd': [
+                    "Feiticeiro deformado pela magia? Clássico. Mas esse aqui... ele brilha no escuro. Isso não é bom sinal.",
+                    "Se ele começar a murmurar em Abissal, esconda os grimórios."
+                ]
+            },
+            'azariel': {
+                'tormenta': [
+                    "A cura de trevas às vezes vem da luz errada… Marek que o diga.",
+                    "Alado, sábio, e com fé demais para este mundo. Mas útil. Muito útil."
+                ],
+                'ordem-paranormal': [
+                    "Um anjo? Aqui? Tem certeza que não é um avatar? Ou talvez… um eco de um Elo Perdido?",
+                    "Tanah-Toh não existe neste mundo. Mas ele age como se existisse. Isso me assusta um pouco."
+                ],
+                'dnd': [
+                    "Clérigos alados são raros. Os que curam mortos-vivos então… quase impossíveis.",
+                    "Se você errar a cura de novo, Azariel, prometo que um guerreiro vai te usar de escudo."
+                ]
+            },
+            'rashid': {
+                'tormenta': [
+                    "Ah, o Qareen cantor! Encanta corações e distrai assassinos. Às vezes ao mesmo tempo.",
+                    "Se o alaúde quebrar, o grupo desaba. Literalmente."
+                ],
+                'ordem-paranormal': [
+                    "Bardo em Paranormal? Tá achando que é musical? Ainda bem que ele canta em Énoquico… ou quase isso.",
+                    "A música dele acalma até o Sigma. Ou pelo menos, os faz dançar."
+                ],
+                'dnd': [
+                    "Já ouvi Rashid tocar na corte de Neverwinter. Fez um dragão chorar. Depois foi preso. Longa história.",
+                    "Se ele começar a cantar, prepare-se. Ou será um buff... ou um escândalo diplomático."
+                ]
+            },
+            'marek': {
+                'tormenta': [
+                    "Ossos de um cavaleiro... e um nome que pesa mais que a armadura. Marek carrega o que muitos não suportariam lembrar.",
+                    "Se for esse o Marek verdadeiro, que Khalmyr tenha misericórdia de quem cruzar o caminho dele.",
+                    "Já ouvi ecos de seus passos no Salão dos Corvos... e o som que vinham não era de arrependimento."
+                ],
+                'ordem-paranormal': [
+                    "Há algo nesse nome... como se ele fosse um Cavaleiro do Vazio, amaldiçoado a guardar um segredo eterno.",
+                    "Marek? Eu vi esse nome num manuscrito rasgado da Ordo Realitas, marcado com sangue seco e a palavra: 'Cinza'.",
+                    "Um esqueleto guiado por justiça? Em Paranormal, isso só pode significar uma coisa: entidade grau S."
+                ],
+                'dnd': [
+                    "Um cavaleiro morto-vivo, que luta por honra? Clássico. Mas este… este já enfrentou algo pior que a morte.",
+                    "Se for o Marek que conheço, cuidado com os juramentos. Ele os cumpre. Mesmo depois da vida.",
+                    "Dizem que quando Marek ajoelha, até os deuses escutam. E às vezes... eles respondem."
+                ]
+            },
+            'samuca': {
+                'tormenta': [
+                    "Ah, o mestre da sessão! Aquele que controla o destino de todos os renegados...",
+                    "Samuca? O narrador supremo que tece as histórias de Arton com maestria divina."
+                ],
+                'ordem-paranormal': [
+                    "O mestre da sessão em Paranormal? Aquele que desvenda os mistérios do Outro Lado...",
+                    "Samuca? O condutor das narrativas que fazem a realidade tremer."
+                ],
+                'dnd': [
+                    "O mestre da sessão nos Reinos Esquecidos? Aquele que molda o destino de Faerûn...",
+                    "Samuca? O arquiteto das aventuras que fazem os deuses sorrirem."
+                ]
+            }
+        };
+        
+        const renegado = renegados[normalizedName];
+        if (renegado && renegado[world]) {
+            const easterEggKey = `${normalizedName}-${world}`;
+            if (!this.triggeredEasterEggs.has(easterEggKey)) {
+                this.triggeredEasterEggs.add(easterEggKey);
+                const responses = renegado[world];
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                
+                // Adicionar efeito visual de brilho nos olhos específico para cada personagem
+                this.addMagicalEyeGlow(normalizedName);
+                
+                return `*olhos brilham magicamente* ${response}`;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Retorna resposta específica para Crequi baseada no mundo
+     */
+    getCrequiResponse(world) {
+        const responses = {
+            'tormenta': [
+                "Espelhos, cambalhotas e ossos quebrados... só pode ser ele.",
+                "Diga a ele pra não morrer de novo. O clérigo ainda tem pesadelos com aquilo."
+            ],
+            'ordem-paranormal': [
+                "Espelhos são portais… e o último Crequi que vi dançava na frente deles como se fosse um espelho também.",
+                "Se começar a falar sozinho perto do espelho… pode não ser loucura. Pode ser Crequi."
+            ],
+            'dnd': [
+                "Pirata esquelético com um monóculo e um arco longo? Ah, sim. Esse já saqueou até planos astrais.",
+                "Cuidado com os reflexos. Alguns dizem que o espírito de Crequi ainda vaga entre os espelhos de Sigil."
+            ]
+        };
+        
+        const worldResponses = responses[world] || responses['tormenta'];
+        const response = worldResponses[Math.floor(Math.random() * worldResponses.length)];
+        return `*olhos brilham magicamente* ${response}`;
+    }
+
+    /**
+     * Adiciona efeito visual de brilho mágico nos olhos
+     * @param {string} characterName - Nome do personagem para cor específica
+     */
+    addMagicalEyeGlow(characterName = null) {
+        const companion = document.querySelector('.companion-container');
+        if (companion) {
+            // Remover classes de glow anteriores
+            companion.classList.remove('magical-glow', 'glow-merlin', 'glow-marques', 'glow-vorlan', 'glow-marek', 'glow-crequi', 'glow-malthas', 'glow-rashid', 'glow-azariel', 'glow-igris', 'glow-samuca');
+            
+            // Aplicar classe específica baseada no personagem
+            if (characterName) {
+                companion.classList.add(`glow-${characterName}`);
+            } else {
+                companion.classList.add('magical-glow');
+            }
+            
+            setTimeout(() => {
+                companion.classList.remove('magical-glow', 'glow-merlin', 'glow-marques', 'glow-vorlan', 'glow-marek', 'glow-crequi', 'glow-malthas', 'glow-rashid', 'glow-azariel', 'glow-igris', 'glow-samuca');
+            }, 4000); // Aumentado para 4 segundos
         }
     }
 
@@ -1441,12 +1658,5 @@ class MagoCompanion {
         }
     }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Aguardar um pequeno delay para garantir que outros scripts foram carregados
-    setTimeout(() => {
-        window.magoCompanion = new MagoCompanion();
-    }, 100);
-});
 
 export { MagoCompanion };

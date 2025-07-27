@@ -28,6 +28,7 @@ import {
 
 import { renderCharactersList, highlightNewCard } from './ui/characterCards.js';
 import { openCharacterModal, getCurrentCharacterId, setCurrentCharacterId } from './ui/characterModal.js';
+import { MagoCompanion } from './ui/companion.js';
 
 /**
  * Classe principal da aplicação
@@ -39,6 +40,11 @@ class ForjadorApp {
     this.currentCharacterId = null;
     this.authListenersAdded = false;
     this.storageReady = false;
+    
+    // Inicializar o Mago Companion
+    this.magoCompanion = new MagoCompanion();
+    window.magoCompanion = this.magoCompanion;
+    
     this.init();
   }
 

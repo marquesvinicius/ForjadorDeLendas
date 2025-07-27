@@ -204,3 +204,358 @@
 .companion-speech-bubble.fade-in {
   animation: fadeInUp 0.3s forwards;
 }
+
+/* Efeito de brilho mágico nos olhos */
+.companion-container.magical-glow {
+    animation: magicalEyeGlow 3s ease-in-out;
+}
+
+.companion-container.magical-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(138, 43, 226, 0.6) 30%, transparent 70%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: magicalPulse 3s ease-in-out;
+}
+
+/* Efeitos específicos por personagem */
+
+/* Merlin e Marques - Branco intenso e oscilante */
+.companion-container.glow-merlin,
+.companion-container.glow-marques {
+    animation: intenseWhiteGlow 4s ease-in-out;
+}
+
+.companion-container.glow-merlin::before,
+.companion-container.glow-marques::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.4) 40%, transparent 70%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: intenseWhitePulse 4s ease-in-out;
+}
+
+/* Vorlan, Marek, Crequi e Igris - Azul (olhos azuis) */
+.companion-container.glow-vorlan,
+.companion-container.glow-marek,
+.companion-container.glow-crequi,
+.companion-container.glow-igris {
+    animation: blueGlow 4s ease-in-out;
+}
+
+.companion-container.glow-vorlan::before,
+.companion-container.glow-marek::before,
+.companion-container.glow-crequi::before,
+.companion-container.glow-igris::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 150, 255, 0.6) 0%, rgba(0, 100, 200, 0.4) 30%, rgba(0, 50, 150, 0.3) 60%, transparent 80%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: bluePulse 4s ease-in-out;
+}
+
+/* Malthas - Vermelho (Tormenta) */
+.companion-container.glow-malthas {
+    animation: redGlow 4s ease-in-out;
+}
+
+.companion-container.glow-malthas::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 0, 0, 0.6) 0%, rgba(200, 0, 0, 0.4) 30%, rgba(150, 0, 0, 0.3) 60%, transparent 80%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: redPulse 4s ease-in-out;
+}
+
+/* Rashid - Dourado */
+.companion-container.glow-rashid {
+    animation: goldGlow 4s ease-in-out;
+}
+
+.companion-container.glow-rashid::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, rgba(255, 165, 0, 0.4) 30%, rgba(255, 140, 0, 0.3) 60%, transparent 80%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: goldPulse 4s ease-in-out;
+}
+
+/* Azariel - Branco angelical */
+.companion-container.glow-azariel {
+    animation: angelicGlow 4s ease-in-out;
+}
+
+.companion-container.glow-azariel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(240, 248, 255, 0.5) 30%, rgba(230, 240, 255, 0.3) 60%, transparent 80%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: angelicPulse 4s ease-in-out;
+}
+
+/* Samuca - Roxo (mestre da sessão) */
+.companion-container.glow-samuca {
+    animation: purpleGlow 4s ease-in-out;
+}
+
+.companion-container.glow-samuca::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(138, 43, 226, 0.6) 0%, rgba(128, 0, 128, 0.4) 30%, rgba(75, 0, 130, 0.3) 60%, transparent 80%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: purplePulse 4s ease-in-out;
+}
+
+/* Animações específicas */
+
+@keyframes magicalEyeGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 5px rgba(138, 43, 226, 0.3));
+    }
+    50% {
+        filter: brightness(1.2) drop-shadow(0 0 15px rgba(138, 43, 226, 0.8)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 5px rgba(138, 43, 226, 0.3));
+    }
+}
+
+@keyframes magicalPulse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes intenseWhiteGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+    }
+    25% {
+        filter: brightness(1.2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    }
+    50% {
+        filter: brightness(1.1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+    }
+    75% {
+        filter: brightness(1.3) drop-shadow(0 0 12px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+    }
+}
+
+@keyframes intenseWhitePulse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.3);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    75% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.4);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.6);
+    }
+}
+
+@keyframes blueGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(0, 150, 255, 0.3));
+    }
+    50% {
+        filter: brightness(1.15) drop-shadow(0 0 8px rgba(0, 150, 255, 0.5)) drop-shadow(0 0 15px rgba(0, 100, 200, 0.3));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(0, 150, 255, 0.3));
+    }
+}
+
+@keyframes bluePulse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes redGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 0, 0, 0.3));
+    }
+    50% {
+        filter: brightness(1.15) drop-shadow(0 0 8px rgba(255, 0, 0, 0.5)) drop-shadow(0 0 15px rgba(200, 0, 0, 0.3));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 0, 0, 0.3));
+    }
+}
+
+@keyframes redPulse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes goldGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 215, 0, 0.3));
+    }
+    50% {
+        filter: brightness(1.15) drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)) drop-shadow(0 0 15px rgba(255, 165, 0, 0.3));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 215, 0, 0.3));
+    }
+}
+
+@keyframes goldPulse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes angelicGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+    }
+    50% {
+        filter: brightness(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 15px rgba(240, 248, 255, 0.4));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+    }
+}
+
+@keyframes angelicPulse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+        opacity: 0.95;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes purpleGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(138, 43, 226, 0.3));
+    }
+    50% {
+        filter: brightness(1.15) drop-shadow(0 0 8px rgba(138, 43, 226, 0.5)) drop-shadow(0 0 15px rgba(128, 0, 128, 0.3));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 3px rgba(138, 43, 226, 0.3));
+    }
+}
+
+@keyframes purplePulse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
