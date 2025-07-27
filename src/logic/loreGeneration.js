@@ -27,8 +27,28 @@ export async function generateCharacterLore(characterData, backgroundTextArea, s
 
     const prompt = generatePrompt(characterData);
     
+    // 🎭 TIMEOUT PARA DETECTAR HIBERNAÇÃO
+    let hibernationTimeout;
+    let isHibernating = false;
+    
     try {
+        // Configurar timeout para hibernação (8 segundos)
+        hibernationTimeout = setTimeout(() => {
+            isHibernating = true;
+            showHibernationNotification();
+        }, 8000);
+
         const backstory = await window.API_CONFIG.generateStory(prompt);
+        
+        // Limpar timeout se a resposta chegou a tempo
+        if (hibernationTimeout) {
+            clearTimeout(hibernationTimeout);
+        }
+        
+        // Remover notificação de hibernação se estava ativa
+        if (isHibernating) {
+            removeHibernationNotification();
+        }
         
         updateBackgroundWithLore(backstory, backgroundTextArea, storage, currentCharacterId, characterData);
         companionEvents.onStoryGenerationSuccess();
@@ -38,6 +58,16 @@ export async function generateCharacterLore(characterData, backgroundTextArea, s
         
     } catch (error) {
         console.error('❌ Erro ao gerar história via API:', error.message);
+        
+        // Limpar timeout se houve erro
+        if (hibernationTimeout) {
+            clearTimeout(hibernationTimeout);
+        }
+        
+        // Remover notificação de hibernação se estava ativa
+        if (isHibernating) {
+            removeHibernationNotification();
+        }
         
         // Usar fallback
         const fallbackLore = generateSimpleLore(characterData);
@@ -97,6 +127,9 @@ function openLoadingModal() {
         modalContent.style.opacity = '1';
         modalContent.style.transform = 'translateY(0)';
     }
+
+    // 🎭 INICIAR ANIMAÇÕES DO MODAL
+    startLoadingAnimations();
 }
 
 /**
@@ -105,6 +138,10 @@ function openLoadingModal() {
 function closeLoadingModal() {
     const loadingModal = document.getElementById('loadingModal');
     if (!loadingModal) return;
+
+    // 🎭 PARAR ANIMAÇÕES
+    stopProgressAnimation();
+    removeHibernationNotification();
 
     setTimeout(() => {
         loadingModal.classList.remove('is-active');
@@ -130,13 +167,105 @@ function blockBackgroundInteractions() {
     document.body.style.overflow = 'hidden';
     
     // Bloquear interações com elementos fora do modal
-    const elements = document.querySelectorAll('body > *:not(.modal)');
-    elements.forEach(element => {
-        if (!element.classList.contains('modal')) {
-            element.style.pointerEvents = 'none';
-            element.setAttribute('aria-hidden', 'true');
+}
+
+/**
+ * 🎭 Inicia as animações do modal de loading
+ */
+function startLoadingAnimations() {
+    const messages = [
+        document.getElementById('loadingMessage1'),
+        document.getElementById('loadingMessage2'),
+        document.getElementById('loadingMessage3'),
+        document.getElementById('loadingMessage4')
+    ];
+
+    let currentMessage = 0;
+    
+    // Função para alternar mensagens
+    function cycleMessages() {
+        messages.forEach((msg, index) => {
+            if (msg) {
+                msg.classList.remove('active');
+            }
+        });
+        
+        if (messages[currentMessage]) {
+            messages[currentMessage].classList.add('active');
         }
-    });
+        
+        currentMessage = (currentMessage + 1) % messages.length;
+    }
+
+    // Iniciar ciclo de mensagens
+    cycleMessages();
+    setInterval(cycleMessages, 3000);
+
+    // Simular progresso
+    simulateProgress();
+}
+
+/**
+ * 🎭 Simula o progresso da barra
+ */
+function simulateProgress() {
+    const progressBar = document.getElementById('loreProgress');
+    const progressText = document.getElementById('progressText');
+    
+    if (!progressBar || !progressText) return;
+
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90; // Não chegar a 100% até a resposta
+        
+        progressBar.value = progress;
+        progressText.textContent = `${Math.round(progress)}%`;
+    }, 500);
+
+    // Guardar o intervalo para parar quando necessário
+    window.loreProgressInterval = interval;
+}
+
+/**
+ * 🎭 Para as animações de progresso
+ */
+function stopProgressAnimation() {
+    if (window.loreProgressInterval) {
+        clearInterval(window.loreProgressInterval);
+        window.loreProgressInterval = null;
+    }
+}
+
+/**
+ * 🎭 Mostra notificação de hibernação
+ */
+function showHibernationNotification() {
+    const loadingModal = document.getElementById('loadingModal');
+    if (!loadingModal) return;
+
+    const notification = document.createElement('div');
+    notification.className = 'hibernation-notification';
+    notification.innerHTML = `
+        <i class="fas fa-magic"></i>
+        <strong>Aguarde um pouco...</strong><br>
+        A magia está despertando dos reinos distantes!
+    `;
+
+    const modalContent = loadingModal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.appendChild(notification);
+    }
+}
+
+/**
+ * 🎭 Remove notificação de hibernação
+ */
+function removeHibernationNotification() {
+    const notification = document.querySelector('.hibernation-notification');
+    if (notification) {
+        notification.remove();
+    }
 }
 
 /**

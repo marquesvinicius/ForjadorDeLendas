@@ -1,4 +1,4 @@
-import { getCurrentWorldConfig } from '../../js/worldsConfig.js';
+import { getCurrentWorldConfig } from '../config/worldsConfig.js';
 
 class MagoCompanion {
     constructor() {

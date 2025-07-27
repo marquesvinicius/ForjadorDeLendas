@@ -317,10 +317,39 @@
     <div id="loadingModal" class="modal">
         <div class="modal-background"></div>
         <div class="modal-content">
-            <div class="box has-text-centered">
-                <p class="title is-4 medieval-title">Invocando as Forças Arcanas</p>
-                <p>Nosso mago está trabalhando em sua história...</p>
-                <progress class="progress is-primary mt-3" max="100"></progress>
+            <div class="box has-text-centered lore-generation-modal">
+                <div class="book-animation">
+                                            <div class="book">
+                            <div class="book-cover">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="book-back-cover"></div>
+                            <div class="book-pages">
+                                <div class="page page-1"></div>
+                                <div class="page page-2"></div>
+                                <div class="page page-3"></div>
+                                <div class="page page-4"></div>
+                                <div class="page page-5"></div>
+                            </div>
+                        </div>
+                </div>
+                
+                <div class="loading-content">
+                    <p class="title is-4 medieval-title">Invocando as Forças Arcanas</p>
+                    <p class="subtitle is-6">Nosso mago está trabalhando em sua história...</p>
+                    
+                    <div class="loading-messages">
+                        <p class="loading-message active" id="loadingMessage1">Consultando os pergaminhos antigos...</p>
+                        <p class="loading-message" id="loadingMessage2">Invocando as memórias do passado...</p>
+                        <p class="loading-message" id="loadingMessage3">Tecendo a trama de sua lenda...</p>
+                        <p class="loading-message" id="loadingMessage4">Finalizando sua história épica...</p>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <progress class="progress is-primary mt-3" max="100" id="loreProgress"></progress>
+                        <p class="progress-text" id="progressText">0%</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

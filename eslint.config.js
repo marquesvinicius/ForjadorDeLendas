@@ -45,7 +45,6 @@ module.exports = [
       'js/app.js',
       'js/companion.js', 
       'js/themeManager.js',
-      'js/themes.js',
       'js/worldManager.js',
       'js/worldsConfig.js'
     ]

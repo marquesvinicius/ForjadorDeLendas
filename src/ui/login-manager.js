@@ -15,14 +15,64 @@ export class LoginManager {
      * Inicializar o gerenciador de login
      */
     async init() {
-        // Verificar se já está logado
+        console.log('🔐 LoginManager: Inicializando...');
+        
+        // ⭐ PROTEÇÃO CONTRA LOOP INFINITO
+        const redirectCount = sessionStorage.getItem('loginRedirectCount') || '0';
+        if (parseInt(redirectCount) > 3) {
+            console.warn('🚨 Loop de redirecionamento detectado! Parando...');
+            sessionStorage.removeItem('loginRedirectCount');
+            // Forçar logout para quebrar o loop
+            try {
+                await supabaseAuth.signOut();
+                this.showMessage('Sistema reiniciado devido a erro de redirecionamento.', 'info');
+            } catch (e) {
+                console.error('Erro ao forçar logout:', e);
+            }
+            return;
+        }
+
+        // ⭐ AGUARDAR o Supabase terminar de verificar sessão
+        await this.waitForSupabaseInit();
+
+        // Verificar se já está logado APÓS Supabase carregar
         if (supabaseAuth.isAuthenticated()) {
+            console.log('✅ LoginManager: Usuário já autenticado');
+            
             // Se já estiver logado e estiver na página de login, redirecionar
             if (window.location.pathname.includes('login.html')) {
-                window.location.href = 'index.html';
+                console.log('🔄 LoginManager: Redirecionando usuário logado para index.html');
+                
+                // Incrementar contador de redirecionamento
+                const currentCount = parseInt(redirectCount) + 1;
+                sessionStorage.setItem('loginRedirectCount', currentCount.toString());
+                
+                // Delay antes do redirecionamento para evitar loops rápidos
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+                return;
+            }
+        } else {
+            console.log('❌ LoginManager: Usuário não autenticado');
+            
+            // Se não estiver logado e estiver na página principal, redirecionar para login
+            if (!window.location.pathname.includes('login.html')) {
+                console.log('🔄 LoginManager: Redirecionando usuário não autenticado para login.html');
+                window.location.href = 'login.html';
                 return;
             }
         }
+
+        // Reset contador se chegou aqui sem problemas
+        sessionStorage.removeItem('loginRedirectCount');
+
+        // ⭐ DELAY MÍNIMO PARA FEEDBACK VISUAL
+        await this.minimumLoadingDelay();
+
+        // Se chegou aqui, usuário está na página correta
+        // Mostrar conteúdo da página de login
+        this.showLoginContent();
 
         // Configurar event listeners
         this.setupEventListeners();
@@ -35,13 +85,79 @@ export class LoginManager {
     }
 
     /**
+     * Delay mínimo para feedback visual adequado
+     */
+    async minimumLoadingDelay() {
+        return new Promise((resolve) => {
+            // Delay mínimo de 1.5 segundos para feedback visual
+            setTimeout(() => {
+                console.log('⏱️ LoginManager: Delay mínimo concluído');
+                resolve();
+            }, 1500);
+        });
+    }
+
+    /**
+     * Mostrar conteúdo da página de login após verificação
+     */
+    showLoginContent() {
+        const loadingOverlay = document.getElementById('authLoading');
+        const loginContent = document.querySelector('.login-container');
+        
+        if (loadingOverlay && loginContent) {
+            // Ocultar loading com transição suave
+            loadingOverlay.classList.add('hidden');
+            
+            // Mostrar conteúdo de login
+            loginContent.classList.remove('auth-hidden');
+            loginContent.classList.add('visible');
+            
+            // Remover loading do DOM após transição
+            setTimeout(() => {
+                if (loadingOverlay.parentNode) {
+                    loadingOverlay.parentNode.removeChild(loadingOverlay);
+                }
+            }, 300);
+            
+            console.log('✅ LoginManager: Conteúdo de login exibido');
+        }
+    }
+
+    /**
+     * Aguardar Supabase terminar inicialização
+     */
+    async waitForSupabaseInit() {
+        // Aguardar até o Supabase terminar verificação inicial
+        return new Promise((resolve) => {
+            let attempts = 0;
+            const maxAttempts = 40; // 2 segundos máximo
+            
+            const checkAuth = () => {
+                attempts++;
+                
+                if (supabaseAuth.initialized) {
+                    resolve();
+                } else if (attempts >= maxAttempts) {
+                    console.warn('⚠️ Timeout aguardando Supabase, continuando mesmo assim...');
+                    resolve();
+                } else {
+                    setTimeout(checkAuth, 50);
+                }
+            };
+            checkAuth();
+        });
+    }
+
+    /**
      * Configurar event listeners do formulário
      */
     setupEventListeners() {
         // Formulário de login
-        const loginForm = document.getElementById('guardForm');
+        const loginForm = document.getElementById('recognitionForm');
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+        } else {
+            console.error('❌ Formulário de loginnão encontrado: #recognitionForm');
         }
 
         // Botão de registro
@@ -62,7 +178,22 @@ export class LoginManager {
             });
         }
 
-        // Botão de voltar ao login
+        // Botões de voltar ao login (IDs específicos)
+        const backToLoginSelectors = ['#loginLink', '#backToLoginLink'];
+        backToLoginSelectors.forEach(selector => {
+            const btn = document.querySelector(selector);
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log(`🔄 Clicado: ${selector} - Voltando ao login`);
+                    this.showLoginForm();
+                });
+            } else {
+                console.warn(`⚠️ Botão não encontrado: ${selector}`);
+            }
+        });
+
+        // Botão de voltar ao login (classe genérica - fallback)
         const backToLoginBtns = document.querySelectorAll('.back-to-login');
         backToLoginBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -73,6 +204,10 @@ export class LoginManager {
 
         // OAuth providers
         this.setupOAuthListeners();
+
+        // Configurar formulários específicos
+        this.setupRegisterFormListeners();
+        this.setupForgotPasswordFormListeners();
     }
 
     /**
@@ -107,7 +242,7 @@ export class LoginManager {
     }
 
     /**
-     * Manipular login com email/senha
+     * Manipular login com email/senha OU username/senha
      */
     async handleLogin(event) {
         event.preventDefault();
@@ -115,25 +250,57 @@ export class LoginManager {
         if (this.isLoading) return;
 
         const formData = new FormData(event.target);
-        const email = formData.get('email');
+        let emailOrUsername = formData.get('email') || formData.get('username');
         const password = formData.get('password');
 
-        if (!this.validateLoginForm(email, password)) return;
+        // 🎯 MELHORIA: Converter username para email se necessário
+        if (emailOrUsername && !emailOrUsername.includes('@')) {
+            console.log(`🔄 Convertendo username "${emailOrUsername}" para email`);
+            emailOrUsername = `${emailOrUsername}@test.com`;
+        }
+
+        if (!this.validateLoginForm(emailOrUsername, password)) return;
 
         this.setLoading(true);
         this.showMessage('Verificando suas credenciais...', 'loading');
 
+        // 🎭 TIMEOUT PARA DETECTAR HIBERNAÇÃO
+        let hibernationTimeout;
+        let isHibernating = false;
+
         try {
-            const result = await supabaseAuth.signIn(email, password);
+            // Configurar timeout para hibernação (3 segundos)
+            hibernationTimeout = setTimeout(() => {
+                isHibernating = true;
+                this.showHibernationMessage();
+            }, 3000);
+
+            const result = await supabaseAuth.signIn(emailOrUsername, password);
+            
+            // Limpar timeout se a resposta chegou a tempo
+            if (hibernationTimeout) {
+                clearTimeout(hibernationTimeout);
+            }
 
             if (result.success) {
                 this.showMessage(result.message, 'success');
                 // O redirecionamento será feito pelo evento supabaseSignIn
             } else {
+                // Chamar guardas para erro do login
+                if (window.loginGuards) {
+                    window.loginGuards.onLoginError();
+                }
+                
                 this.showMessage(result.message, 'error');
             }
         } catch (error) {
             console.error('❌ Erro no login:', error);
+            
+            // Limpar timeout se houve erro
+            if (hibernationTimeout) {
+                clearTimeout(hibernationTimeout);
+            }
+            
             this.showMessage('Erro inesperado. Tente novamente.', 'error');
         } finally {
             this.setLoading(false);
@@ -170,31 +337,115 @@ export class LoginManager {
      * Mostrar formulário de registro
      */
     showRegisterForm() {
-        const loginForm = document.getElementById('loginFormContainer');
-        const registerForm = document.getElementById('registerFormContainer');
         
-        if (loginForm && registerForm) {
-            loginForm.style.display = 'none';
-            registerForm.style.display = 'block';
+        // Esconder todos os cards
+        this.hideAllCards();
+        
+        // Mostrar card de registro
+        const registerCard = document.getElementById('registerCard');
+        if (registerCard) {
+            registerCard.classList.remove('hidden');
             
-            // Configurar formulário de registro se ainda não foi feito
-            this.setupRegisterForm();
+            // Auto-focus no primeiro campo
+            setTimeout(() => {
+                const firstInput = registerCard.querySelector('input');
+                if (firstInput) firstInput.focus();
+            }, 300);
         }
+        
+        // Chamar guardas para comentar sobre registro
+        if (window.loginGuards) {
+            window.loginGuards.onSwitchToRegister();
+        }
+        
+        // Event listeners já configurados no init
     }
 
     /**
-     * Configurar formulário de registro
+     * Mostrar formulário de esqueci senha
      */
-    setupRegisterForm() {
-        const registerForm = document.getElementById('registerForm');
-        if (registerForm && !registerForm.hasAttribute('data-setup')) {
-            registerForm.setAttribute('data-setup', 'true');
-            registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+    showForgotPasswordForm() {
+        
+        // Esconder todos os cards
+        this.hideAllCards();
+        
+        // Mostrar card de forgot password
+        const forgotCard = document.getElementById('forgotPasswordCard');
+        if (forgotCard) {
+            forgotCard.classList.remove('hidden');
+            
+            // Auto-focus no campo de email
+            setTimeout(() => {
+                const emailInput = forgotCard.querySelector('input[type="email"]');
+                if (emailInput) emailInput.focus();
+            }, 300);
+        }
+        
+        // Chamar guardas para comentário místico sobre esquecimento
+        if (window.loginGuards) {
+            window.loginGuards.onSwitchToForgotPassword();
+        }
+        
+        // Event listeners já configurados no init
+    }
+
+    /**
+     * Mostrar formulário de login
+     */
+    showLoginForm() {
+        
+        // Esconder todos os cards
+        this.hideAllCards();
+        
+        // Mostrar card de login
+        const loginCard = document.getElementById('loginCard');
+        if (loginCard) {
+            loginCard.classList.remove('hidden');
+        }
+        
+        // Chamar guardas para comentar sobre retorno ao login
+        if (window.loginGuards) {
+            window.loginGuards.onSwitchToLogin();
         }
     }
 
     /**
-     * Manipular registro de novo usuário
+     * Esconder todos os cards
+     */
+    hideAllCards() {
+        const cards = ['loginCard', 'registerCard', 'forgotPasswordCard'];
+        cards.forEach(cardId => {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.classList.add('hidden');
+            }
+        });
+    }
+
+    /**
+     * Configurar listeners do formulário de registro
+     */
+    setupRegisterFormListeners() {
+        const registerForm = document.getElementById('registrationForm');
+        if (registerForm && !registerForm.dataset.listenerAdded) {
+            registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+            registerForm.dataset.listenerAdded = 'true';
+        }
+    }
+
+    /**
+     * Configurar listeners do formulário de forgot password
+     */
+    setupForgotPasswordFormListeners() {
+        const forgotForm = document.getElementById('forgotPasswordForm');
+        if (forgotForm && !forgotForm.dataset.listenerAdded) {
+            forgotForm.addEventListener('submit', (e) => this.handleForgotPassword(e));
+            forgotForm.dataset.listenerAdded = 'true';
+        }
+    }
+
+    /**
+     * Manipular registro de usuário
      */
     async handleRegister(event) {
         event.preventDefault();
@@ -202,73 +453,90 @@ export class LoginManager {
         if (this.isLoading) return;
 
         const formData = new FormData(event.target);
-        const email = formData.get('email');
+        const username = formData.get('username')?.trim();
+        const email = formData.get('email')?.trim();
         const password = formData.get('password');
         const confirmPassword = formData.get('confirmPassword');
-        const username = formData.get('username');
-        const fullName = formData.get('fullName');
 
-        if (!this.validateRegisterForm(email, password, confirmPassword, username)) return;
+        // Validações
+        if (!username || !email || !password || !confirmPassword) {
+            this.showMessage('Por favor, preencha todos os campos', 'error');
+            return;
+        }
+
+        if (!this.validateEmail(email)) {
+            this.showMessage('Por favor, insira um email válido', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showMessage('A senha deve ter pelo menos 6 caracteres', 'error');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            this.showMessage('As senhas não coincidem', 'error');
+            return;
+        }
 
         this.setLoading(true);
-        this.showMessage('Criando sua conta de aventureiro...', 'loading');
+        this.showMessage('Criando sua conta...', 'loading');
 
         try {
             const result = await supabaseAuth.signUp(email, password, {
-                username,
-                fullName
+                username: username,
+                full_name: username
             });
 
             if (result.success) {
-                this.showMessage(result.message, 'success');
-                
                 if (result.needsConfirmation) {
-                    this.showEmailConfirmationMessage();
+                    // Chamar guardas para sucesso do registro
+                    if (window.loginGuards) {
+                        window.loginGuards.onRegisterSuccess(username);
+                    }
+                    
+                    this.showMessage('Conta criada! Verifique seu email para confirmar e depois faça login.', 'success');
+                    
+                    // Aguardar um pouco e voltar ao login com email preenchido
+                    setTimeout(() => {
+                        this.showLoginForm();
+                        const usernameInput = document.getElementById('username');
+                        if (usernameInput) {
+                            usernameInput.value = email; // Usar email, não username
+                        }
+                        this.showMessage('Após confirmar seu email, faça login aqui.', 'info');
+                    }, 3000);
                 } else {
-                    // Login automático após registro
+                    // Chamar guardas para sucesso do registro
+                    if (window.loginGuards) {
+                        window.loginGuards.onRegisterSuccess(username);
+                    }
+                    
+                    this.showMessage(`Conta criada com sucesso! Bem-vindo, ${username}!`, 'success');
+                    
+                    // Se não precisar confirmar email, redirecionar para o index
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 2000);
                 }
             } else {
+                // Chamar guardas para erro do registro
+                if (window.loginGuards) {
+                    window.loginGuards.onRegisterError();
+                }
+                
                 this.showMessage(result.message, 'error');
             }
         } catch (error) {
             console.error('❌ Erro no registro:', error);
-            this.showMessage('Erro ao criar conta. Tente novamente.', 'error');
+            this.showMessage('Erro inesperado. Tente novamente.', 'error');
         } finally {
             this.setLoading(false);
         }
     }
 
     /**
-     * Mostrar formulário de esqueci senha
-     */
-    showForgotPasswordForm() {
-        const loginForm = document.getElementById('loginFormContainer');
-        const forgotForm = document.getElementById('forgotPasswordContainer');
-        
-        if (loginForm && forgotForm) {
-            loginForm.style.display = 'none';
-            forgotForm.style.display = 'block';
-            
-            this.setupForgotPasswordForm();
-        }
-    }
-
-    /**
-     * Configurar formulário de esqueci senha
-     */
-    setupForgotPasswordForm() {
-        const forgotForm = document.getElementById('forgotPasswordForm');
-        if (forgotForm && !forgotForm.hasAttribute('data-setup')) {
-            forgotForm.setAttribute('data-setup', 'true');
-            forgotForm.addEventListener('submit', (e) => this.handleForgotPassword(e));
-        }
-    }
-
-    /**
-     * Manipular reset de senha
+     * Manipular esqueci senha
      */
     async handleForgotPassword(event) {
         event.preventDefault();
@@ -276,7 +544,12 @@ export class LoginManager {
         if (this.isLoading) return;
 
         const formData = new FormData(event.target);
-        const email = formData.get('email');
+        const email = formData.get('email')?.trim();
+
+        if (!email) {
+            this.showMessage('Por favor, insira seu email', 'error');
+            return;
+        }
 
         if (!this.validateEmail(email)) {
             this.showMessage('Por favor, insira um email válido', 'error');
@@ -290,35 +563,31 @@ export class LoginManager {
             const result = await supabaseAuth.resetPassword(email);
 
             if (result.success) {
-                this.showMessage(result.message, 'success');
-                this.showPasswordResetSentMessage();
+                // Chamar guardas para sucesso do forgot password
+                if (window.loginGuards) {
+                    window.loginGuards.onForgotPasswordSuccess(email);
+                }
+                
+                this.showMessage('Email de recuperação enviado! Verifique sua caixa de entrada.', 'success');
+                
+                // Voltar ao login após alguns segundos
+                setTimeout(() => {
+                    this.showLoginForm();
+                }, 3000);
             } else {
+                // Chamar guardas para erro do forgot password
+                if (window.loginGuards) {
+                    window.loginGuards.onForgotPasswordError();
+                }
+                
                 this.showMessage(result.message, 'error');
             }
         } catch (error) {
-            console.error('❌ Erro no reset:', error);
-            this.showMessage('Erro ao enviar email. Tente novamente.', 'error');
+            console.error('❌ Erro no reset de senha:', error);
+            this.showMessage('Erro inesperado. Tente novamente.', 'error');
         } finally {
             this.setLoading(false);
         }
-    }
-
-    /**
-     * Mostrar formulário de login
-     */
-    showLoginForm() {
-        const containers = [
-            'loginFormContainer',
-            'registerFormContainer', 
-            'forgotPasswordContainer'
-        ];
-
-        containers.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = id === 'loginFormContainer' ? 'block' : 'none';
-            }
-        });
     }
 
     /**
@@ -337,46 +606,21 @@ export class LoginManager {
     /**
      * Validar formulário de login
      */
-    validateLoginForm(email, password) {
-        if (!email || !password) {
+    validateLoginForm(emailOrUsername, password) {
+        if (!emailOrUsername || !password) {
             this.showMessage('Por favor, preencha todos os campos', 'error');
             return false;
         }
 
-        if (!this.validateEmail(email)) {
+        // Se não contém @ e não foi convertido para email, mostrar erro mais claro
+        if (!emailOrUsername.includes('@') && emailOrUsername.length < 3) {
+            this.showMessage('Nome de usuário deve ter pelo menos 3 caracteres', 'error');
+            return false;
+        }
+
+        // Se contém @ mas não é um email válido
+        if (emailOrUsername.includes('@') && !this.validateEmail(emailOrUsername)) {
             this.showMessage('Por favor, insira um email válido', 'error');
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Validar formulário de registro
-     */
-    validateRegisterForm(email, password, confirmPassword, username) {
-        if (!email || !password || !confirmPassword || !username) {
-            this.showMessage('Por favor, preencha todos os campos', 'error');
-            return false;
-        }
-
-        if (!this.validateEmail(email)) {
-            this.showMessage('Por favor, insira um email válido', 'error');
-            return false;
-        }
-
-        if (password.length < 6) {
-            this.showMessage('A senha deve ter pelo menos 6 caracteres', 'error');
-            return false;
-        }
-
-        if (password !== confirmPassword) {
-            this.showMessage('As senhas não coincidem', 'error');
-            return false;
-        }
-
-        if (username.length < 3) {
-            this.showMessage('O nome de usuário deve ter pelo menos 3 caracteres', 'error');
             return false;
         }
 
@@ -397,41 +641,26 @@ export class LoginManager {
     setLoading(loading) {
         this.isLoading = loading;
         
-        const submitBtns = document.querySelectorAll('button[type="submit"]');
-        submitBtns.forEach(btn => {
-            btn.disabled = loading;
+        const submitBtn = document.getElementById('guardSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = loading;
             
             if (loading) {
-                btn.innerHTML = `
+                submitBtn.innerHTML = `
                     <span class="icon">
                         <i class="fas fa-spinner fa-spin"></i>
                     </span>
                     <span>Aguarde...</span>
                 `;
             } else {
-                // Restaurar texto original do botão
-                this.restoreButtonText(btn);
+                submitBtn.innerHTML = `
+                    <span class="icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </span>
+                    <span>Entrar no Reino</span>
+                `;
             }
-        });
-    }
-
-    /**
-     * Restaurar texto original do botão
-     */
-    restoreButtonText(btn) {
-        const originalTexts = {
-            'loginButton': 'Entrar no Reino',
-            'registerButton': 'Criar Conta',
-            'forgotPasswordButton': 'Enviar Email'
-        };
-
-        const text = originalTexts[btn.id] || 'Enviar';
-        btn.innerHTML = `
-            <span class="icon">
-                <i class="fas fa-sign-in-alt"></i>
-            </span>
-            <span>${text}</span>
-        `;
+        }
     }
 
     /**
@@ -439,7 +668,10 @@ export class LoginManager {
      */
     showMessage(message, type = 'info') {
         const messageEl = document.getElementById('guardMessage');
-        if (!messageEl) return;
+        if (!messageEl) {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            return;
+        }
 
         messageEl.textContent = message;
         messageEl.className = `guard-notification ${type}`;
@@ -454,39 +686,14 @@ export class LoginManager {
     }
 
     /**
-     * Mostrar mensagem de confirmação de email
-     */
-    showEmailConfirmationMessage() {
-        this.showMessage(
-            '📧 Enviamos um email de confirmação! Verifique sua caixa de entrada.',
-            'success'
-        );
-        
-        // Voltar para o formulário de login após alguns segundos
-        setTimeout(() => {
-            this.showLoginForm();
-        }, 3000);
-    }
-
-    /**
-     * Mostrar mensagem de reset enviado
-     */
-    showPasswordResetSentMessage() {
-        this.showMessage(
-            '📧 Email de recuperação enviado! Verifique sua caixa de entrada.',
-            'success'
-        );
-        
-        // Voltar para o formulário de login após alguns segundos
-        setTimeout(() => {
-            this.showLoginForm();
-        }, 3000);
-    }
-
-    /**
      * Callback de login bem-sucedido
      */
     onLoginSuccess(user) {
+        // Chamar guardas para comentar sobre sucesso do login
+        if (window.loginGuards) {
+            window.loginGuards.onLoginSuccess();
+        }
+        
         // Mostrar mensagem de boas-vindas
         this.showMessage(`Bem-vindo de volta, ${user.email}!`, 'success');
         
@@ -508,6 +715,23 @@ export class LoginManager {
         
         // Resetar formulários
         this.showLoginForm();
+    }
+
+    /**
+     * 🎭 Mostra mensagem de hibernação para login
+     */
+    showHibernationMessage() {
+        const messageEl = document.getElementById('guardMessage');
+        if (messageEl) {
+            messageEl.innerHTML = `
+                <div class="hibernation-notification">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Os guardas estão acordando...</strong><br>
+                    Aguarde um pouco, os monitores do reino estão despertando!
+                </div>
+            `;
+            messageEl.style.display = 'block';
+        }
     }
 }
 

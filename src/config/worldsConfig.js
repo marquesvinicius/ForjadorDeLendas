@@ -157,12 +157,12 @@ export const worldsConfig = {
             'Clérigo': 'fa-pray',
             'Druida': 'fa-leaf',
             'Feiticeiro': 'fa-fire',
-            'Guerreiro': 'fa-sword',
+            'Guerreiro': 'fa-jedi',
             'Ladino': 'fa-mask',
             'Mago': 'fa-hat-wizard',
             'Monge': 'fa-fist-raised',
             'Paladino': 'fa-shield-alt',
-            'Patrulheiro': 'fa-bow-arrow'
+            'Patrulheiro': 'fa-bullseye'
         },
         companionSpeech: {
             greetings: [

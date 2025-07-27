@@ -1,4 +1,4 @@
-import { worldThemes } from '../../js/themes.js';
+import { worldThemes } from '../config/themes.js';
 
 export function applyWorldTheme(worldId) {
   const theme = worldThemes[worldId];
