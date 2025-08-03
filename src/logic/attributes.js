@@ -28,12 +28,106 @@ export function rollAllAttributes() {
 }
 
 /**
- * Valida se um valor de atributo está na faixa válida
+ * Obtém os limites de atributos para um mundo específico
+ * @param {string} world - ID do mundo ('dnd', 'tormenta', 'ordem-paranormal')
+ * @returns {Object} Objeto com min e max para o mundo
+ */
+export function getAttributeLimits(world) {
+  const limits = {
+    'dnd': { min: 3, max: 18 },
+    'tormenta': { min: 3, max: 18 },
+    'ordem-paranormal': { min: -2, max: 4 }
+  };
+  
+  return limits[world] || limits['dnd'];
+}
+
+/**
+ * Valida se um valor de atributo está na faixa válida para o mundo atual
  * @param {number} value - Valor a ser validado
+ * @param {string} world - ID do mundo (opcional, usa localStorage se não fornecido)
  * @returns {boolean} True se válido
  */
-export function isValidAttributeValue(value) {
-  return Number.isInteger(value) && value >= 3 && value <= 18;
+export function isValidAttributeValue(value, world = null) {
+  const currentWorld = world || localStorage.getItem('selectedWorld') || 'dnd';
+  const limits = getAttributeLimits(currentWorld);
+  
+  return Number.isInteger(value) && value >= limits.min && value <= limits.max;
+}
+
+/**
+ * Converte um valor de rolagem para atributo baseado no mundo
+ * @param {number} rollValue - Valor da rolagem (ex: 13, 8, 15, 18, 10, 9)
+ * @param {string} world - ID do mundo
+ * @returns {number} Valor do atributo convertido
+ */
+export function convertRollToAttribute(rollValue, world = null) {
+  const currentWorld = world || localStorage.getItem('selectedWorld') || 'dnd';
+  
+  if (currentWorld === 'ordem-paranormal') {
+    // Tabela de conversão para Ordem Paranormal
+    if (rollValue <= 7) return -2;
+    if (rollValue <= 9) return -1;
+    if (rollValue <= 11) return 0;
+    if (rollValue <= 13) return 1;
+    if (rollValue <= 15) return 2;
+    if (rollValue <= 17) return 3;
+    if (rollValue === 18) return 4;
+    return 0; // fallback
+  }
+  
+  // Para D&D e Tormenta, retorna o valor da rolagem diretamente
+  return rollValue;
+}
+
+/**
+ * Rola atributos para Ordem Paranormal usando o sistema específico
+ * @returns {Object} Objeto com atributos convertidos
+ */
+export function rollOrdemParanormalAttributes() {
+  const rolls = [];
+  
+  // Rola 6 vezes usando 4d6 drop lowest
+  for (let i = 0; i < 6; i++) {
+    const roll = rollStat();
+    rolls.push(roll);
+  }
+  
+  // Converte os valores de rolagem para atributos
+  const convertedAttributes = rolls.map(roll => convertRollToAttribute(roll, 'ordem-paranormal'));
+  
+  // Verifica se a soma é pelo menos 6, se não, rola novamente o menor valor
+  let sum = convertedAttributes.reduce((a, b) => a + b, 0);
+  while (sum < 6) {
+    const minIndex = convertedAttributes.indexOf(Math.min(...convertedAttributes));
+    const newRoll = rollStat();
+    const newAttribute = convertRollToAttribute(newRoll, 'ordem-paranormal');
+    convertedAttributes[minIndex] = newAttribute;
+    sum = convertedAttributes.reduce((a, b) => a + b, 0);
+  }
+  
+  return {
+    strength: convertedAttributes[0],
+    dexterity: convertedAttributes[1], 
+    constitution: convertedAttributes[2],
+    intelligence: convertedAttributes[3],
+    wisdom: convertedAttributes[4],
+    charisma: convertedAttributes[5]
+  };
+}
+
+/**
+ * Rola todos os atributos baseado no mundo atual
+ * @returns {Object} Objeto com todos os atributos
+ */
+export function rollAllAttributesForCurrentWorld() {
+  const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+  
+  if (currentWorld === 'ordem-paranormal') {
+    return rollOrdemParanormalAttributes();
+  }
+  
+  return rollAllAttributes();
 }
 
 /**

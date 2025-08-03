@@ -161,6 +161,12 @@ class MagoCompanion {
                     "Um novo aventureiro para Faerûn! Que sua jornada seja épica.",
                     "Pelos deuses! Pronto para desbravar Waterdeep ou as selvas de Chult?"
                 ];
+            } else if (currentWorld === 'ordem-paranormal') {
+                greetings = [
+                    "Bem-vindo, agente... A Ordo Realitas precisa de você.",
+                    "Um novo investigador do paranormal? A Membrana está frágil...",
+                    "Por Veríssimo! Outro corajoso para enfrentar o Outro Lado."
+                ];
             } else { // Tormenta como padrão
                 greetings = [
                     "Bem-vindo ao Forjador de Lendas! Sou Merlin, seu guia em Arton!",
@@ -207,6 +213,12 @@ class MagoCompanion {
                         `Ah, ${name}! Vejo um futuro de glória e perigo te esperando nos Reinos.`,
                         `${name}... *esfrega as mãos com antecipação* Um herói para enfrentar os dragões, talvez?`
                     ];
+                } else if (currentWorld === 'ordem-paranormal') {
+                    responses = [
+                        `${name}? Um nome que constará nos arquivos da Ordem.`,
+                        `Ah, ${name}! C.R.I.S. já registrou sua entrada no sistema.`,
+                        `${name}... *sussurra* Que os elementos não te corrompam.`
+                    ];
                 } else { // Tormenta
                     responses = [
                         `${name}? Um nome que ecoará em Arton! Escolha sua raça!`,
@@ -224,6 +236,8 @@ class MagoCompanion {
      * Verifica Easter Eggs de nomes específicos
      */
     checkNameEasterEggs(name, world) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = world || localStorage.getItem('selectedWorld') || 'tormenta';
         const normalizedName = name.toLowerCase().trim();
         
         // Easter Eggs especiais
@@ -248,11 +262,11 @@ class MagoCompanion {
         // Verificar variações do nome Crequi
         const crequiVariations = ['crequi', 'créqui', 'crequi lahk', 'créqui láhk', 'crequi lah', 'créqui lah'];
         if (crequiVariations.includes(normalizedName)) {
-            const easterEggKey = `crequi-${world}`;
+            const easterEggKey = `crequi-${currentWorld}`;
             if (!this.triggeredEasterEggs.has(easterEggKey)) {
                 this.triggeredEasterEggs.add(easterEggKey);
                 this.addMagicalEyeGlow('crequi');
-                return this.getCrequiResponse(world);
+                return this.getCrequiResponse(currentWorld);
             }
             return null;
         }
@@ -321,7 +335,7 @@ class MagoCompanion {
                     "Se o alaúde quebrar, o grupo desaba. Literalmente."
                 ],
                 'ordem-paranormal': [
-                    "Bardo em Paranormal? Tá achando que é musical? Ainda bem que ele canta em Énoquico… ou quase isso.",
+                    "Bardo na Ordo Realitas? Tá achando que é musical? Ainda bem que ele canta em Énoquico… ou quase isso.",
                     "A música dele acalma até o Sigma. Ou pelo menos, os faz dançar."
                 ],
                 'dnd': [
@@ -338,7 +352,7 @@ class MagoCompanion {
                 'ordem-paranormal': [
                     "Há algo nesse nome... como se ele fosse um Cavaleiro do Vazio, amaldiçoado a guardar um segredo eterno.",
                     "Marek? Eu vi esse nome num manuscrito rasgado da Ordo Realitas, marcado com sangue seco e a palavra: 'Cinza'.",
-                    "Um esqueleto guiado por justiça? Em Paranormal, isso só pode significar uma coisa: entidade grau S."
+                    "Um esqueleto guiado por justiça? Na Ordem, isso só pode significar uma coisa: entidade grau S."
                 ],
                 'dnd': [
                     "Um cavaleiro morto-vivo, que luta por honra? Clássico. Mas este… este já enfrentou algo pior que a morte.",
@@ -349,10 +363,10 @@ class MagoCompanion {
             'samuca': {
                 'tormenta': [
                     "Ah, o mestre da sessão! Aquele que controla o destino de todos os renegados...",
-                    "Samuca? O narrador supremo que tece as histórias de Arton com maestria divina."
+                    "Samuca? Espero que os dados estejam ao nosso favor dessa vez..."
                 ],
                 'ordem-paranormal': [
-                    "O mestre da sessão em Paranormal? Aquele que desvenda os mistérios do Outro Lado...",
+                    "O mestre da sessão na Ordo Realitas? Aquele que desvenda os mistérios do Outro Lado...",
                     "Samuca? O condutor das narrativas que fazem a realidade tremer."
                 ],
                 'dnd': [
@@ -363,11 +377,11 @@ class MagoCompanion {
         };
         
         const renegado = renegados[normalizedName];
-        if (renegado && renegado[world]) {
-            const easterEggKey = `${normalizedName}-${world}`;
+        if (renegado && renegado[currentWorld]) {
+            const easterEggKey = `${normalizedName}-${currentWorld}`;
             if (!this.triggeredEasterEggs.has(easterEggKey)) {
                 this.triggeredEasterEggs.add(easterEggKey);
-                const responses = renegado[world];
+                const responses = renegado[currentWorld];
                 const response = responses[Math.floor(Math.random() * responses.length)];
                 
                 // Adicionar efeito visual de brilho nos olhos específico para cada personagem
@@ -384,6 +398,9 @@ class MagoCompanion {
      * Retorna resposta específica para Crequi baseada no mundo
      */
     getCrequiResponse(world) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = world || localStorage.getItem('selectedWorld') || 'tormenta';
+        
         const responses = {
             'tormenta': [
                 "Espelhos, cambalhotas e ossos quebrados... só pode ser ele.",
@@ -399,7 +416,7 @@ class MagoCompanion {
             ]
         };
         
-        const worldResponses = responses[world] || responses['tormenta'];
+        const worldResponses = responses[currentWorld] || responses['tormenta'];
         const response = worldResponses[Math.floor(Math.random() * worldResponses.length)];
         return `*olhos brilham magicamente* ${response}`;
     }
@@ -447,6 +464,35 @@ class MagoCompanion {
                 'Meio-Orc': "Um meio-orc! Sua força é uma lenda em formação.",
                 'Tiefling': "Um tiefling! Seu fogo interno brilha forte."
             };
+        } else if (currentWorld === 'ordem-paranormal') {
+            raceResponses = {
+                'Acadêmico': "Um Acadêmico! Seu conhecimento pode salvar ou condenar.",
+                'Agente de Saúde': "Um profissional da saúde! A Morte teme sua dedicação.",
+                'Amnésico': "Um Amnésico? Seu passado pode esconder horrores...",
+                'Artista': "Um Artista! Sua criatividade confunde até entidades.",
+                'Atleta': "Um Atleta! Sua disciplina física impressiona.",
+                'Chef': "Um Chef! Que seus pratos afastem o mal.",
+                'Criminoso': "Um ex-criminoso? A Ordem dá segundas chances.",
+                'Cultista Arrependido': "Um ex-cultista? *observa com cautela* Prove sua lealdade.",
+                'Desgarrado': "Um Desgarrado! Sem passado, mas com futuro na Ordem.",
+                'Engenheiro': "Um Engenheiro! Sua lógica desafia o paranormal.",
+                'Executivo': "Um Executivo! Sua influência será útil às missões.",
+                'Investigador': "Um Investigador nato! C.R.I.S. aprova sua escolha.",
+                'Lutador': "Um Lutador! Seus punhos falam mais alto que rituais.",
+                'Magnata': "Um Magnata! Seus recursos fortalecerão a Ordem.",
+                'Mercenário': "Um Mercenário! Experiência de combate será crucial.",
+                'Militar': "Um Militar! Disciplina será crucial contra o caos.",
+                'Operário': "Um Operário! Suas mãos constroem esperança.",
+                'Policial': "Um Policial! A lei humana vs. as regras do Outro Lado.",
+                'Religioso': "Um Religioso! Sua fé será testada pelo horror.",
+                'Servidor Público': "Um Servidor! O Estado precisa da Ordem.",
+                'Teórico da Conspiração': "Um Teórico! *sussurra* Você já suspeitava da verdade...",
+                'T.I.': "Um profissional de T.I.! C.R.I.S. reconhece um igual.",
+                'Trabalhador Rural': "Um Trabalhador Rural! A terra guarda segredos.",
+                'Trambiqueiro': "Um Trambiqueiro! Suas artimanhas serão úteis.",
+                'Universitário': "Um Universitário! Jovem, mas determinado.",
+                'Vítima': "Uma Vítima que sobreviveu... Agora é hora da vingança."
+            };
         } else { // Tormenta
             raceResponses = {
                 'Humano': "Humanos! Tão versáteis quanto os ventos de Arton!",
@@ -469,7 +515,15 @@ class MagoCompanion {
             };
         }
         
-        const defaultMessage = currentWorld === 'dnd' ? "Uma raça intrigante para os Reinos!" : "Uma raça intrigante para Arton!";
+        let defaultMessage;
+        if (currentWorld === 'dnd') {
+            defaultMessage = "Uma raça intrigante para os Reinos!";
+        } else if (currentWorld === 'ordem-paranormal') {
+            defaultMessage = "Uma origem intrigante para a Ordem!";
+        } else {
+            defaultMessage = "Uma raça intrigante para Arton!";
+        }
+        
         this.speak(raceResponses[selectedRace] || defaultMessage);
         
         // Verificar combinações inesperadas após a mudança de raça
@@ -499,6 +553,12 @@ class MagoCompanion {
                 'Paladino': "Um paladino! Sua luz enfrenta as trevas.",
                 'Patrulheiro': "Um patrulheiro! A selva é sua aliada."
             };
+        } else if (currentWorld === 'ordem-paranormal') {
+            classResponses = {
+                'Combatente': "Um Combatente! Sua coragem enfrenta o horror físico!",
+                'Especialista': "Um Especialista! Sua mente desvenda os mistérios do Outro Lado.",
+                'Ocultista': "Um Ocultista! *sussurra* Cuidado, o conhecimento tem um preço terrível."
+            };
         } else { // Tormenta
             classResponses = {
                 'Arcanista': "Um arcanista! *limpa uma lágrima* Um irmão das artes mágicas!",
@@ -518,7 +578,15 @@ class MagoCompanion {
             };
         }
         
-        const defaultMessage = currentWorld === 'dnd' ? "Uma classe formidável para os Reinos!" : "Uma classe fascinante para Arton!";
+        let defaultMessage;
+        if (currentWorld === 'dnd') {
+            defaultMessage = "Uma classe formidável para os Reinos!";
+        } else if (currentWorld === 'ordem-paranormal') {
+            defaultMessage = "Uma classe formidável para a Ordem!";
+        } else {
+            defaultMessage = "Uma classe fascinante para Arton!";
+        }
+        
         this.speak(classResponses[selectedClass] || defaultMessage);
         
         // Verificar combinações inesperadas após a mudança de classe
@@ -844,6 +912,9 @@ class MagoCompanion {
      * Verifica alinhamentos inesperados para certas classes
      */
     checkUnexpectedAlignment(className, alignment, world) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = world || localStorage.getItem('selectedWorld') || 'dnd';
+        
         const unexpectedAlignments = {
             'dnd': {
                 'Paladino': {
@@ -892,18 +963,6 @@ class MagoCompanion {
                         "Um bardo caótico mau? *surpreso* Que música... perversa!",
                         "Bardo caótico mau? *curioso* Que canções malignas você entoa?",
                         "Um bardo caótico mau? *confuso* Que arte nas trevas você pratica?"
-                    ]
-                },
-                'Paladino': {
-                    'Caótico e Mau': [
-                        "Um paladino caótico mau? *confuso* Como isso funciona em Arton?",
-                        "Paladino caótico mau? *surpreso* Que contradição divina!",
-                        "Um paladino caótico mau? *curioso* Que ordem você segue?"
-                    ],
-                    'Leal e Mau': [
-                        "Um paladino mau leal? *pisca* Que justiça... sombria!",
-                        "Paladino mau leal? *curioso* Que deus do Pantheon você serve?",
-                        "Um paladino mau leal? *impressionado* Que disciplina nas trevas!"
                     ]
                 },
                 'Nobre': {
@@ -981,7 +1040,7 @@ class MagoCompanion {
             }
         };
         
-        const worldAlignments = unexpectedAlignments[world];
+        const worldAlignments = unexpectedAlignments[currentWorld];
         if (worldAlignments && worldAlignments[className] && worldAlignments[className][alignment]) {
             const responses = worldAlignments[className][alignment];
             const response = responses[Math.floor(Math.random() * responses.length)];
@@ -1016,6 +1075,18 @@ class MagoCompanion {
                 } else { // Neutros
                     response = "Equilíbrio é sábio, mas escolha um lado eventualmente.";
                 }
+            } else if (currentWorld === 'ordem-paranormal') {
+                if (alignment.includes('Bom') && alignment.includes('Leal')) {
+                    response = "Lealdade e bondade! A Ordem precisa de almas como você.";
+                } else if (alignment.includes('Bom') && alignment.includes('Caótico')) {
+                    response = "Coração rebelde, mas bom. Cuidado com a Produção do Anfitrião!";
+                } else if (alignment.includes('Mau') && alignment.includes('Leal')) {
+                    response = "Lealdade sombria... A Seita das Máscaras pensaria assim.";
+                } else if (alignment.includes('Mau') && alignment.includes('Caótico')) {
+                    response = "Caos e maldade? *recua* Não se torne um Transtornado!";
+                } else { // Neutros
+                    response = "Neutralidade pode ser sábia... ou perigosa indecisão.";
+                }
             } else { // Tormenta
                 if (alignment.includes('Mau')) {
                     response = "Hmmm... *suspeita* Não traga a Tormenta para minha torre!";
@@ -1049,6 +1120,12 @@ class MagoCompanion {
                 "*Murmura um encantamento* Que Tymora sorria para você!",
                 "Rolando os ossos do destino! Que Mystra ilumine seus atributos!"
             ];
+        } else if (currentWorld === 'ordem-paranormal') {
+            responses = [
+                "*Ativa C.R.I.S.* Calculando suas capacidades de agente...",
+                "Que a sorte determine seu potencial contra o Outro Lado!",
+                "*Sussurra* Que os elementos não influenciem estes dados..."
+            ];
         } else { // Tormenta
             responses = [
                 "*Agita as mãos* Que os dados de Nimb decidam seu destino!",
@@ -1066,6 +1143,8 @@ class MagoCompanion {
         let message;
         if (currentWorld === 'dnd') {
             message = "Sua lenda agora brilha nos anais de Faerûn!";
+        } else if (currentWorld === 'ordem-paranormal') {
+            message = "Seu agente foi registrado nos arquivos da Ordo Realitas!";
         } else {
             message = "Seu herói está pronto para desbravar Arton!"; // Ou uma fala mais específica de Tormenta
         }
@@ -1308,6 +1387,9 @@ class MagoCompanion {
      * @param {string} oldWorld - Mundo anterior (opcional)
      */
     reactToWorldChange(newWorld, oldWorld = null) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = newWorld || localStorage.getItem('selectedWorld') || 'dnd';
+        
         const worldChangeResponses = {
             'dnd': {
                 fromTormenta: [
@@ -1335,7 +1417,7 @@ class MagoCompanion {
                 fromOrdem: [
                     "Do paranormal para o fantástico! Arton te aguarda, herói!",
                     "De investigador para aventureiro? O Reinado precisa de você!",
-                    "Por Khalmyr! Dos horrores para as maravilhas de Arton!"
+                    "Por Veríssimo! Dos horrores para as maravilhas de Arton!"
                 ],
                 default: [
                     "Bem-vindo a Arton! Que Tanna-Toh te abençoe!",
@@ -1350,9 +1432,9 @@ class MagoCompanion {
                     "De Waterdeep para São Paulo? Que viagem... dimensional!"
                 ],
                 fromTormenta: [
-                    "De Arton para a realidade? Que transição... estranha!",
-                    "Por Khalmyr! Do Reinado para o paranormal?",
-                    "De Valkaria para São Paulo? Que mudança de... realidade!"
+                    "De Arton para a realidade? Esse portal deve ser fechado...",
+                    "Por Veríssimo! Do Reinado para o paranormal?",
+                    "De Valkaria para São Paulo? Espero que a Tormenta não venha junto!"
                 ],
                 default: [
                     "Bem-vindo à Ordo Realitas! Que Veríssimo te proteja!",
@@ -1363,10 +1445,10 @@ class MagoCompanion {
         };
 
         let responses;
-        if (oldWorld && worldChangeResponses[newWorld] && worldChangeResponses[newWorld][`from${oldWorld.charAt(0).toUpperCase() + oldWorld.slice(1)}`]) {
-            responses = worldChangeResponses[newWorld][`from${oldWorld.charAt(0).toUpperCase() + oldWorld.slice(1)}`];
-        } else if (worldChangeResponses[newWorld]) {
-            responses = worldChangeResponses[newWorld].default;
+        if (oldWorld && worldChangeResponses[currentWorld] && worldChangeResponses[currentWorld][`from${oldWorld.charAt(0).toUpperCase() + oldWorld.slice(1)}`]) {
+            responses = worldChangeResponses[currentWorld][`from${oldWorld.charAt(0).toUpperCase() + oldWorld.slice(1)}`];
+        } else if (worldChangeResponses[currentWorld]) {
+            responses = worldChangeResponses[currentWorld].default;
         } else {
             responses = ["Que mudança interessante de cenário!"];
         }
@@ -1378,7 +1460,7 @@ class MagoCompanion {
         // Apenas 30% das vezes para não sobrecarregar
         if (Math.random() < 0.3) {
             setTimeout(() => {
-                this.commentOnVisualChanges(newWorld);
+                this.commentOnVisualChanges(currentWorld);
             }, 8000); // Aumentado para 8 segundos
         }
     }
@@ -1388,6 +1470,9 @@ class MagoCompanion {
      * @param {string} world - Mundo atual
      */
     commentOnVisualChanges(world) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = world || localStorage.getItem('selectedWorld') || 'dnd';
+        
         const visualComments = {
             'dnd': [
                 "Observe como os pergaminhos agora brilham com a luz de Mystra!",
@@ -1395,19 +1480,19 @@ class MagoCompanion {
                 "Veja como a interface agora ecoa a grandiosidade de Faerûn!"
             ],
             'tormenta': [
-                "As cores agora refletem a diversidade de Arton!",
-                "Observe como a interface brilha com a luz de Tanna-Toh!",
-                "Veja como os elementos mudaram para honrar o Pantheon!"
+                "As cores agora refletem a tormenta que consome Arton!",
+                "Observe como a interface brilha com a força de Aharadak",
+                "Veja como a tormenta consome tudo que toca!"
             ],
             'ordem-paranormal': [
-                "A interface agora tem um toque... sobrenatural!",
+                "A interface agora está...fantasmagórica!",
                 "Observe como as cores refletem a fragilidade da Membrana!",
-                "Veja como tudo mudou para o estilo da Ordo Realitas!"
+                "A Ordem estaria orgulhosa dessa interface!"
             ]
         };
 
-        if (visualComments[world]) {
-            const comment = visualComments[world][Math.floor(Math.random() * visualComments[world].length)];
+        if (visualComments[currentWorld]) {
+            const comment = visualComments[currentWorld][Math.floor(Math.random() * visualComments[currentWorld].length)];
             this.speak(comment, 4000); // Aumentado para 4 segundos
         }
     }
@@ -1417,6 +1502,9 @@ class MagoCompanion {
      * @param {string} world - Mundo atual
      */
     adaptSpeechToWorld(world) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = world || localStorage.getItem('selectedWorld') || 'tormenta';
+        
         const speechAdaptations = {
             'dnd': {
                 greeting: "Pelos deuses!",
@@ -1438,7 +1526,7 @@ class MagoCompanion {
             }
         };
 
-        this.currentSpeechStyle = speechAdaptations[world] || speechAdaptations['tormenta'];
+        this.currentSpeechStyle = speechAdaptations[currentWorld] || speechAdaptations['tormenta'];
     }
 
     // 📚 FEEDBACK SOBRE HISTÓRIAS GERADAS
@@ -1502,6 +1590,8 @@ class MagoCompanion {
      * @param {string} world - Mundo atual
      */
     commentOnStoryElements(elements, world) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = world || localStorage.getItem('selectedWorld') || 'tormenta';
         const comments = [];
         
         // Comentários baseados em elementos específicos
@@ -1518,9 +1608,9 @@ class MagoCompanion {
         }
         
         if (elements.hasMagic) {
-            if (world === 'dnd') {
+            if (currentWorld === 'dnd') {
                 comments.push("A magia de Mystra flui em suas veias!");
-            } else if (world === 'tormenta') {
+            } else if (currentWorld === 'tormenta') {
                 comments.push("A magia de Tanna-Toh te escolheu!");
             } else {
                 comments.push("Há algo... sobrenatural em seu passado.");
@@ -1605,6 +1695,8 @@ class MagoCompanion {
      * @param {string} world - Mundo atual
      */
     suggestCharacterDevelopment(characterData, world) {
+        // Garantir que estamos usando o mundo correto
+        const currentWorld = world || localStorage.getItem('selectedWorld') || 'tormenta';
         const suggestions = [];
         
         // Sugestões baseadas na classe
@@ -1643,11 +1735,11 @@ class MagoCompanion {
         }
         
         // Sugestões específicas por mundo
-        if (world === 'dnd') {
+        if (currentWorld === 'dnd') {
             suggestions.push("Os Reinos Esquecidos são vastos. Considere especializar-se em uma região.");
-        } else if (world === 'tormenta') {
+        } else if (currentWorld === 'tormenta') {
             suggestions.push("Arton é diverso. Aprenda sobre as diferentes culturas do Reinado.");
-        } else if (world === 'ordem-paranormal') {
+        } else if (currentWorld === 'ordem-paranormal') {
             suggestions.push("O paranormal é imprevisível. Mantenha-se sempre preparado.");
         }
         

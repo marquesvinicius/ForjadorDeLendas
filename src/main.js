@@ -12,6 +12,7 @@ import { companionEvents } from './core/companionBridge.js';
 // Importações dos módulos de lógica
 import { 
   rollAllAttributes, 
+  rollAllAttributesForCurrentWorld,
   updateAttributeFields, 
   readAttributeFields 
 } from './logic/attributes.js';
@@ -29,6 +30,7 @@ import {
 import { renderCharactersList, highlightNewCard } from './ui/characterCards.js';
 import { openCharacterModal, getCurrentCharacterId, setCurrentCharacterId } from './ui/characterModal.js';
 import { MagoCompanion } from './ui/companion.js';
+import { setupAllAttributeValidation, updateAttributeValidation } from './ui/attributeValidation.js';
 
 /**
  * Classe principal da aplicação
@@ -63,6 +65,9 @@ class ForjadorApp {
     
     // Aguardar a verificação inicial da sessão antes de carregar personagens
     await this.waitForAuthCheck();
+    
+    // Configurar validação de atributos
+    setupAllAttributeValidation();
     
     await this.loadCharacters();
     this.setupModals();
@@ -299,7 +304,7 @@ class ForjadorApp {
    */
   rollAttributes() {
     try {
-      const attributes = rollAllAttributes();
+      const attributes = rollAllAttributesForCurrentWorld();
       updateAttributeFields(attributes);
       
       showMessage('Atributos rolados com sucesso!', 'is-success');

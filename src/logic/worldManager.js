@@ -3,6 +3,8 @@
  */
 
 import { getCurrentWorldConfig, getWorldConfig } from '../config/worldsConfig.js';
+import { getAttributeLimits } from './attributes.js';
+import { updateAttributeValidation } from '../ui/attributeValidation.js';
 
 /**
  * Atualiza as opções de raça baseadas no mundo atual
@@ -94,6 +96,34 @@ export function updateFieldLabels() {
 }
 
 /**
+ * Atualiza os limites dos campos de atributos baseado no mundo atual
+ */
+export function updateAttributeLimits() {
+    const currentWorld = localStorage.getItem('selectedWorld') || 'dnd';
+    const limits = getAttributeLimits(currentWorld);
+    
+    const attributeFields = [
+        'attrStr', 'attrDex', 'attrCon', 'attrInt', 'attrWis', 'attrCha'
+    ];
+    
+    attributeFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            element.min = limits.min;
+            element.max = limits.max;
+            
+            // Ajustar valor padrão se necessário
+            const currentValue = parseInt(element.value) || 10;
+            if (currentValue < limits.min) {
+                element.value = limits.min;
+            } else if (currentValue > limits.max) {
+                element.value = limits.max;
+            }
+        }
+    });
+}
+
+/**
  * Atualiza os rótulos dos atributos baseados no mundo atual
  */
 export function updateAttributeLabels() {
@@ -132,8 +162,13 @@ export function updateAttributeLabels() {
             }
         }
     });
+    
+    // Atualizar limites dos campos
+    updateAttributeLimits();
+    
+    // Atualizar validação dos campos
+    updateAttributeValidation();
 }
-
 
 
 /**
